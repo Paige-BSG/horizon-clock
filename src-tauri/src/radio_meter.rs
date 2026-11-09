@@ -12,7 +12,7 @@ impl Spectrum {
         let n = samples.len() as f32;
         let rms = (samples.iter().map(|x| x * x).sum::<f32>() / n).sqrt();
         if rms < 0.000001 {
-            return vec![0.0; 29];
+            return vec![0.0; 93];
         }
         self.peak = (self.peak * 0.995).max(rms);
         let energy = (rms / self.peak).clamp(0.0, 1.0);
@@ -33,6 +33,14 @@ impl Spectrum {
         let average = |start, end| bands[start..end].iter().sum::<f32>() / (end - start) as f32;
         let mut result = vec![rms, energy, average(0, 7), average(7, 16), average(16, 24)];
         result.extend(bands);
+        for chunk in samples.chunks(samples.len() / 64) {
+            let peak = chunk
+                .iter()
+                .copied()
+                .max_by(|a, b| a.abs().total_cmp(&b.abs()))
+                .unwrap_or(0.0);
+            result.push((peak / self.peak * 0.45).clamp(-1.0, 1.0));
+        }
         result
     }
 }
@@ -379,7 +387,7 @@ mod tests {
     }
     #[test]
     fn silence_has_no_synthetic_pulse() {
-        assert_eq!(Spectrum::new().analyse(&[0.0; 512]), vec![0.0; 29]);
+        assert_eq!(Spectrum::new().analyse(&[0.0; 512]), vec![0.0; 93]);
     }
     #[test]
     fn spectrum_distinguishes_bass_and_treble() {
@@ -392,8 +400,23 @@ mod tests {
     fn quiet_music_is_measured_and_levels_stay_finite() {
         let levels = Spectrum::new().analyse(&tone(400.0, 0.0001));
         assert!(levels[0] > 0.000001);
-        assert!(levels
+        assert!(levels[..29]
             .iter()
             .all(|n| n.is_finite() && *n >= 0.0 && *n <= 1.0));
+        assert!(levels[29..].iter().all(|n| n.is_finite() && n.abs() <= 1.0));
+    }
+}
+
+#[cfg(test)]
+mod waveform_tests {
+    use super::*;
+    #[test]
+    fn waveform_keeps_the_sign_and_time_order_of_real_samples() {
+        let mut samples = vec![0.1; 512];
+        samples[256..].fill(-0.1);
+        let values = Spectrum::new().analyse(&samples);
+        assert_eq!(values.len(), 93);
+        assert!(values[29..61].iter().all(|n| *n > 0.4));
+        assert!(values[61..].iter().all(|n| *n < -0.4));
     }
 }

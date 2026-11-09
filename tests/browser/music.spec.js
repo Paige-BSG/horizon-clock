@@ -299,18 +299,19 @@ test('silent audio has no invented beat and motion stops when paused or collapse
   await expect(panel).toHaveAttribute('data-animating', 'false');
   await page.getByRole('button', { name: '播放电台', exact: true }).click();
   await expect(page.locator('#music-status')).toHaveText('播放中');
-  await page.getByRole('button', { name: '开启粒子动效', exact: true }).click();
+  await page.getByRole('button', { name: '开启声纹动效', exact: true }).click();
   const before = Number(await panel.getAttribute('data-frames'));
   await expect
     .poll(async () => Number(await panel.getAttribute('data-frames')))
     .toBeGreaterThan(before + 4);
   expect(Number(await panel.getAttribute('data-audio-rms'))).toBe(0);
   expect(Number(await panel.getAttribute('data-energy'))).toBe(0);
-  await page.getByRole('button', { name: '暂停粒子动效', exact: true }).click();
+  expect(Number(await panel.getAttribute('data-wave-peak'))).toBe(0);
+  await page.getByRole('button', { name: '暂停声纹动效', exact: true }).click();
   const paused = await panel.getAttribute('data-frames');
   await page.waitForTimeout(120);
   expect(await panel.getAttribute('data-frames')).toBe(paused);
-  await page.getByRole('button', { name: '开启粒子动效', exact: true }).click();
+  await page.getByRole('button', { name: '开启声纹动效', exact: true }).click();
   await page.keyboard.press('Escape');
   const closed = await panel.getAttribute('data-frames');
   await page.waitForTimeout(120);
@@ -318,7 +319,9 @@ test('silent audio has no invented beat and motion stops when paused or collapse
   expect(await page.locator('#radio-stream').evaluate((a) => a.paused)).toBe(false);
 });
 
-test('particles follow decoded audio energy and settle when playback stops', async ({ page }) => {
+test('waveform follows decoded audio and becomes a straight line when muted or stopped', async ({
+  page,
+}) => {
   const tone = Buffer.from(audio);
   for (let i = 0; i < samples; i++) {
     const t = i / 8000,
@@ -330,10 +333,13 @@ test('particles follow decoded audio energy and settle when playback stops', asy
   await page.keyboard.press('m');
   await page.getByRole('button', { name: '播放电台', exact: true }).click();
   await expect(page.locator('#music-status')).toHaveText('播放中');
-  await page.getByRole('button', { name: '开启粒子动效', exact: true }).click();
+  await page.getByRole('button', { name: '开启声纹动效', exact: true }).click();
   await expect
     .poll(async () => Number(await page.locator('#music-panel').getAttribute('data-audio-rms')))
     .toBeGreaterThan(0.005);
+  await expect
+    .poll(async () => Number(await page.locator('#music-panel').getAttribute('data-wave-peak')))
+    .toBeGreaterThan(0.01);
   const values = [];
   for (let i = 0; i < 12; i++) {
     await page.waitForTimeout(80);
@@ -344,6 +350,7 @@ test('particles follow decoded audio energy and settle when playback stops', asy
   await expect
     .poll(async () => Number(await page.locator('#music-panel').getAttribute('data-energy')))
     .toBeLessThan(0.005);
+  expect(Number(await page.locator('#music-panel').getAttribute('data-wave-peak'))).toBe(0);
   await expect(page.locator('#music-analysis')).toBeHidden();
   await page.getByRole('button', { name: '停止电台', exact: true }).click();
   await expect
@@ -352,7 +359,7 @@ test('particles follow decoded audio energy and settle when playback stops', asy
   await expect(page.locator('#radio-stream')).toHaveCount(0);
 });
 
-test('playback and clock survive an unavailable particle canvas', async ({ page }) => {
+test('playback and clock survive an unavailable waveform canvas', async ({ page }) => {
   await page.addInitScript(() => {
     HTMLCanvasElement.prototype.getContext = function () {
       return null;
@@ -384,4 +391,16 @@ test('music clock fits the logical display when native viewport units differ und
     .evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
   expect(size).toBeLessThan(220);
   expect(size).toBeGreaterThan(180);
+});
+
+test('an idle waveform is a straight line and does not continuously redraw', async ({ page }) => {
+  await start(page);
+  await page.keyboard.press('m');
+  const panel = page.locator('#music-panel');
+  await expect(panel).toHaveAttribute('data-renderer', 'waveform');
+  await expect(panel).toHaveAttribute('data-wave-peak', '0');
+  await expect(panel).toHaveAttribute('data-animating', 'false');
+  const frames = await panel.getAttribute('data-frames');
+  await page.waitForTimeout(150);
+  expect(await panel.getAttribute('data-frames')).toBe(frames);
 });

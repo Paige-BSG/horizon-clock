@@ -6,8 +6,8 @@ Validation layers are separate. A browser test or successful executable build do
 
 | Layer                                        | Evidence / scope                                                                                                                                                                              |
 | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit regressions                             | `npm test`: 11 passing checks for settings validation/migration, backup boundaries, night schedules and overrides, weather parsing/units/expiry                                               |
-| Browser regressions                          | `npm run test:e2e`: 14 passing browser regressions covering first-run consent, midnight/year rollover, backgrounds, weather failures/timeouts/cache, backup, updates and eight viewport sizes |
+| Unit regressions                             | `npm test`: 14 passing checks for settings validation/migration, backup boundaries, night schedules and overrides, weather parsing/units/expiry                                               |
+| Browser regressions                          | `npm run test:e2e`: 23 passing browser regressions covering first-run consent, midnight/year rollover, backgrounds, weather failures/timeouts/cache, backup, updates and eight viewport sizes |
 | Real weather request                         | An actual Open-Meteo response for Shanghai was retrieved and parsed successfully; this is separate from mocked weather regressions                                                            |
 | Frontend distribution                        | `npm run build` produces the fixed asset set in `dist/`                                                                                                                                       |
 | Native compilation                           | Local macOS ARM64 `cargo check` and application bundle build succeeded; not Linux runtime proof                                                                                               |
@@ -17,6 +17,10 @@ Validation layers are separate. A browser test or successful executable build do
 | 72-hour soak and update/reinstall acceptance | Pending                                                                                                                                                                                       |
 
 The local macOS release build emitted a Rust toolchain symbol-stripping warning (`rust-objcopy` could not load `libLLVM.dylib`). The build exited successfully and produced the application bundle. This does not establish native runtime behavior. `cargo check` and `cargo clippy -- -D warnings` passed.
+
+## v0.2 personalization scope
+
+Browser regressions include photo import, actual Chromium-process restart recovery, deduplication, framing persistence, participation, invalid/spoofed inputs, EXIF removal, unavailable storage, capacity limits, slow-image selection races and temporary day/night previews. Personalization screenshots use only the repository’s existing licensed landscapes as sample imports; no personal photos were published. Native WebKitGTK picker, IndexedDB durability and resource usage still require Omarchy verification.
 
 ## Physical-device checklist
 

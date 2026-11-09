@@ -34,6 +34,51 @@ test('corrupt and unavailable storage recover to validated defaults', () => {
     DEFAULTS
   );
 });
+
+test('v1 backups migrate to independent night settings and v2 roundtrips them', () => {
+  const old = importSettings(
+    JSON.stringify({
+      app: 'horizon-clock',
+      schemaVersion: 1,
+      settings: { background: 'solid', scene: 'coast', dim: 55 },
+    }),
+    normalizeSettings()
+  );
+  assert.equal(old.nightBackground, 'solid');
+  assert.equal(old.nightScene, 'coast');
+  assert.equal(old.nightDim, 84);
+  const restored = importSettings(
+    exportSettings(
+      normalizeSettings({
+        nightBackground: 'solid',
+        nightBrightness: 18,
+        dayBrightness: 87,
+        nightDim: 92,
+      })
+    ),
+    normalizeSettings()
+  );
+  assert.equal(restored.nightBrightness, 18);
+  assert.equal(restored.dayBrightness, 87);
+  assert.equal(restored.nightDim, 92);
+  assert.equal(restored.nightBackground, 'solid');
+});
+
+test('malformed photo references and night-time arrays never enter settings', () => {
+  const invalid = normalizeSettings({ scene: ['photo:' + 'a'.repeat(64)], nightStart: ['23:00'] });
+  assert.equal(invalid.scene, 'lake');
+  assert.equal(invalid.nightStart, '22:00');
+  const valid = normalizeSettings({
+    scene: 'photo:' + 'a'.repeat(64),
+    nightBrightness: 0,
+    dayBrightness: 999,
+    nightDim: 200,
+  });
+  assert.equal(valid.scene, 'photo:' + 'a'.repeat(64));
+  assert.equal(valid.nightBrightness, 10);
+  assert.equal(valid.dayBrightness, 100);
+  assert.equal(valid.nightDim, 95);
+});
 test('old prototype preferences migrate without losing the accepted appearance', () => {
   const migrated = normalizeSettings({
     theme: 'amber',
@@ -82,7 +127,7 @@ test('backup roundtrip keeps machine integration and network consent on this dev
     '{}',
     'null',
     '[]',
-    '{"app":"horizon-clock","schemaVersion":2,"settings":{}}',
+    '{"app":"horizon-clock","schemaVersion":3,"settings":{}}',
   ])
     assert.throws(() => importSettings(value, current));
   assert.throws(() => importSettings(' '.repeat(65537), current));

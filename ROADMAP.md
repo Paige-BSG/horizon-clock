@@ -14,7 +14,13 @@
 
 These checkboxes describe implementation, not Omarchy physical-device qualification. See [validation](docs/VALIDATION.md).
 
-## 0.2 — Omarchy device qualification
+## 0.2 — Personalization and Omarchy device qualification
+
+- [x] Local photo import with per-photo framing, deduplication, persistence and participation controls.
+- [x] Independent day/night background sources, contrast and information brightness, with temporary in-settings previews.
+- [x] Versioned settings backups that accept v1 and v2; photos remain in the device library.
+
+Implementation has browser coverage. Native photo-picker/storage behavior and all device gates below remain pending.
 
 - [ ] Build and run the installed application on Omarchy 4.5 / Wayland, initially x86_64.
 - [ ] Verify touch targets, fullscreen entry/exit, app focus and landscape/portrait rendering at the panel's actual scaling.
@@ -35,4 +41,4 @@ These checkboxes describe implementation, not Omarchy physical-device qualificat
 
 ## Later candidates
 
-User photo collections, more cities/search, localization and additional operating systems. These are candidates, not committed features or support promises. No account, subscription or cloud control plane is required for the initial product.
+More cities/search, localization and additional operating systems. These are candidates, not committed features or support promises. No account, subscription or cloud control plane is required for the initial product.

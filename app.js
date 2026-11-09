@@ -1,3 +1,4 @@
+import { createBackgrounds } from './lib/backgrounds.js';
 import { SETTINGS_KEY as storageKey, readSettings } from './lib/settings.js';
 import { isDesktop, native } from './lib/desktop.js';
 import { effectiveNight, nextNightBoundary } from './lib/night.js';
@@ -10,23 +11,17 @@ import {
 
 const $ = (id) => document.getElementById(id);
 let preferences = readSettings({ getItem: (key) => localStorage.getItem(key) });
-const scenes = [
-  { id: 'lake', name: '湖畔晨雾', src: 'assets/landscapes/lake.jpg' },
-  { id: 'mountain', name: '群山之间', src: 'assets/landscapes/mountain.jpg' },
-  { id: 'coast', name: '蓝色潮汐', src: 'assets/landscapes/coast.jpg' },
-];
-if (!scenes.some((scene) => scene.id === preferences.scene)) preferences.scene = 'lake';
-if (!['solid', 'landscape'].includes(preferences.background)) preferences.background = 'landscape';
-if (![30, 60, 300, 900].includes(preferences.interval)) preferences.interval = 60;
-preferences.dim = Math.min(75, Math.max(35, Number(preferences.dim) || 45));
-let sceneRequest = 0;
-let activeLayer = null;
-let rotationTimer;
 let wakeLock = null;
 let nativeAwake = false;
 let toastTimer;
 let idleTimer;
 const dialog = $('settings-dialog');
+const backgrounds = createBackgrounds({
+  getSettings: () => preferences,
+  save,
+  toast,
+  applyNight: () => applyNight(preferences),
+});
 function save() {
   try {
     localStorage.setItem(storageKey, JSON.stringify(preferences));
@@ -58,76 +53,7 @@ function renderPreferences() {
   renderProductSettings(preferences);
 }
 function renderBackgroundControls() {
-  const landscape = preferences.background === 'landscape';
-  document.body.dataset.background = preferences.background;
-  document.body.style.setProperty('--background-dim', preferences.dim / 100);
-  $('background-next').hidden = !landscape;
-  $('landscape-settings').hidden = !landscape;
-  $('rotate-background').checked = preferences.rotate;
-  $('rotation-interval').value = preferences.interval;
-  $('rotation-interval').disabled = !preferences.rotate;
-  $('background-dim').value = preferences.dim;
-  $('dim-value').textContent = `${preferences.dim}%`;
-  document.querySelectorAll('.background-option').forEach((button) => {
-    const active = button.dataset.background === preferences.background;
-    button.classList.toggle('active', active);
-    button.setAttribute('aria-pressed', String(active));
-  });
-  document.querySelectorAll('.scene-option').forEach((button) => {
-    const active = button.dataset.scene === preferences.scene;
-    button.classList.toggle('active', active);
-    button.setAttribute('aria-pressed', String(active));
-  });
-  const index = scenes.findIndex((scene) => scene.id === preferences.scene);
-  document.querySelector('.footer-center').textContent =
-    landscape && activeLayer
-      ? `${scenes[index].name} · ${String(index + 1).padStart(2, '0')} / 03`
-      : 'MAKE ROOM FOR THE PRESENT.';
-}
-function scheduleRotation() {
-  clearTimeout(rotationTimer);
-  if (preferences.background === 'landscape' && preferences.rotate && !document.hidden) {
-    rotationTimer = setTimeout(() => {
-      if (document.querySelector('dialog[open]')) scheduleRotation();
-      else nextScene();
-    }, preferences.interval * 1000);
-  }
-}
-async function showScene(id, feedback = false) {
-  const scene = scenes.find((item) => item.id === id);
-  const request = ++sceneRequest;
-  clearTimeout(rotationTimer);
-  // Decode before swapping layers, so a missing or slow image never blanks the clock.
-  const preload = new Image();
-  preload.src = scene.src;
-  try {
-    await preload.decode();
-    if (request !== sceneRequest || preferences.background !== 'landscape') return;
-    const layer = activeLayer === $('landscape-a') ? $('landscape-b') : $('landscape-a');
-    layer.src = scene.src;
-    await layer.decode();
-    if (request !== sceneRequest || preferences.background !== 'landscape') return;
-    layer.classList.add('visible');
-    if (activeLayer) activeLayer.classList.remove('visible');
-    activeLayer = layer;
-    $('landscape-backdrop').classList.add('ready');
-    preferences.scene = scene.id;
-    renderBackgroundControls();
-    save();
-    if (feedback) toast(`已切换 · ${scene.name}`);
-  } catch {
-    if (request !== sceneRequest) return;
-    if (!activeLayer) {
-      preferences.background = 'solid';
-      renderBackgroundControls();
-    }
-    toast('这张风景未能加载，已保留当前背景。');
-  }
-  if (request === sceneRequest) scheduleRotation();
-}
-function nextScene() {
-  const index = scenes.findIndex((scene) => scene.id === preferences.scene);
-  return showScene(scenes[(index + 1) % scenes.length].id);
+  backgrounds.renderControls();
 }
 function selectSettingsTab(tab) {
   ['display', 'background', 'weather', 'system'].forEach((name) => {
@@ -136,6 +62,7 @@ function selectSettingsTab(tab) {
     $(`${name}-tab`).tabIndex = selected ? 0 : -1;
     $(`${name}-panel`).hidden = !selected;
   });
+  backgrounds.renderControls();
 }
 const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 const pad = (value) => String(value).padStart(2, '0');
@@ -146,7 +73,7 @@ function isoWeek(date) {
 }
 function updateClock() {
   const now = new Date();
-  applyNight(preferences, now);
+  backgrounds.syncDisplay();
   const hours = pad(now.getHours()),
     minutes = pad(now.getMinutes()),
     seconds = pad(now.getSeconds());
@@ -284,38 +211,6 @@ document.querySelector('.settings-tabs').addEventListener('keydown', (event) => 
   selectSettingsTab(tab);
   $(`${tab}-tab`).focus();
 });
-document.querySelectorAll('.background-option').forEach((button) =>
-  button.addEventListener('click', () => {
-    ++sceneRequest;
-    preferences.background = button.dataset.background;
-    renderBackgroundControls();
-    save();
-    if (preferences.background === 'landscape') showScene(preferences.scene);
-    else scheduleRotation();
-  })
-);
-document
-  .querySelectorAll('.scene-option')
-  .forEach((button) => button.addEventListener('click', () => showScene(button.dataset.scene)));
-$('background-next').addEventListener('click', () => {
-  nextScene();
-});
-$('rotate-background').addEventListener('change', (event) => {
-  preferences.rotate = event.target.checked;
-  renderBackgroundControls();
-  scheduleRotation();
-  save();
-});
-$('rotation-interval').addEventListener('change', (event) => {
-  preferences.interval = Number(event.target.value);
-  scheduleRotation();
-  save();
-});
-$('background-dim').addEventListener('input', (event) => {
-  preferences.dim = Number(event.target.value);
-  renderBackgroundControls();
-  save();
-});
 $('settings-close').addEventListener('click', () => dialog.close());
 $('settings-form').addEventListener('submit', (event) => {
   event.preventDefault();
@@ -371,7 +266,7 @@ $('keep-awake').addEventListener('change', async (event) => {
 });
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && preferences.awake) requestWakeLock();
-  scheduleRotation();
+  backgrounds.scheduleRotation();
 });
 document.addEventListener('keydown', (event) => {
   resetIdle();
@@ -396,7 +291,8 @@ document.addEventListener('keydown', (event) => {
     event.preventDefault();
     openSettings();
   }
-  if (event.key.toLowerCase() === 'b' && preferences.background === 'landscape') nextScene();
+  if (event.key.toLowerCase() === 'b' && document.body.dataset.background === 'landscape')
+    backgrounds.nextScene();
 });
 ['pointermove', 'pointerdown', 'focusin'].forEach((event) =>
   document.addEventListener(event, resetIdle, { passive: true })
@@ -410,11 +306,10 @@ initializeProduct({
   render: renderPreferences,
   save,
   toast,
-  showScene,
-  scheduleRotation,
+  refreshBackgrounds: backgrounds.refresh,
   requestWakeLock,
 });
-if (preferences.background === 'landscape') showScene(preferences.scene);
+backgrounds.syncDisplay(true);
 updateClock();
 if (preferences.awake) requestWakeLock();
 resetIdle();

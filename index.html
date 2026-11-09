@@ -307,6 +307,28 @@
           </div>
         </div>
         <div id="background-panel" role="tabpanel" aria-labelledby="background-tab" hidden>
+          <div class="profile-switch" role="group" aria-label="编辑显示时段">
+            <button type="button" data-period="day" class="active" aria-pressed="true">白天</button>
+            <button type="button" data-period="night" aria-pressed="false">夜间</button>
+          </div>
+          <p class="settings-note profile-note">
+            分别保存昼夜显示。在此预览，关闭设置后恢复当前时段。
+          </p>
+          <div class="settings-group">
+            <div class="range-label">
+              <label class="field-label" for="display-brightness">时间与信息亮度</label
+              ><output id="brightness-value" for="display-brightness">100%</output>
+            </div>
+            <input
+              id="display-brightness"
+              class="dim-slider"
+              type="range"
+              min="30"
+              max="100"
+              value="100"
+            />
+            <div class="range-captions"><span>柔和</span><span>明亮</span></div>
+          </div>
           <div class="settings-group">
             <span class="field-label" id="background-label">背景风格</span>
             <div class="background-options" role="group" aria-labelledby="background-label">
@@ -328,7 +350,14 @@
             </div>
           </div>
           <div id="landscape-settings">
-            <div class="settings-group">
+            <div class="collection-switch" role="group" aria-label="背景来源">
+              <button type="button" data-collection="builtin" class="active" aria-pressed="true">
+                精选风景</button
+              ><button type="button" data-collection="personal" aria-pressed="false">
+                个人相册
+              </button>
+            </div>
+            <div class="settings-group" id="builtin-scenes">
               <span class="field-label" id="scene-label">窗外的风景 <span>点击即可预览</span></span>
               <div class="scene-options" role="group" aria-labelledby="scene-label">
                 <button
@@ -355,10 +384,43 @@
                 </button>
               </div>
             </div>
+            <div id="personal-scenes" hidden>
+              <div class="album-heading">
+                <span id="photo-status">正在读取相册…</span
+                ><button type="button" class="secondary-button" id="photo-import">导入照片</button>
+              </div>
+              <input
+                id="photo-files"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                multiple
+                hidden
+              />
+              <p id="photo-empty" class="photo-empty">
+                让自己的风景，成为时间的背景。<br /><span>导入 JPG、PNG 或 WebP；最多 24 张。</span>
+              </p>
+              <div id="photo-list" class="photo-list" aria-label="个人相册"></div>
+              <div id="photo-position" class="settings-group" hidden>
+                <span class="field-label">调整选中照片的构图</span>
+                <div class="range-label">
+                  <label for="photo-x">左右位置</label
+                  ><output for="photo-x" id="photo-x-value">50%</output>
+                </div>
+                <input id="photo-x" class="dim-slider" type="range" min="0" max="100" value="50" />
+                <div class="range-label">
+                  <label for="photo-y">上下位置</label
+                  ><output for="photo-y" id="photo-y-value">50%</output>
+                </div>
+                <input id="photo-y" class="dim-slider" type="range" min="0" max="100" value="50" />
+              </div>
+              <p class="settings-note">
+                照片与轮换名单为昼夜共用，只保存在此设备；“移出”不会删除原文件。导入副本会缩小尺寸并移除原照片元数据。
+              </p>
+            </div>
             <div class="setting-row">
               <div>
                 <label for="rotate-background">自动更换风景</label>
-                <p>缓慢交叠切换。关闭后固定当前风景。</p>
+                <p>昼夜共用轮换开关与间隔。关闭后固定各自选图。</p>
               </div>
               <input id="rotate-background" class="switch" type="checkbox" checked />
             </div>
@@ -388,7 +450,7 @@
               <div class="range-captions"><span>风景更鲜明</span><span>时间更清楚</span></div>
             </div>
             <p class="settings-note landscape-note">
-              风景已保存在本地，断网也可显示。夜间显示会进一步压暗背景。
+              背景可离线显示。白天和夜间可分别选择风景、相册或纯色。
             </p>
           </div>
         </div>
@@ -445,11 +507,11 @@
               ><input type="file" id="import-file" accept="application/json,.json" hidden />
             </div>
             <p class="settings-note">
-              备份包含显示、背景和城市设置。常亮、自启动及天气联网选择保留本机状态。
+              备份包含昼夜显示、背景选择和城市设置，不包含照片文件。换设备后需重新导入相册。常亮、自启动及天气联网选择保留本机状态。
             </p>
           </div>
           <div class="settings-group about-app">
-            <span>HORIZON <b id="app-version">0.1.0-alpha.1</b></span
+            <span>HORIZON <b id="app-version">0.2.0-alpha.1</b></span
             ><button type="button" id="check-updates" class="secondary-button">检查更新</button>
             <p class="settings-note" id="update-status">
               开源环境时钟 · MIT。开发预览版，尚未完成 Omarchy 实机验收。

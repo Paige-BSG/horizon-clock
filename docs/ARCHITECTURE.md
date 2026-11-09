@@ -2,7 +2,7 @@
 
 ## Frontend
 
-Vanilla HTML, CSS and ECMAScript modules preserve the accepted visual design without introducing a UI framework. `app.js` owns clock rendering, landscapes and interaction. `lib/settings.js` validates and migrates preferences; `lib/night.js` owns local-time night scheduling; `lib/weather.js` parses provider data and validates cache. `lib/product.js` connects onboarding, weather, settings backup and release metadata checking to the interface.
+Vanilla HTML, CSS and ECMAScript modules preserve the accepted visual design without introducing a UI framework. `app.js` owns clock rendering and interaction. `lib/backgrounds.js` owns profile previews, image transitions, playlists and the album interface; `lib/photos.js` owns local IndexedDB storage and image normalization. `lib/settings.js` validates and migrates preferences; `lib/night.js` owns local-time night scheduling; `lib/weather.js` parses provider data and validates cache. `lib/product.js` connects onboarding, weather, settings backup and release metadata checking to the interface.
 
 `scripts/build.mjs` copies a fixed frontend file set into `dist/`. No source server, package manager or Node runtime is required by the installed app. Assets are local and embedded in the desktop distribution. `scripts/serve.mjs` is a loopback-only development server with an explicit file allowlist.
 
@@ -16,7 +16,8 @@ The frontend has no shell or arbitrary filesystem API. A restricted content poli
 
 ## State and networking
 
-- `horizon-display-v1`: validated preferences, keeping compatibility with the design prototype.
+- `horizon-display-v1`: validated preferences, keeping compatibility with the design prototype. v0.2 adds independent day/night background, dimming and information-brightness fields. JSON backups use schema version 2 and accept older version-1 files.
+- `horizon-photos-v1`: device-local IndexedDB library holding normalized JPEG copies, small thumbnails, enabled state and framing coordinates. File imports are sequential, deduplicated by SHA-256 of the source and capped at 24 photos / 64 MiB total; each input is limited to 20 MiB and 40 megapixels. Full copies are reduced to a maximum 2560-pixel edge. Canvas re-encoding strips the original metadata. No original path or raw file is retained. Settings backups contain references, not photo files. Library transactions enforce capacity across windows.
 - `horizon-weather-v1:<city>`: per-city weather snapshots, rejected after 24 hours or if malformed. Fetching occurs every 15 minutes while visible, with a 10-second timeout. Hidden pages stop periodic weather and scene work; resume checks the cache age.
 - Weather is opt-in. Only known, rounded city-center coordinates are sent to Open-Meteo. No GPS, accounts or telemetry.
 - Imports preserve the receiving device's network consent and awake state; native autostart is managed independently. Exports are JSON with an app identifier and schema version.

@@ -42,6 +42,21 @@ try {
   await page.keyboard.press('s');
   await page.getByRole('tab', { name: '背景', exact: true }).click();
   await page.screenshot({ path: 'docs/images/background-settings.png' });
+  await page
+    .locator('#photo-files')
+    .setInputFiles(['assets/landscapes/lake.jpg', 'assets/landscapes/mountain.jpg']);
+  await page.waitForSelector('.photo-card');
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await page.locator('#background-panel').evaluate((element) => {
+    element.scrollTop = 0;
+  });
+  await page.screenshot({ path: 'docs/images/personal-album.png' });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.getByRole('button', { name: '夜间', exact: true }).click();
+  await page.getByRole('button', { name: '纯色', exact: true }).click();
+  await page.screenshot({ path: 'docs/images/night-settings.png' });
+  await page.getByRole('button', { name: '白天', exact: true }).click();
+  await page.getByRole('button', { name: '精选风景', exact: true }).click();
   await page.getByRole('button', { name: '完成设置' }).click();
   await page.setViewportSize({ width: 800, height: 1280 });
   await page.screenshot({ path: 'docs/images/portrait.png' });

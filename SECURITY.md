@@ -2,7 +2,7 @@
 
 HORIZON has no account system, telemetry or analytics. Weather is off until enabled. If enabled, it sends only the selected city's rounded center coordinates to Open-Meteo; it never reads GPS. Network providers can still see the requesting IP address. Checking for updates contacts GitHub only when the user presses the button.
 
-Preferences and recent weather are stored on the device. The desktop frontend is embedded in the application. The development server listens on `127.0.0.1` and only serves frontend files; it is not a production or public hosting server.
+Preferences, recent weather and imported photo copies are stored on the device. Photos are never sent to the weather provider or GitHub. The importer accepts raster JPG/PNG/WebP after file-signature validation, applies file/pixel/library limits, re-encodes copies without original EXIF metadata and creates small thumbnails. Removing an entry deletes the library copy only, never its original file. Clearing the app/browser data can remove the library; settings JSON backups do not contain photos. The desktop frontend is embedded in the application. The development server listens on `127.0.0.1` and only serves frontend files; it is not a production or public hosting server.
 
 Native commands are limited to the local application window and specific fullscreen, autostart and awake operations. No arbitrary shell execution or filesystem commands are exposed. Keep-awake inhibitors are scoped to the application lifetime. HORIZON does not disable authentication, change global sleep policies, or install itself at login without a user's choice.
 

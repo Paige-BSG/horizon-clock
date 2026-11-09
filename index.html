@@ -203,7 +203,14 @@
 
       <footer class="footer">
         <span class="display-status"><i></i><span id="wake-status">常亮待开启</span></span
-        ><span class="footer-center">MAKE ROOM FOR THE PRESENT.</span
+        ><button
+          type="button"
+          class="footer-center"
+          id="image-source"
+          aria-label="查看背景作者与授权"
+        >
+          <span id="scene-caption">MAKE ROOM FOR THE PRESENT.</span
+          ><small id="scene-credit" hidden></small></button
         ><button
           class="night-button"
           id="night-toggle"
@@ -229,39 +236,27 @@
         </div>
       </div>
       <p class="picker-context" id="picker-context">正在设置白天 · 选好即用，自动保存</p>
+      <div class="online-gallery">
+        <div>
+          <strong>让风景自己更新</strong>
+          <p id="online-gallery-status" aria-live="polite">
+            21 张离线风景。开启后，每天从 Wikimedia Commons 检查并缓存新图。
+          </p>
+        </div>
+        <div class="online-gallery-actions">
+          <button
+            type="button"
+            class="secondary-button"
+            id="online-gallery-toggle"
+            aria-pressed="false"
+          >
+            开启在线更新</button
+          ><button type="button" id="online-gallery-refresh" hidden>立即检查</button>
+        </div>
+      </div>
       <div class="picker-content">
         <div class="picker-section-heading"><span>精选风景</span><span>点选后返回时钟</span></div>
-        <div class="quick-scene-grid" role="group" aria-label="选择背景">
-          <button
-            type="button"
-            class="quick-scene"
-            data-quick-scene="lake"
-            aria-label="使用湖畔晨雾"
-            aria-pressed="false"
-          >
-            <img src="assets/landscapes/lake.jpg" alt="" /><span>湖畔晨雾</span
-            ><svg><use href="#icon-check" /></svg>
-          </button>
-          <button
-            type="button"
-            class="quick-scene"
-            data-quick-scene="mountain"
-            aria-label="使用群山之间"
-            aria-pressed="false"
-          >
-            <img src="assets/landscapes/mountain.jpg" alt="" /><span>群山之间</span
-            ><svg><use href="#icon-check" /></svg>
-          </button>
-          <button
-            type="button"
-            class="quick-scene"
-            data-quick-scene="coast"
-            aria-label="使用蓝色潮汐"
-            aria-pressed="false"
-          >
-            <img src="assets/landscapes/coast.jpg" alt="" /><span>蓝色潮汐</span
-            ><svg><use href="#icon-check" /></svg>
-          </button>
+        <div id="quick-builtin-scenes" class="quick-scene-grid" role="group" aria-label="选择背景">
           <button
             type="button"
             class="quick-scene quick-solid"
@@ -313,6 +308,24 @@
       </div>
     </dialog>
 
+    <dialog id="photo-source-dialog" aria-labelledby="photo-source-title">
+      <div class="dialog-heading">
+        <div>
+          <div class="eyebrow">BEHIND THE VIEW</div>
+          <h1 id="photo-source-title">风景来源</h1>
+        </div>
+        <button type="button" class="icon-button" id="photo-source-close" aria-label="关闭风景来源">
+          <svg><use href="#icon-close" /></svg>
+        </button>
+      </div>
+      <p id="photo-source-artist"></p>
+      <p id="photo-source-license"></p>
+      <p id="photo-source-changes" class="settings-note"></p>
+      <div class="source-links">
+        <a id="photo-source-link" target="_blank" rel="noopener noreferrer">查看原图与作者 ↗</a
+        ><a id="photo-license-link" target="_blank" rel="noopener noreferrer">阅读使用许可 ↗</a>
+      </div>
+    </dialog>
     <dialog id="settings-dialog" aria-labelledby="settings-title">
       <form id="settings-form">
         <div class="dialog-heading">
@@ -466,30 +479,12 @@
             </div>
             <div class="settings-group" id="builtin-scenes">
               <span class="field-label" id="scene-label">窗外的风景 <span>点击即可预览</span></span>
-              <div class="scene-options" role="group" aria-labelledby="scene-label">
-                <button
-                  type="button"
-                  class="scene-option active"
-                  data-scene="lake"
-                  aria-pressed="true"
-                >
-                  <img src="assets/landscapes/lake.jpg" alt="" /><span>湖畔晨雾</span
-                  ><svg><use href="#icon-check" /></svg>
-                </button>
-                <button
-                  type="button"
-                  class="scene-option"
-                  data-scene="mountain"
-                  aria-pressed="false"
-                >
-                  <img src="assets/landscapes/mountain.jpg" alt="" /><span>群山之间</span
-                  ><svg><use href="#icon-check" /></svg>
-                </button>
-                <button type="button" class="scene-option" data-scene="coast" aria-pressed="false">
-                  <img src="assets/landscapes/coast.jpg" alt="" /><span>蓝色潮汐</span
-                  ><svg><use href="#icon-check" /></svg>
-                </button>
-              </div>
+              <div
+                id="builtin-scene-list"
+                class="scene-options"
+                role="group"
+                aria-labelledby="scene-label"
+              ></div>
             </div>
             <div id="personal-scenes" hidden>
               <div class="album-heading">

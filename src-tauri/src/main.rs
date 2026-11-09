@@ -3,7 +3,9 @@
 use std::sync::Mutex;
 use tauri::{Manager, WebviewWindow};
 use tauri_plugin_autostart::ManagerExt;
+use tauri_plugin_opener::OpenerExt;
 mod awake;
+mod photo_source;
 #[cfg(target_os = "linux")]
 mod wayland;
 
@@ -73,6 +75,14 @@ fn get_fullscreen(window: WebviewWindow) -> Result<bool, String> {
     window.is_fullscreen().map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn open_photo_source(app: tauri::AppHandle, url: String) -> Result<(), String> {
+    let checked = photo_source::validated(&url)?;
+    app.opener()
+        .open_url(checked, None::<&str>)
+        .map_err(|e| e.to_string())
+}
+
 fn main() {
     let builder = tauri::Builder::default();
     // Native automation is opt-in and absent from normal desktop builds.
@@ -94,13 +104,19 @@ fn main() {
                 .app_name("HORIZON")
                 .build(),
         )
+        .plugin(
+            tauri_plugin_opener::Builder::new()
+                .open_js_links_on_click(false)
+                .build(),
+        )
         .manage(AwakeState::default())
         .invoke_handler(tauri::generate_handler![
             set_keep_awake,
             set_autostart,
             get_autostart,
             set_fullscreen,
-            get_fullscreen
+            get_fullscreen,
+            open_photo_source
         ])
         .setup(|app| {
             if let Some(window) = app.get_webview_window("main") {

@@ -220,7 +220,7 @@ $('settings-form').addEventListener('submit', (event) => {
   event.preventDefault();
   dialog.close();
 });
-for (const modal of [dialog, $('background-picker')])
+for (const modal of [dialog, $('background-picker'), $('photo-source-dialog')])
   modal.addEventListener('click', (event) => {
     if (event.target === modal) {
       const r = modal.getBoundingClientRect();
@@ -235,6 +235,7 @@ for (const modal of [dialog, $('background-picker')])
   });
 dialog.addEventListener('close', resetIdle);
 $('background-picker').addEventListener('close', resetIdle);
+$('photo-source-dialog').addEventListener('close', resetIdle);
 document.querySelectorAll('.theme-option').forEach((button) =>
   button.addEventListener('click', () => {
     preferences.theme = button.dataset.color;

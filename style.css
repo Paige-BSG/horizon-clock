@@ -224,155 +224,53 @@ svg {
   width: 19px;
   height: 19px;
 }
-/* The listening room is an independent, full-screen composition. */
+/* Playback shares the main screen with the original clock and live information. */
+.clock-information {
+  display: contents;
+}
 .music-panel {
-  --radio-ink: #e9ece6;
-  --radio-muted: #9ca8a7;
-  --radio-accent: #c2d7ca;
-  --radio-warm: #bd9b75;
-  position: fixed;
-  inset: 0;
-  z-index: 20;
+  --radio-accent: #c4e5d7;
+  --radio-warm: #e3bb85;
   display: flex;
   flex-direction: column;
-  overflow: auto;
-  color: var(--radio-ink);
-  background: #05080b;
-  padding: clamp(24px, 4.5vh, 52px) 6%;
-  filter: brightness(var(--display-brightness, 1));
-  isolation: isolate;
-  animation: music-enter 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  min-width: 0;
+  padding-right: clamp(22px, 3vw, 48px);
+  border-right: 1px solid #c5dedc28;
+  align-self: stretch;
+  justify-content: center;
 }
 .music-panel[data-station='serenity'] {
-  --radio-accent: #99c9e9;
-  --radio-warm: #80c4b5;
+  --radio-accent: #9bd4ed;
+  --radio-warm: #b4a7ee;
 }
 .music-panel[data-station='main'] {
-  --radio-accent: #ecc0a8;
-  --radio-warm: #bb8fce;
-}
-.music-panel:focus {
-  outline: none;
+  --radio-accent: #e9bfa6;
+  --radio-warm: #dc8eb0;
 }
 .music-panel[hidden],
 .music-panel [hidden] {
   display: none;
 }
-body.music-visible {
-  overflow: hidden;
-}
-body.music-visible .clock-shell {
-  display: none;
-}
-.music-art {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-.music-header,
-.music-composition,
-.music-console,
-.music-footer {
-  position: relative;
-  z-index: 1;
-}
-.music-art canvas,
-.music-poster {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.music-poster {
-  opacity: 0.85;
-  width: min(78vh, 65vw);
-  height: auto;
-  aspect-ratio: 1;
-  left: 66%;
-  top: 48%;
-  transform: translate(-50%, -50%);
-  mix-blend-mode: screen;
-}
-.music-panel[data-renderer='webgl'] .music-poster {
-  visibility: hidden;
-}
-.music-panel[data-renderer='poster'] canvas {
-  visibility: hidden;
-}
-.music-header {
+.music-heading {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  gap: 20px;
 }
-.music-wordmark {
-  font:
-    400 17px PlexMono,
-    monospace;
-  letter-spacing: 5px;
+.music-heading .icon-button {
+  width: 32px;
+  height: 32px;
 }
-.music-wordmark span {
-  display: block;
-  color: var(--radio-muted);
-  font: 11px var(--font);
-  letter-spacing: 4px;
-  margin-top: 10px;
-}
-.music-header-right {
-  display: flex;
-  align-items: center;
-  gap: 38px;
-}
-#music-time {
-  color: #c5cfca;
-  font:
-    300 26px Plex,
-    sans-serif;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 2px;
-}
-.music-return {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  color: var(--radio-muted);
-  background: transparent;
-  border: 1px solid #ffffff1c;
-  border-radius: 30px;
-  padding: 13px 18px;
-  font: 12px var(--font);
-  min-height: 44px;
-}
-.music-return svg {
+.music-heading svg {
   width: 15px;
   height: 15px;
 }
-.music-return:hover {
-  color: var(--radio-ink);
-  border-color: #ffffff50;
-  background: #ffffff06;
-}
-.music-composition {
-  flex: 1;
-  min-height: 270px;
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.music-editorial {
-  padding-bottom: 2vh;
-  width: 35%;
-  z-index: 1;
-}
 .music-eyebrow {
   display: flex;
+  gap: 16px;
   align-items: center;
-  gap: 18px;
-  color: var(--radio-muted);
+  color: #a8bab7;
   font:
-    10px PlexMono,
+    9px PlexMono,
     monospace;
   letter-spacing: 2px;
 }
@@ -380,191 +278,159 @@ body.music-visible .clock-shell {
   color: var(--radio-warm);
 }
 .music-eyebrow i {
-  width: 38px;
+  width: 28px;
   height: 1px;
-  background: #a5b6b34a;
+  background: #91afa649;
+}
+.music-title-line {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  margin-top: 18px;
 }
 #music-title {
-  color: var(--radio-ink);
   font:
-    300 clamp(60px, 7vw, 104px)/1.25 'Songti SC',
+    300 clamp(30px, 3vw, 48px)/1.2 'Songti SC',
     'Noto Serif CJK SC',
-    'Source Han Serif SC',
     serif;
-  letter-spacing: 0.12em;
-  margin: 30px 0 16px -4px;
+  color: var(--text);
+  letter-spacing: 5px;
+  margin: 0;
 }
-.music-subtitle {
+#music-subtitle {
+  color: #a8bdb7;
   font:
-    300 clamp(22px, 2.2vw, 34px) Plex,
+    300 clamp(14px, 1.3vw, 20px) Plex,
     sans-serif;
   letter-spacing: 1px;
-  color: #c0cac5;
-  margin: 0;
+}
+.music-art {
+  position: relative;
+  width: 100%;
+  height: clamp(160px, 34vh, 340px);
+  min-height: 0;
+  margin: 10px 0 6px;
+}
+.music-art canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .music-state {
   display: flex;
+  gap: 8px;
   align-items: center;
-  gap: 9px;
-  margin-top: 36px;
-  font-size: 11px;
-  letter-spacing: 2px;
-  color: var(--radio-muted);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #9ab2ae;
+  min-height: 20px;
 }
 .music-state i {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
-  background: #697a78;
+  background: #69817c;
 }
 .music-panel[data-state='playing'] .music-state i {
   background: var(--radio-accent);
-  box-shadow: 0 0 12px var(--radio-accent);
+  box-shadow: 0 0 10px var(--radio-accent);
 }
-.music-panel[data-state='playing'] #music-status {
-  color: var(--radio-accent);
+#music-analysis {
+  font-size: 9px;
+  letter-spacing: 0;
+  margin-left: auto;
+  color: #ad9c88;
 }
 #music-help {
-  font-size: 12px;
-  line-height: 1.7;
-  color: #d2b39a;
-  max-width: 260px;
-  margin-top: 18px;
+  margin: 6px 0 0;
+  color: #d7b6a2;
+  font-size: 11px;
+  line-height: 1.6;
 }
-.music-art-caption {
-  position: absolute;
-  bottom: 44px;
-  right: 10%;
+.music-channels {
   display: flex;
-  gap: 18px;
-  align-items: center;
-  color: #7b908f;
-  font:
-    9px PlexMono,
-    monospace;
-  letter-spacing: 2px;
+  gap: 6px;
+  margin-top: 22px;
 }
-.music-art-caption span:last-child {
-  color: #c3c9bc;
-  font: 11px var(--font);
-  letter-spacing: 5px;
-  border-left: 1px solid #ffffff25;
-  padding-left: 18px;
+.music-channels button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+  background: #ffffff03;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #9db3ae;
+  font: 13px var(--font);
+  letter-spacing: 2px;
+  white-space: nowrap;
+  padding: 10px 8px;
+  transition:
+    background 0.3s,
+    color 0.3s,
+    border-color 0.3s;
+}
+.music-channels .channel-number {
+  color: #7b9590;
+  font:
+    8px PlexMono,
+    monospace;
+  letter-spacing: 0;
+}
+.music-channels button:hover {
+  color: var(--text);
+  background: #c2e5d909;
+}
+.music-channels button[aria-pressed='true'] {
+  color: var(--text);
+  border-color: #b3dbd24d;
+  background: linear-gradient(130deg, #c6f0e314, #a4cebd03);
+}
+.music-channels button[aria-pressed='true'] .channel-number {
+  color: var(--radio-accent);
 }
 .music-console {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 30px;
-  padding: 26px 0;
-  border-top: 1px solid #a5b6b32e;
-}
-.music-transport {
   display: flex;
   align-items: center;
-  gap: 18px;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 0 14px;
 }
 .music-play {
   display: grid;
   place-items: center;
-  width: 62px;
-  height: 62px;
   flex-shrink: 0;
+  width: 56px;
+  height: 56px;
   border: 1px solid #d8e4db66;
   border-radius: 50%;
   color: #10201c;
   background: linear-gradient(140deg, #e5ebe0, #a9c3b6);
   box-shadow:
     inset 0 1px 1px #ffffffa8,
-    0 5px 24px #0007;
-  transition:
-    transform 0.25s,
-    box-shadow 0.25s;
+    0 4px 22px #0005;
+  transition: transform 0.25s;
 }
 .music-play svg {
-  width: 22px;
-  height: 22px;
+  width: 21px;
+  height: 21px;
   stroke-width: 1.3;
 }
 .music-play:hover {
   transform: scale(1.05);
-  box-shadow:
-    inset 0 1px 1px #ffffffa8,
-    0 0 28px #c7dfc821;
-}
-.music-play:active {
-  transform: scale(0.97);
 }
 .music-play:disabled {
   opacity: 0.4;
   cursor: wait;
 }
-.music-transport-label {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.music-transport-label span:first-child {
-  font-size: 14px;
-  letter-spacing: 2px;
-  white-space: nowrap;
-}
-.music-transport-label span:last-child {
-  font:
-    8px PlexMono,
-    monospace;
-  letter-spacing: 2px;
-  color: var(--radio-muted);
-}
-.music-channels {
-  display: flex;
-  gap: 8px;
-}
-.music-channels button {
-  min-width: 100px;
-  min-height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 12px 18px;
-  background: #ffffff02;
-  border: 1px solid transparent;
-  border-radius: 5px;
-  color: var(--radio-muted);
-  font: 14px var(--font);
-  letter-spacing: 2px;
-  white-space: nowrap;
-  transition:
-    color 0.3s,
-    border-color 0.3s,
-    background 0.3s;
-}
-.music-channels .channel-number {
-  font:
-    9px PlexMono,
-    monospace;
-  color: #6e8381;
-  letter-spacing: 0;
-}
-.music-channels button:hover {
-  color: var(--radio-ink);
-  background: #ffffff05;
-}
-.music-channels button[aria-pressed='true'] {
-  color: var(--radio-ink);
-  border-color: #c2d7ca50;
-  background: linear-gradient(135deg, #c2d7ca10, #c2d7ca04);
-}
-.music-channels button[aria-pressed='true'] .channel-number {
-  color: var(--radio-accent);
-}
 .music-volume {
-  justify-self: end;
   display: flex;
   align-items: center;
   gap: 12px;
-  color: var(--radio-muted);
+  color: #98b1aa;
   font:
     10px PlexMono,
     monospace;
@@ -575,10 +441,9 @@ body.music-visible .clock-shell {
   height: 17px;
 }
 .music-volume input {
-  width: 92px;
+  width: clamp(65px, 8vw, 124px);
   height: 30px;
   accent-color: var(--radio-accent);
-  cursor: pointer;
 }
 #music-volume-value {
   min-width: 30px;
@@ -589,220 +454,282 @@ body.music-visible .clock-shell {
 }
 .music-footer {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  color: #869c98;
-  font-size: 10px;
-  gap: 20px;
-  padding-top: 10px;
+  align-items: center;
+  gap: 16px;
+  font-size: 9px;
 }
 #music-source {
-  color: #9baea9;
+  color: #91aaa2;
   text-decoration: none;
   padding: 10px 0;
 }
 #music-source:hover {
-  color: var(--radio-ink);
-}
-.music-footer-note {
-  font:
-    9px PlexMono,
-    var(--font);
-  letter-spacing: 2px;
+  color: var(--text);
 }
 .music-motion {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
+  padding: 10px 0;
   border: 0;
-  padding: 10px 0 10px 10px;
-  color: #9baea9;
   background: transparent;
-  font: 10px var(--font);
+  color: #91aaa2;
+  font: 9px var(--font);
 }
 .music-motion svg {
-  width: 13px;
-  height: 13px;
+  width: 12px;
+  height: 12px;
 }
-.music-panel :focus-visible {
-  outline: 2px solid var(--radio-accent);
-  outline-offset: 5px;
+body.music-visible .clock-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  column-gap: clamp(28px, 4vw, 64px);
+  height: calc(var(--app-vh, 1svh) * 100);
+  min-height: 0;
 }
-@keyframes music-enter {
-  from {
-    opacity: 0;
+body.music-visible .masthead,
+body.music-visible .footer {
+  grid-column: 1 / -1;
+}
+body.music-visible .music-panel {
+  grid-area: 2 / 1;
+}
+body.music-visible .clock-information {
+  grid-area: 2 / 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+body.music-visible .time-section {
+  margin-top: 0;
+  padding-top: 0;
+}
+body.music-visible .clock-face {
+  margin: 0;
+  min-height: 0;
+  padding: 14px 0 22px;
+  gap: 2vw;
+}
+body.music-visible .main-time {
+  font-size: clamp(110px, min(17vw, 27vh), 290px);
+}
+body.music-visible .seconds {
+  font-size: clamp(32px, 4.5vw, 72px);
+}
+body.music-visible .seconds-block {
+  margin-top: 8px;
+}
+body.music-visible .seconds-caption {
+  font-size: 7px;
+  letter-spacing: 1px;
+  margin-top: 5px;
+}
+body.music-visible .seconds-track {
+  margin-top: 10px;
+  width: 64px;
+}
+body.music-visible .timeline-labels {
+  margin-top: 8px;
+}
+body.music-visible .information {
+  padding: 28px 0 0;
+  gap: 26px;
+}
+body.music-visible .date-panel {
+  padding-right: 0;
+}
+body.music-visible .date-content,
+body.music-visible .weather-content {
+  padding-top: 16px;
+}
+body.music-visible .date-line {
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+body.music-visible .date-line > span:first-child {
+  font-size: clamp(24px, 2.5vw, 38px);
+}
+body.music-visible .weekday {
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+body.music-visible .date-secondary {
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: 9px;
+  letter-spacing: 0;
+}
+body.music-visible .weather-panel {
+  padding-left: 0;
+}
+body.music-visible .weather-panel:before {
+  display: none;
+}
+body.music-visible .weather-panel > .section-label {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+body.music-visible .weather-main {
+  gap: 10px;
+}
+body.music-visible .weather-art {
+  width: 42px;
+  height: 42px;
+}
+body.music-visible .temperature {
+  font-size: clamp(38px, 4vw, 60px);
+}
+body.music-visible .weather-description {
+  font-size: 12px;
+  letter-spacing: 0;
+  gap: 7px;
+  margin-left: 0;
+}
+body.music-visible .high-low {
+  font-size: 10px;
+}
+body.music-visible .weather-details {
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 14px;
+  font-size: 9px;
+}
+body.music-visible .weather-details > span {
+  gap: 4px;
+}
+body.music-visible .weather-details b {
+  margin-left: 0;
+}
+body.music-visible .label-cn {
+  display: none;
+}
+body.music-visible .label-index {
+  margin-right: 8px;
+}
+body.music-visible .section-label {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+}
+body.music-visible .landscape-backdrop {
+  opacity: 0.38;
+}
+@media (max-height: 680px) and (min-width: 741px) {
+  .music-art {
+    height: 27vh;
   }
-  to {
-    opacity: 1;
+  .music-title-line {
+    margin-top: 8px;
   }
-}
-@media (max-width: 1000px) {
-  .music-panel {
-    padding-left: 5%;
-    padding-right: 5%;
+  .music-channels {
+    margin-top: 12px;
   }
   .music-console {
-    gap: 18px;
+    padding: 14px 0 4px;
   }
-  .music-transport-label {
-    display: none;
+  .music-play {
+    width: 46px;
+    height: 46px;
   }
-  .music-volume input {
-    width: 70px;
-  }
-  .music-channels button {
-    min-width: 90px;
-    padding: 12px;
+  body.music-visible .information {
+    padding-top: 20px;
   }
 }
 @media (max-width: 740px) {
-  .music-poster {
-    left: 50%;
-    top: 50%;
-    width: 94vw;
-  }
-  .music-panel {
-    padding: 24px 6% 18px;
-  }
-  .music-header-right {
-    gap: 18px;
-  }
-  .music-wordmark {
-    font-size: 13px;
-    letter-spacing: 3px;
-  }
-  .music-wordmark span {
-    font-size: 9px;
-    letter-spacing: 3px;
-  }
-  #music-time {
-    font-size: 20px;
-  }
-  .music-return {
-    font-size: 0;
-    padding: 12px;
-  }
-  .music-return svg {
-    width: 16px;
-    height: 16px;
-  }
-  .music-composition {
-    min-height: 280px;
-    align-items: flex-start;
-  }
-  .music-editorial {
-    width: 100%;
-    padding-top: 32px;
+  body.music-visible .clock-shell {
+    height: auto;
+    min-height: calc(var(--app-vh, 1svh) * 100);
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr auto;
+    padding-top: 20px;
+    column-gap: 0;
   }
-  .music-eyebrow {
-    grid-column: 1 / -1;
-    font-size: 8px;
-    gap: 12px;
+  body.music-visible .clock-information {
+    grid-area: 2 / 1;
+    padding-top: 26px;
   }
-  .music-eyebrow i {
-    width: 22px;
+  body.music-visible .music-panel {
+    grid-area: 3 / 1;
+    margin-top: 24px;
+    padding: 20px 0 0;
+    border-right: 0;
+    border-top: 1px solid #c5dedc28;
   }
-  #music-title {
-    font-size: 46px;
-    margin: 15px 0 0;
+  body.music-visible .clock-face {
+    padding: 5px 0 12px;
+    gap: 14px;
   }
-  .music-subtitle {
-    grid-row: 3;
-    font-size: 20px;
-    margin-top: 7px;
+  body.music-visible .main-time {
+    font-size: clamp(90px, 25vw, 150px);
   }
-  .music-state {
-    grid-area: 2 / 2;
-    margin: 20px 0 0;
-    letter-spacing: 1px;
+  body.music-visible .seconds {
+    font-size: 34px;
   }
-  #music-help {
-    grid-column: 1 / -1;
-    margin-top: 10px;
+  body.music-visible .seconds-track {
+    width: 44px;
   }
-  .music-art-caption {
-    right: 0;
-    bottom: 18px;
-    font-size: 7px;
+  body.music-visible .information {
+    gap: 18px;
+    padding: 18px 0 0;
+    grid-template-columns: 1fr 1fr;
   }
-  .music-art-caption span:last-child {
-    font-size: 9px;
+  body.music-visible .date-content,
+  body.music-visible .weather-content {
+    padding-top: 10px;
   }
-  .music-console {
-    grid-template-columns: 1fr auto;
-    gap: 20px;
-    padding: 18px 0;
+  body.music-visible .date-line > span:first-child {
+    font-size: 24px;
   }
-  .music-channels {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    justify-content: space-between;
-    gap: 6px;
-  }
-  .music-channels button {
-    flex: 1;
-    min-width: 0;
-    min-height: 50px;
-    padding: 10px 8px;
-    font-size: 13px;
-    gap: 10px;
-  }
-  .music-play {
-    width: 52px;
-    height: 52px;
-  }
-  .music-volume input {
-    width: 90px;
-  }
-  .music-transport-label {
-    display: flex;
-  }
-  .music-transport-label span:first-child {
+  body.music-visible .weekday {
     font-size: 12px;
   }
-  .music-transport-label span:last-child {
+  body.music-visible .weather-art {
+    width: 30px;
+    height: 30px;
+  }
+  body.music-visible .temperature {
+    font-size: 36px;
+  }
+  body.music-visible .weather-main {
+    gap: 6px;
+  }
+  body.music-visible .weather-description {
+    font-size: 10px;
+  }
+  body.music-visible .date-secondary {
+    margin-top: 8px;
+    font-size: 8px;
+  }
+  body.music-visible .weather-details {
     display: none;
   }
-  .music-footer-note {
-    display: none;
+  body.music-visible .music-title-line {
+    margin-top: 8px;
   }
-  .music-footer {
-    padding-top: 0;
+  body.music-visible .music-heading {
+    position: relative;
   }
-}
-@media (max-height: 640px) and (min-width: 741px) {
-  .music-panel {
-    padding-top: 20px;
-    padding-bottom: 14px;
+  .music-art {
+    height: 150px;
+    margin: 0;
+  }
+  .music-channels {
+    margin-top: 12px;
   }
   .music-console {
-    padding: 15px 0;
+    padding: 14px 0 6px;
   }
-  .music-art-caption {
-    bottom: 20px;
+  .music-play {
+    width: 46px;
+    height: 46px;
   }
-  .music-editorial {
-    padding-bottom: 0;
+  .music-volume input {
+    width: 112px;
   }
-  #music-title {
-    font-size: 64px;
-    margin-top: 18px;
-  }
-  .music-state {
-    margin-top: 20px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .music-panel {
-    animation: none;
-  }
-  .music-panel * {
-    transition: none;
-  }
-}
-@media (max-width: 540px) {
   .toolbar .icon-button {
     width: 32px;
     height: 38px;
@@ -811,6 +738,11 @@ body.music-visible .clock-shell {
     gap: 9px;
     letter-spacing: 2px;
     font-size: 13px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .music-panel * {
+    transition: none;
   }
 }
 .time-section {
@@ -2883,46 +2815,4 @@ body.immersive {
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-@media (max-width: 740px) and (max-height: 650px) {
-  .music-panel {
-    padding-top: 16px;
-    padding-bottom: 12px;
-  }
-  .music-composition {
-    min-height: 140px;
-  }
-  .music-editorial {
-    padding-top: 18px;
-    padding-bottom: 0;
-  }
-  #music-title {
-    font-size: 34px;
-    margin-top: 10px;
-  }
-  .music-subtitle {
-    font-size: 16px;
-    margin-top: 4px;
-  }
-  .music-state {
-    margin-top: 15px;
-  }
-  .music-art-caption {
-    bottom: 10px;
-  }
-  .music-console {
-    padding: 12px 0;
-    gap: 12px;
-  }
-  .music-channels button {
-    min-height: 44px;
-  }
-  .music-transport-label {
-    display: none;
-  }
-  .music-play {
-    width: 46px;
-    height: 46px;
-  }
 }

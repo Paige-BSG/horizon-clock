@@ -6,6 +6,7 @@ use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_opener::OpenerExt;
 mod awake;
 mod photo_source;
+mod radio_meter;
 #[cfg(target_os = "linux")]
 mod wayland;
 
@@ -130,6 +131,19 @@ async fn check_radio_audio() -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+async fn set_radio_meter(enabled: bool, app: tauri::AppHandle) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        app.state::<radio_meter::RadioMeter>().set(enabled)
+    })
+    .await
+    .map_err(|_| "节奏分析已中断。".to_string())?
+}
+#[tauri::command]
+fn radio_audio_levels(meter: tauri::State<'_, radio_meter::RadioMeter>) -> Vec<f32> {
+    meter.read()
+}
+
 fn main() {
     let builder = tauri::Builder::default();
     // Native automation is opt-in and absent from normal desktop builds.
@@ -141,6 +155,7 @@ fn main() {
                 event,
                 tauri::WindowEvent::CloseRequested { .. } | tauri::WindowEvent::Destroyed
             ) {
+                window.state::<radio_meter::RadioMeter>().cancel();
                 if let Ok(mut guard) = window.state::<AwakeState>().0.lock() {
                     *guard = None;
                 }
@@ -157,6 +172,7 @@ fn main() {
                 .build(),
         )
         .manage(AwakeState::default())
+        .manage(radio_meter::RadioMeter::default())
         .invoke_handler(tauri::generate_handler![
             set_keep_awake,
             set_autostart,
@@ -165,7 +181,9 @@ fn main() {
             get_fullscreen,
             open_photo_source,
             open_radio_source,
-            check_radio_audio
+            check_radio_audio,
+            set_radio_meter,
+            radio_audio_levels
         ])
         .setup(|app| {
             if let Some(window) = app.get_webview_window("main") {

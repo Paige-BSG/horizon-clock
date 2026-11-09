@@ -300,7 +300,6 @@ document.addEventListener('keydown', (event) => {
     event.preventDefault();
     music.toggle();
   }
-  if (music.isOpen()) return;
   if (event.key.toLowerCase() === 's') {
     event.preventDefault();
     openSettings();

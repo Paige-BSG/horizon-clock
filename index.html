@@ -131,67 +131,43 @@
         </div>
       </header>
 
-      <section
-        id="music-panel"
-        class="music-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-label="网络电台"
-        tabindex="-1"
-        hidden
-      >
-        <div class="music-art" aria-hidden="true">
-          <img class="music-poster" src="assets/radio-sculpture.png" alt="" />
-          <canvas id="music-canvas"></canvas>
+      <section id="music-panel" class="music-panel" aria-label="网络电台" hidden>
+        <div class="music-heading">
+          <div class="music-eyebrow"><span id="music-index">01</span><i></i> RADIO PARADISE</div>
+          <button
+            type="button"
+            class="icon-button"
+            id="music-close"
+            aria-label="收起音乐控制"
+            title="收起播放器 · Esc"
+          >
+            <svg><use href="#icon-close" /></svg>
+          </button>
         </div>
-        <header class="music-header">
-          <div class="music-wordmark">HORIZON<span>听见此刻</span></div>
-          <div class="music-header-right">
-            <time id="music-time"></time>
-            <button
-              type="button"
-              class="music-return"
-              id="music-close"
-              aria-label="收起音乐控制"
-              title="返回时钟 · Esc"
-            >
-              返回时钟<svg><use href="#icon-close" /></svg>
-            </button>
-          </div>
-        </header>
-        <div class="music-composition">
-          <div class="music-editorial">
-            <div class="music-eyebrow"><span id="music-index">01</span><i></i> HORIZON RADIO</div>
-            <h1 id="music-title">舒缓</h1>
-            <p class="music-subtitle" id="music-subtitle">Mellow Mix</p>
-            <div class="music-state">
-              <i aria-hidden="true"></i><span id="music-status" role="status">未播放</span>
-            </div>
-            <p id="music-help" hidden></p>
-          </div>
-          <div class="music-art-caption" aria-hidden="true">
-            <span>THE SHAPE OF SOUND</span><span>音 · 形</span>
-          </div>
+        <div class="music-title-line">
+          <h1 id="music-title">舒缓</h1>
+          <span id="music-subtitle">Mellow Mix</span>
         </div>
+        <div class="music-art" aria-hidden="true"><canvas id="music-canvas"></canvas></div>
+        <div class="music-state">
+          <i aria-hidden="true"></i><span id="music-status" role="status">未播放</span
+          ><span id="music-analysis" hidden>节奏分析暂不可用</span>
+        </div>
+        <p id="music-help" hidden></p>
+        <div id="music-channels" class="music-channels" role="group" aria-label="电台频道"></div>
         <div class="music-console">
-          <div class="music-transport">
-            <button
-              type="button"
-              class="music-play"
-              id="music-toggle"
-              aria-label="播放电台"
-              title="播放电台"
-            >
-              <svg><use id="music-toggle-icon" href="#icon-play" /></svg>
-            </button>
-            <div class="music-transport-label">
-              <span id="music-action-label">开始聆听</span><span>RADIO PARADISE</span>
-            </div>
-          </div>
-          <div id="music-channels" class="music-channels" role="group" aria-label="电台频道"></div>
+          <button
+            type="button"
+            class="music-play"
+            id="music-toggle"
+            aria-label="播放电台"
+            title="播放电台"
+          >
+            <svg><use id="music-toggle-icon" href="#icon-play" /></svg>
+          </button>
           <label class="music-volume" title="电台音量"
-            ><svg aria-hidden="true"><use href="#icon-volume" /></svg>
-            <input
+            ><svg aria-hidden="true"><use href="#icon-volume" /></svg
+            ><input
               id="music-volume"
               type="range"
               min="0"
@@ -199,11 +175,10 @@
               step="1"
               value="30"
               aria-label="电台音量"
-            />
-            <span id="music-volume-value">30%</span>
-          </label>
+            /><span id="music-volume-value">30%</span></label
+          >
         </div>
-        <footer class="music-footer">
+        <div class="music-footer">
           <a
             id="music-source"
             aria-label="Radio Paradise 官方来源"
@@ -211,117 +186,118 @@
             rel="noopener noreferrer"
             title="查看电台官方来源"
             >Radio Paradise ↗</a
-          >
-          <span class="music-footer-note">LIVE RADIO · 无需登录</span>
-          <button
+          ><button
             type="button"
             class="music-motion"
             id="music-motion"
-            aria-label="暂停画面动效"
+            aria-label="暂停粒子动效"
             aria-pressed="false"
-            title="暂停画面动效"
+            title="暂停粒子动效"
           >
-            <svg><use href="#icon-pause" /></svg><span>画面动效</span>
+            <svg><use href="#icon-pause" /></svg><span>粒子动效</span>
           </button>
-        </footer>
-      </section>
-
-      <section class="time-section" aria-label="当前时间">
-        <div class="section-label">
-          <span
-            ><span class="label-index">01</span> LOCAL TIME
-            <span class="label-cn">本地时间</span></span
-          ><span id="timezone" class="timezone">UTC+09:00</span>
-        </div>
-        <div class="clock-face" role="timer" aria-live="off" aria-label="当前时间">
-          <div class="main-time">
-            <span id="hours">--</span><span class="colon" aria-hidden="true"><i></i><i></i></span
-            ><span id="minutes">--</span>
-          </div>
-          <div class="seconds-block" id="seconds-block">
-            <span class="seconds" id="seconds">--</span><span class="seconds-caption">SECONDS</span>
-            <div class="seconds-track"><i id="seconds-progress"></i></div>
-          </div>
-        </div>
-        <div class="timeline" aria-hidden="true">
-          <div class="timeline-fill" id="day-progress"></div>
-          <span class="timeline-marker" id="day-marker"></span><i class="tick t1"></i
-          ><i class="tick t2"></i><i class="tick t3"></i>
-        </div>
-        <div class="timeline-labels" aria-hidden="true">
-          <span>00:00</span><span class="day-caption" id="day-caption">A MOMENT IN TIME</span
-          ><span>24:00</span>
         </div>
       </section>
-
-      <div class="information">
-        <section class="date-panel" aria-label="当前日期">
+      <div class="clock-information">
+        <section class="time-section" aria-label="当前时间">
           <div class="section-label">
             <span
-              ><span class="label-index">02</span> CALENDAR <span class="label-cn">日历</span></span
-            >
+              ><span class="label-index">01</span> LOCAL TIME
+              <span class="label-cn">本地时间</span></span
+            ><span id="timezone" class="timezone">UTC+09:00</span>
           </div>
-          <div class="date-content">
-            <div class="date-line">
-              <span id="month-day">11月09日</span><span class="weekday" id="weekday">星期一</span>
+          <div class="clock-face" role="timer" aria-live="off" aria-label="当前时间">
+            <div class="main-time">
+              <span id="hours">--</span><span class="colon" aria-hidden="true"><i></i><i></i></span
+              ><span id="minutes">--</span>
             </div>
-            <div class="date-secondary">
-              <span id="year">2026</span><span class="small-divider"></span
-              ><span id="day-of-year">第 313 天</span><span class="small-divider"></span
-              ><span id="week-number">第 46 周</span>
+            <div class="seconds-block" id="seconds-block">
+              <span class="seconds" id="seconds">--</span
+              ><span class="seconds-caption">SECONDS</span>
+              <div class="seconds-track"><i id="seconds-progress"></i></div>
             </div>
+          </div>
+          <div class="timeline" aria-hidden="true">
+            <div class="timeline-fill" id="day-progress"></div>
+            <span class="timeline-marker" id="day-marker"></span><i class="tick t1"></i
+            ><i class="tick t2"></i><i class="tick t3"></i>
+          </div>
+          <div class="timeline-labels" aria-hidden="true">
+            <span>00:00</span><span class="day-caption" id="day-caption">A MOMENT IN TIME</span
+            ><span>24:00</span>
           </div>
         </section>
-        <section class="weather-panel" aria-label="当地天气">
-          <div class="section-label">
-            <span
-              ><span class="label-index">03</span> WEATHER <span class="label-cn">天气</span></span
-            ><span class="location"
-              ><svg><use href="#icon-pin" /></svg><span id="city-label">东京</span
-              ><span class="demo-badge" id="weather-status">未启用</span></span
-            >
-          </div>
-          <div class="weather-content">
-            <div class="weather-main">
-              <svg class="weather-art" viewBox="0 0 90 70" fill="none" aria-hidden="true">
-                <g class="sun-rays" id="weather-sun">
-                  <path d="M56 7V2m0 43v-5M34 23h-5m54 0h-5M40 8l-4-4m36 36-4-4M72 8l4-4" />
-                  <circle cx="56" cy="23" r="13" />
-                </g>
-                <path
-                  class="cloud"
-                  d="M25 59h38a13 13 0 0 0 0-26 18 18 0 0 0-34-3 15 15 0 1 0-4 29Z"
-                />
-                <g id="weather-rain" hidden><path d="m28 64-2 4m18-4-2 4m18-4-2 4" /></g>
-                <g id="weather-snow" hidden>
-                  <circle cx="28" cy="66" r="1" />
-                  <circle cx="44" cy="66" r="1" />
-                  <circle cx="60" cy="66" r="1" />
-                </g></svg
-              ><span class="temperature"
-                ><span id="temperature-value">--</span><span class="degree">°</span></span
+
+        <div class="information">
+          <section class="date-panel" aria-label="当前日期">
+            <div class="section-label">
+              <span
+                ><span class="label-index">02</span> CALENDAR
+                <span class="label-cn">日历</span></span
               >
-              <div class="weather-description">
-                <span id="weather-description">选择天气城市</span
-                ><span class="high-low"
-                  ><span id="weather-high">--°</span><span> / </span
-                  ><span id="weather-low">--°</span></span
+            </div>
+            <div class="date-content">
+              <div class="date-line">
+                <span id="month-day">11月09日</span><span class="weekday" id="weekday">星期一</span>
+              </div>
+              <div class="date-secondary">
+                <span id="year">2026</span><span class="small-divider"></span
+                ><span id="day-of-year">第 313 天</span><span class="small-divider"></span
+                ><span id="week-number">第 46 周</span>
+              </div>
+            </div>
+          </section>
+          <section class="weather-panel" aria-label="当地天气">
+            <div class="section-label">
+              <span
+                ><span class="label-index">03</span> WEATHER
+                <span class="label-cn">天气</span></span
+              ><span class="location"
+                ><svg><use href="#icon-pin" /></svg><span id="city-label">东京</span
+                ><span class="demo-badge" id="weather-status">未启用</span></span
+              >
+            </div>
+            <div class="weather-content">
+              <div class="weather-main">
+                <svg class="weather-art" viewBox="0 0 90 70" fill="none" aria-hidden="true">
+                  <g class="sun-rays" id="weather-sun">
+                    <path d="M56 7V2m0 43v-5M34 23h-5m54 0h-5M40 8l-4-4m36 36-4-4M72 8l4-4" />
+                    <circle cx="56" cy="23" r="13" />
+                  </g>
+                  <path
+                    class="cloud"
+                    d="M25 59h38a13 13 0 0 0 0-26 18 18 0 0 0-34-3 15 15 0 1 0-4 29Z"
+                  />
+                  <g id="weather-rain" hidden><path d="m28 64-2 4m18-4-2 4m18-4-2 4" /></g>
+                  <g id="weather-snow" hidden>
+                    <circle cx="28" cy="66" r="1" />
+                    <circle cx="44" cy="66" r="1" />
+                    <circle cx="60" cy="66" r="1" />
+                  </g></svg
+                ><span class="temperature"
+                  ><span id="temperature-value">--</span><span class="degree">°</span></span
+                >
+                <div class="weather-description">
+                  <span id="weather-description">选择天气城市</span
+                  ><span class="high-low"
+                    ><span id="weather-high">--°</span><span> / </span
+                    ><span id="weather-low">--°</span></span
+                  >
+                </div>
+              </div>
+              <div class="weather-details">
+                <span
+                  ><svg><use href="#icon-drop" /></svg>湿度
+                  <b><span id="weather-humidity">--</span><span>%</span></b></span
+                ><span
+                  ><svg><use href="#icon-wind" /></svg><span id="weather-direction">风速</span>
+                  <b><span id="weather-wind">--</span><span> km/h</span></b></span
                 >
               </div>
             </div>
-            <div class="weather-details">
-              <span
-                ><svg><use href="#icon-drop" /></svg>湿度
-                <b><span id="weather-humidity">--</span><span>%</span></b></span
-              ><span
-                ><svg><use href="#icon-wind" /></svg><span id="weather-direction">风速</span>
-                <b><span id="weather-wind">--</span><span> km/h</span></b></span
-              >
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
-
       <footer class="footer">
         <span class="display-status"><i></i><span id="wake-status">常亮待开启</span></span
         ><button

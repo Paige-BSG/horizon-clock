@@ -44,6 +44,12 @@ Only an autostart entry pointing at this exact installation is removed. Settings
 
 For a Linux AppImage build, use `npm run desktop:build` on Linux after installing the distribution prerequisites. The appimage target is configured, but a successful build is not the Omarchy runtime qualification or release acceptance.
 
+## Linux radio runtime
+
+Radio needs GStreamer's automatic audio output and MP3/AAC decoders in addition to the WebKitGTK build prerequisites. On Arch/Omarchy, the required packages are `gst-plugins-good` and `gst-libav`, matching the installed GStreamer version. Check with `gst-inspect-1.0 autoaudiosink`, `gst-inspect-1.0 mpg123audiodec` and `gst-inspect-1.0 avdec_aac`. Installing OS packages is a separate administrator action; the user-local installer does not do it.
+
+Opening the desktop radio bar runs a fixed, local `gst-inspect-1.0 autoaudiosink` check with a three-second limit. Playback stays disabled if it fails, so a missing audio-output plugin cannot take down the clock. Install the runtime components, then reopen the radio bar. The check makes no network request and never installs software.
+
 ## Other development systems
 
 ```sh

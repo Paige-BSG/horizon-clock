@@ -21,4 +21,4 @@ Radio Paradise 官方提供[供收音机和其他播放器使用的地址](https
 
 ## 平台与验证
 
-网页预览与桌面版使用同一套播放逻辑，无新增生产依赖。Linux 桌面实际解码能力由 WebKitGTK/GStreamer 提供。网络可达、媒体解码、界面状态和用户实际听到的声音是不同层面的验证，记录在 [VALIDATION.md](VALIDATION.md)。不保证任何外部直播服务始终在线；时钟本身在无网时仍可使用。
+网页预览与桌面版使用同一套播放逻辑，无新增 JavaScript 或 Rust 库依赖。Linux 桌面实际解码能力由 WebKitGTK/GStreamer 提供；需要 `gst-plugins-good` 与 `gst-libav` 等对应运行组件。展开电台时会先检查本机音频输出组件，缺失时禁用播放并显示提示。网络可达、媒体解码、界面状态和用户实际听到的声音是不同层面的验证，记录在 [VALIDATION.md](VALIDATION.md)。不保证任何外部直播服务始终在线；时钟本身在无网时仍可使用。

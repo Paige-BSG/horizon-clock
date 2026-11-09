@@ -31,6 +31,12 @@ async function start(page, preferences = {}, native = false) {
           core: {
             invoke: async (command, args) => {
               window.nativeCalls.push({ command, args });
+              if (
+                command === 'check_radio_audio' &&
+                native === 'missing' &&
+                !window.nativeAudioReady
+              )
+                throw new Error('Missing audio runtime');
               return false;
             },
           },
@@ -184,6 +190,25 @@ test('source uses a fixed native destination and stored invalid values are norma
       window.nativeCalls.filter((call) => call.command === 'open_radio_source')
     )
   ).toEqual([{ command: 'open_radio_source', args: {} }]);
+});
+
+test('a missing native audio runtime disables playback and can be checked again', async ({
+  page,
+}) => {
+  const requests = [];
+  await streams(page, (url) => requests.push(url));
+  await start(page, {}, 'missing');
+  await page.keyboard.press('m');
+  await expect(page.locator('#music-status')).toHaveText('设备音频暂不可用');
+  await expect(page.locator('#music-toggle')).toBeDisabled();
+  expect(requests).toEqual([]);
+  await expect(page.locator('#radio-stream')).toHaveCount(0);
+  await page.evaluate(() => {
+    window.nativeAudioReady = true;
+  });
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('m');
+  await expect(page.locator('#music-toggle')).toBeEnabled();
 });
 
 test('radio layout fits empty and playing states at desktop, scaled and narrow sizes', async ({

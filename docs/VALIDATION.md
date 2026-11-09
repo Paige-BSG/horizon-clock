@@ -113,3 +113,9 @@ Paige chose channel-based live music without local files, accounts or single-son
 - Frontend build, formatting/whitespace, locked macOS native check, two existing Rust source-link tests and all-target clippy with warnings denied passed. Desktop/narrow-screen screenshots were visually reviewed. No production dependency was added; music's native MPRIS commands and their direct serde/dev-zbus requirements were removed. Existing zbus remains for Linux awake behavior.
 
 Live Omarchy decoding, controls and final installation are recorded separately. The canceled 72-hour observer is to remain off.
+
+## Linux audio prerequisite guard — 2026-11-09
+
+The first real radio playback attempt exposed a missing system prerequisite: `autoaudiosink` was absent, and WebKit's media process terminated instead of returning a normal media error. The running installed clock was unaffected. With Paige's explicit approval, `gst-plugins-good` and `gst-libav`1.28.8-1 and seven missing dependencies were installed: nine new packages,4.27MiB downloaded,13.55MiB installed. No existing system packages were upgraded. Subsequent checks found automatic output, PulseAudio output, MP3 and AAC decoder elements.
+
+The desktop radio bar now checks the fixed local audio-output element before enabling Play. The inspection runs off the UI thread, takes no frontend arguments and is killed after three seconds if it stalls. Failure disables audio creation and shows a component message; reopening rechecks availability. This keeps a missing optional audio runtime from taking down the clock. Browser preflight tests cover failure, no media request/element and successful recheck. All53browser checks and28Node checks passed, along with frontend build, formatting and macOS all-target clippy. Linux build and real-stream results remain separate.

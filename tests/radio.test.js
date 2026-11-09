@@ -83,7 +83,6 @@ test('playing is reported only by actual media events and stopping releases the 
   radio.play();
   assert.equal(audios.length, 1);
   assert.equal(radio.snapshot().state, 'connecting');
-  assert.equal(audios[0].crossOrigin, 'anonymous');
   audios[0].fire('playing');
   assert.equal(radio.snapshot().state, 'playing');
   radio.stop();

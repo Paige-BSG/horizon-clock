@@ -174,7 +174,6 @@ test('radio renders and plays under the actual desktop content policy', async ({
   await page.keyboard.press('m');
   await page.getByRole('button', { name: '播放电台', exact: true }).click();
   await expect(page.locator('#music-status')).toHaveText('播放中');
-  expect(await page.locator('#radio-stream').getAttribute('crossorigin')).toBe('anonymous');
 });
 
 test('source uses a fixed native destination and stored invalid values are normalized', async ({

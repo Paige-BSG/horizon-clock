@@ -70,9 +70,15 @@ test('opening and choosing radio is offline until play, with no account or nativ
   await streams(page, (url) => requests.push(url));
   await start(page);
   await page.keyboard.press('m');
-  await expect(page.locator('#music-player')).toHaveValue('mellow');
-  await page.locator('#music-player').selectOption('serenity');
+  await expect(page.getByRole('button', { name: '舒缓', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
+  await page.getByRole('button', { name: '静谧', exact: true }).click();
   expect(requests).toEqual([]);
+  await expect(page.getByRole('group', { name: '电台频道' }).getByRole('button')).toHaveCount(3);
+  await expect(page.locator('#music-panel select')).toHaveCount(0);
+  await expect(page.locator('#music-help')).toBeHidden();
   await expect(page.getByRole('button', { name: '播放电台', exact: true })).toBeEnabled();
   await page.getByRole('button', { name: '播放电台', exact: true }).click();
   await expect(page.locator('#music-status')).toHaveText('播放中');
@@ -96,15 +102,21 @@ test('changing channels keeps one stream and volume survives reload without auto
   await page.locator('#music-volume').dispatchEvent('change');
   await page.getByRole('button', { name: '播放电台', exact: true }).click();
   await expect(page.locator('#music-status')).toHaveText('播放中');
-  await page.getByRole('button', { name: '下个频道', exact: true }).click();
-  await expect(page.locator('#music-player')).toHaveValue('serenity');
+  await page.getByRole('button', { name: '静谧', exact: true }).click();
+  await expect(page.getByRole('button', { name: '静谧', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
   await expect(page.locator('#music-status')).toHaveText('播放中');
   await expect(page.locator('#radio-stream')).toHaveCount(1);
   expect(await page.locator('#radio-stream').evaluate((el) => el.volume)).toBe(0.18);
   const before = requests.length;
   await page.reload();
   await page.keyboard.press('m');
-  await expect(page.locator('#music-player')).toHaveValue('serenity');
+  await expect(page.getByRole('button', { name: '静谧', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
   await expect(page.locator('#music-volume')).toHaveValue('18');
   await expect(page.locator('#music-status')).toHaveText('未播放');
   expect(requests.length).toBe(before);
@@ -181,7 +193,10 @@ test('source uses a fixed native destination and stored invalid values are norma
 }) => {
   await start(page, { station: 'https://bad.example', volume: 8 }, true);
   await page.keyboard.press('m');
-  await expect(page.locator('#music-player')).toHaveValue('mellow');
+  await expect(page.getByRole('button', { name: '舒缓', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
   await expect(page.locator('#music-volume')).toHaveValue('100');
   await page.locator('#music-source').click();
   expect(

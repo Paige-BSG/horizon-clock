@@ -49,7 +49,15 @@ async function start(page) {
     ({ key, value }) => {
       if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(value));
     },
-    { key: SETTINGS_KEY, value: normalizeSettings({ onboarded: true, rotate: false }) }
+    {
+      key: SETTINGS_KEY,
+      value: normalizeSettings({
+        weatherEnabled: false,
+        autoNight: false,
+        city: '东京',
+        rotate: false,
+      }),
+    }
   );
   await page.goto('/');
 }

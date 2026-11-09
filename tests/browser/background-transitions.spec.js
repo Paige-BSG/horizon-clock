@@ -6,7 +6,15 @@ test.use({ reducedMotion: 'no-preference' });
 async function start(page) {
   await page.addInitScript(
     ({ key, settings }) => localStorage.setItem(key, JSON.stringify(settings)),
-    { key: SETTINGS_KEY, settings: normalizeSettings({ onboarded: true, rotate: false }) }
+    {
+      key: SETTINGS_KEY,
+      settings: normalizeSettings({
+        weatherEnabled: false,
+        autoNight: false,
+        city: '东京',
+        rotate: false,
+      }),
+    }
   );
   await page.goto('/');
   await expect(page.locator('.landscape-layer.visible')).toHaveAttribute('src', /lake.jpg/);

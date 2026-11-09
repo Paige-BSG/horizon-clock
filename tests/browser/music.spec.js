@@ -44,7 +44,7 @@ async function start(page, preferences = {}, native = false) {
     },
     {
       key: SETTINGS_KEY,
-      settings: normalizeSettings({ onboarded: true }),
+      settings: normalizeSettings({ weatherEnabled: false, autoNight: false, city: '东京' }),
       radioKey: RADIO_KEY,
       preferences,
       native,

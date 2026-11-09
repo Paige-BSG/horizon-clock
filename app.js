@@ -47,7 +47,6 @@ function renderPreferences() {
   document.body.classList.toggle('hide-seconds', !preferences.seconds);
   $('show-seconds').checked = preferences.seconds;
   $('keep-awake').checked = preferences.awake;
-  $('city-label').textContent = preferences.city;
   $('city').value = preferences.city;
   document.querySelectorAll('.theme-option').forEach((button) => {
     const active = button.dataset.color === preferences.theme;

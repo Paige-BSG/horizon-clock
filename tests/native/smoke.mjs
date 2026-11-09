@@ -24,10 +24,14 @@ export default async function nativeSmoke() {
     $('hours').textContent === String(now.getHours()).padStart(2, '0'),
     $('hours').textContent
   );
-  check('welcome offline consent', $('welcome-dialog').open && !$('welcome-weather').checked);
-  $('welcome-city').value = '上海';
-  $('welcome-form').requestSubmit();
-  check('onboarding persisted', JSON.parse(localStorage.getItem('horizon-display-v1')).onboarded);
+  check(
+    'launch goes directly to clock',
+    !document.querySelector('dialog[open]') && !$('welcome-dialog')
+  );
+  check(
+    'startup defaults',
+    $('city').value === '自动定位' && $('weather-enabled').checked && $('auto-night').checked
+  );
   $('fullscreen').click();
   check(
     'native leave fullscreen',
@@ -45,11 +49,14 @@ export default async function nativeSmoke() {
     { height: innerHeight, content: document.documentElement.scrollHeight, scale: devicePixelRatio }
   );
   const before = Number(document.body.style.getPropertyValue('--display-brightness'));
+  const wasNight = $('night-toggle').getAttribute('aria-pressed') === 'true';
   $('night-toggle').click();
   await pause(1800);
   check(
-    'night mode dims information',
-    Number(document.body.style.getPropertyValue('--display-brightness')) < before,
+    'night toggle follows current local period',
+    wasNight
+      ? Number(document.body.style.getPropertyValue('--display-brightness')) > before
+      : Number(document.body.style.getPropertyValue('--display-brightness')) < before,
     { before, after: document.body.style.getPropertyValue('--display-brightness') }
   );
   $('night-toggle').click();
@@ -116,7 +123,9 @@ export default async function nativeSmoke() {
     !('awake' in exported.settings) && !('weatherEnabled' in exported.settings)
   );
   $('weather-tab').click();
-  $('weather-enabled').click();
+  $('city').value = '上海';
+  $('city').dispatchEvent(new Event('change', { bubbles: true }));
+  if (!$('weather-enabled').checked) $('weather-enabled').click();
   await until(() => $('weather-status').textContent.startsWith('更新'), 12000);
   check(
     'real weather response',

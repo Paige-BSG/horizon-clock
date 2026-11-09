@@ -2,6 +2,16 @@
 
 Validation layers are separate. A browser test or successful executable build does not prove Omarchy sleep behavior, physical readability or product acceptance.
 
+## Direct startup and system weather — 2026-11-09
+
+Fresh profiles open directly to the clock, with weather and the 22:00–07:00 automatic night schedule enabled. Weather defaults to the system geolocation API; manual cities remain available. Legacy onboarding flags are ignored. Existing explicit city and off-switch choices remain intact. Only rounded coordinates enter weather requests/local cache, and location is excluded from settings backups.
+
+- `npm run check`: 32 Node tests and frontend build passed. The full browser suite passed all 67 tests using the installed Chrome channel. New coverage includes direct startup, real browser geolocation with test coordinates, permission denial, bounded unanswered prompts, late callback cancellation, moved-location cache isolation, offline last-position labeling and preserved off choices.
+- A moved-position test initially exposed browser location-cache reuse. Requests now require a fresh position (`maximumAge: 0`), and the regression passes.
+- Local macOS `cargo test --locked` passed seven checks; all-target clippy with warnings denied and Rust formatting passed. Permission handling permits geolocation only in the local main clock webview. No dependency or system package changes were needed.
+- A fresh isolated browser profile with supplied Shanghai test coordinates obtained an actual Open-Meteo response. Both default switches were on and zero dialogs were open. `previews/startup-clock.png` and `previews/weather-location-settings.png` were visually inspected. The position was supplied by the test; this does not prove actual OS/device location acquisition.
+- The native smoke script now checks direct startup and current local night state. It was updated but has not been rerun on Omarchy for this revision. Installed application and public package remain unchanged; native geolocation and system policy/provider behavior remain pending target-device validation.
+
 ## Current UI and expanded gallery — 2026-11-09
 
 The main toolbar contains only music, fullscreen and settings. Background selection and next-image controls are in Settings → Background. Main-screen labels and settings copy are shorter. The gallery caches up to 24 online images plus up to two selected older images, with a 96 MiB storage bound and at most three concurrent downloads; network consent remains opt-in.

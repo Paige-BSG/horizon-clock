@@ -91,8 +91,8 @@ test('old prototype preferences migrate without losing the accepted appearance',
   assert.equal(migrated.dim, 63);
   assert.equal(migrated.background, 'solid');
   assert.equal(migrated.city, '上海');
-  assert.equal(migrated.weatherEnabled, false);
-  assert.equal(migrated.autoNight, false);
+  assert.equal(migrated.weatherEnabled, true);
+  assert.equal(migrated.autoNight, true);
 });
 test('night times and numeric limits normalize; unknown keys cannot cross the boundary', () => {
   const value = normalizeSettings(
@@ -113,7 +113,7 @@ test('backup roundtrip keeps machine integration and network consent on this dev
     weatherEnabled: true,
     seconds: false,
   });
-  const current = normalizeSettings({ onboarded: true });
+  const current = normalizeSettings({ weatherEnabled: false });
   const backup = exportSettings(source),
     result = importSettings(backup, current);
   assert.equal(result.theme, 'moon');
@@ -121,7 +121,7 @@ test('backup roundtrip keeps machine integration and network consent on this dev
   assert.equal(result.seconds, false);
   assert.equal(result.awake, false);
   assert.equal(result.weatherEnabled, false);
-  assert.equal(result.onboarded, true);
+  assert.equal(result.onboarded, undefined);
   assert.equal(JSON.parse(backup).settings.awake, undefined);
   for (const value of [
     '{}',
@@ -131,4 +131,21 @@ test('backup roundtrip keeps machine integration and network consent on this dev
   ])
     assert.throws(() => importSettings(value, current));
   assert.throws(() => importSettings(' '.repeat(65537), current));
+});
+
+test('new installs use system location, weather and scheduled night by default; saved switches remain off', () => {
+  const settings = normalizeSettings();
+  assert.equal(settings.city, '自动定位');
+  assert.equal(settings.weatherEnabled, true);
+  assert.equal(settings.autoNight, true);
+  assert.equal(settings.onboarded, undefined);
+  const existing = normalizeSettings({
+    weatherEnabled: false,
+    autoNight: false,
+    city: '上海',
+    onboarded: true,
+  });
+  assert.equal(existing.weatherEnabled, false);
+  assert.equal(existing.autoNight, false);
+  assert.equal(existing.city, '上海');
 });

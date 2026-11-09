@@ -27,7 +27,7 @@ try {
   });
   await page.addInitScript(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), {
     key: SETTINGS_KEY,
-    value: normalizeSettings({ onboarded: true }),
+    value: normalizeSettings({ weatherEnabled: false, autoNight: false, city: '东京' }),
   });
   await page.goto('http://127.0.0.1:5198');
   await page.evaluate(() => document.fonts.ready);

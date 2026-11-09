@@ -26,7 +26,7 @@ try {
     reducedMotion: 'reduce',
     timezoneId: 'Asia/Tokyo',
   });
-  const preferences = normalizeSettings({ onboarded: true, weatherEnabled: true });
+  const preferences = normalizeSettings({ autoNight: false, city: '东京', weatherEnabled: true });
   await page.addInitScript(
     ({ key, settings }) => localStorage.setItem(key, JSON.stringify(settings)),
     { key: SETTINGS_KEY, settings: preferences }

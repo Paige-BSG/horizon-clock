@@ -84,7 +84,7 @@ The optional `native-qa` Cargo feature adds an embedded WebDriver server on **12
 npm run desktop:build -- --no-bundle --features native-qa
 ```
 
-Launch that executable in the actual graphical session, with a **new, isolated** `XDG_DATA_HOME`, `XDG_CONFIG_HOME` and `XDG_CACHE_HOME`. Preserve the existing Wayland and session-bus environment. Do not reuse or clear a user's profile: the smoke check completes onboarding, imports a licensed test photo, enables Shanghai weather and toggles integration settings.
+Launch that executable in the actual graphical session, with a **new, isolated** `XDG_DATA_HOME`, `XDG_CONFIG_HOME` and `XDG_CACHE_HOME`. Preserve the existing Wayland and session-bus environment. Do not reuse or clear a user's profile: the smoke check verifies direct startup/default settings, imports a licensed test photo, selects Shanghai weather and toggles integration settings.
 
 ```sh
 node scripts/native-qa.mjs test tests/native/smoke.mjs result.json

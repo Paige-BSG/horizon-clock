@@ -637,13 +637,14 @@
           <div class="settings-group city-group">
             <label class="field-label" for="city">天气地点</label
             ><select id="city">
+              <option value="自动定位">系统定位</option>
               <option value="东京">东京</option>
               <option value="上海">上海</option>
               <option value="北京">北京</option>
               <option value="深圳">深圳</option>
               <option value="杭州">杭州</option>
             </select>
-            <p class="settings-note">仅发送城市中心坐标给 Open-Meteo，不读取 GPS。</p>
+            <p class="settings-note">系统定位仅用于天气，坐标保留两位小数后发送给 Open-Meteo。</p>
           </div>
           <div class="weather-settings-status">
             <span id="weather-detail-status">天气尚未启用。</span
@@ -689,39 +690,6 @@
           <span>快捷键 <kbd>F</kbd> 全屏 <kbd>N</kbd> 夜间</span
           ><button type="submit" class="done-button">完成设置</button>
         </div>
-      </form>
-    </dialog>
-    <dialog id="welcome-dialog" aria-labelledby="welcome-title">
-      <form id="welcome-form">
-        <div class="eyebrow">WELCOME TO HORIZON</div>
-        <h1 id="welcome-title">把此刻，留在你的空间。</h1>
-        <p class="welcome-copy">一眼看清时间，让风景陪伴日常。</p>
-        <div class="settings-group">
-          <label class="field-label" for="welcome-city">你想查看哪里的天气？</label
-          ><select id="welcome-city">
-            <option value="东京">东京</option>
-            <option value="上海">上海</option>
-            <option value="北京">北京</option>
-            <option value="深圳">深圳</option>
-            <option value="杭州">杭州</option>
-          </select>
-        </div>
-        <div class="setting-row">
-          <div>
-            <label for="welcome-weather">启用当地天气</label>
-            <p>仅发送城市中心坐标给 Open-Meteo。</p>
-          </div>
-          <input id="welcome-weather" class="switch" type="checkbox" />
-        </div>
-        <div class="setting-row">
-          <div>
-            <label for="welcome-night">夜间自动调暗</label>
-            <p>22:00 开始调暗，07:00 恢复。</p>
-          </div>
-          <input id="welcome-night" class="switch" type="checkbox" checked />
-        </div>
-        <p class="settings-note">不启用天气时，应用可完全离线使用。所有显示偏好保存在此设备。</p>
-        <button class="done-button welcome-start" type="submit">开始使用 <span>↗</span></button>
       </form>
     </dialog>
     <div class="toast" id="toast" role="status"></div>

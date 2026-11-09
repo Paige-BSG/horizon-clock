@@ -2370,40 +2370,11 @@ input[type='time'] {
 .about-app .settings-note {
   width: 100%;
 }
-.welcome-copy {
-  font-size: 13px;
-  line-height: 1.8;
-  color: var(--muted);
-  margin-top: 17px;
-}
-.welcome-start {
-  margin-top: 27px;
-  width: 100%;
-  font-size: 13px;
-  padding: 15px;
-}
-#welcome-dialog {
-  padding: 38px;
-}
-#welcome-dialog h1 {
-  font-size: 25px;
-  line-height: 1.5;
-  margin-top: 16px;
-}
-#welcome-dialog .settings-note {
-  margin-top: 18px;
-}
 .settings-tabs {
   justify-content: space-between;
   gap: 16px;
 }
 @media (max-width: 540px) {
-  #welcome-dialog {
-    padding: 28px;
-  }
-  #welcome-dialog h1 {
-    font-size: 22px;
-  }
   .weather-description {
     max-width: 100px;
   }

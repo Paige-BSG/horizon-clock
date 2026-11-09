@@ -5,6 +5,7 @@ use tauri::{Manager, WebviewWindow};
 use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_opener::OpenerExt;
 mod awake;
+mod location;
 mod photo_source;
 mod radio_meter;
 #[cfg(target_os = "linux")]
@@ -150,6 +151,10 @@ fn main() {
     #[cfg(feature = "native-qa")]
     let builder = builder.plugin(tauri_plugin_wdio_webdriver::init());
     builder
+        .on_permission_request(|webview, kind| {
+            let url = webview.url().ok();
+            location::permission(webview.label(), url.as_ref(), kind)
+        })
         .on_window_event(|window, event| {
             if matches!(
                 event,

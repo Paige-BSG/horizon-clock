@@ -2,11 +2,16 @@ import { test, expect } from '@playwright/test';
 import { normalizeSettings, SETTINGS_KEY, exportSettings } from '../../lib/settings.js';
 import { NOW, weatherFixture } from '../fixtures.js';
 
-async function start(page, preferences = {}, onboarded = true) {
+async function start(page, preferences = {}) {
   await page.clock.install({ time: new Date(NOW) });
   await page.addInitScript(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), {
     key: SETTINGS_KEY,
-    value: normalizeSettings({ onboarded, ...preferences }),
+    value: normalizeSettings({
+      weatherEnabled: false,
+      autoNight: false,
+      city: '东京',
+      ...preferences,
+    }),
   });
   await page.goto('/');
 }
@@ -15,23 +20,6 @@ async function settings(page, tab) {
   await page.getByRole('tab', { name: tab, exact: true }).click();
 }
 const api = '**/api.open-meteo.com/**';
-
-test('first launch is offline until weather is explicitly enabled', async ({ page }) => {
-  let requests = 0;
-  await page.route(api, (route) => {
-    requests++;
-    return route.fulfill({ json: weatherFixture() });
-  });
-  await start(page, {}, false);
-  await expect(page.getByRole('dialog', { name: '把此刻，留在你的空间。' })).toBeVisible();
-  expect(requests).toBe(0);
-  await page.locator('#welcome-city').selectOption('上海');
-  await page.locator('#welcome-weather').check();
-  await page.getByRole('button', { name: '开始使用' }).click();
-  await expect(page.locator('#temperature-value')).toHaveText('21');
-  await expect(page.locator('#city-label')).toHaveText('上海');
-  expect(requests).toBe(1);
-});
 
 test('clock crosses midnight and year boundaries using device local time', async ({ page }) => {
   await start(page);

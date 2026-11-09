@@ -44,6 +44,6 @@ Implementation has browser coverage and native Omarchy picker/storage checks. De
 ## Later candidates
 
 - [x] Optional account-free network radio, three official Radio Paradise streams, play/stop, channel selection, local volume preferences and bounded reconnection.
-- [ ] Verify live radio decoding and controls in the installed Omarchy build; no 72-hour observer is currently requested.
+- [x] Verify live radio decoding, direct channel switching and stop in the installed Omarchy build.
 
 More cities/search, localization and additional operating systems. These are candidates, not committed features or support promises. No account, subscription or cloud control plane is required for the initial product.

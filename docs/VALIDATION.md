@@ -131,3 +131,11 @@ Live QA transport validation reached Playing with real Mellow Mix audio at ready
 The three channels are now directly visible buttons with a selected state. The dropdown, redundant next-channel button and persistent explanatory paragraph were removed. Play/stop, volume, brief playback status and the provider source remain. A short help line appears only for an error or a blocked playback gesture. Desktop uses one row; narrow screens use two compact rows without wrapping channel labels.
 
 All53browser regressions,28Node checks, frontend build, formatting and whitespace checks passed. The updated nine radio regressions cover direct channel switching, three visible choices, absence of a dropdown or normal-state help, saved selection/volume, no autoplay, playback/recovery and seven viewport sizes. After a narrow-layout refinement, all nine radio checks passed again. Desktop and390pxscreenshots were visually inspected. Native deployment and live playback are recorded separately.
+
+## Installed radio and compact controls — 2026-11-09
+
+The normal Linux build from `fb66b25` compiled successfully and was atomically installed on Omarchy. Installed SHA256: `c9d4b263b0f91ba3f19c43558d49d58503e0a802114386e2a1956fa91d0594f3`. The previous `3b46887` normal binary remains available for rollback. No public push or release was performed.
+
+In the actual installed app, keyboard activation started Mellow Mix and switched directly to Serenity and Main Mix. Each channel displayed Playing and had a matching running PipeWire audio-output node under the clock application. These are live network streams, not test fixtures. Stop removed the running clock audio node. This verifies the software playback/output path, not a human listening assessment of the speakers. The final screen is stopped on Mellow at30%appvolume.
+
+Fresh1920×1080compositor screenshots were inspected for each live channel and the final stopped state. The compact single-row panel, clock, Shanghai weather, attribution and footer all fit the scaled full-screen display. The normal clock service remains active; no QA listener remains on4445. App data and system volume were preserved. Evidence is retained in the private handoff evidence directory.

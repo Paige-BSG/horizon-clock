@@ -1,306 +1,226 @@
 import { test, expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 import { normalizeSettings, SETTINGS_KEY } from '../../lib/settings.js';
+import { RADIO_KEY, STATIONS } from '../../lib/radio.js';
 
-const player = (id = 'netease', extra = {}) => ({
-  id: `org.mpris.MediaPlayer2.${id}`,
-  owner: id === 'netease' ? ':1.22' : ':1.23',
-  name: id === 'netease' ? '网易云音乐' : '另一个播放器',
-  title: '测试歌曲',
-  artist: '测试歌手',
-  status: 'Playing',
-  canToggle: true,
-  canPrevious: true,
-  canNext: true,
-  ...extra,
-});
-
-async function start(page, players = [player()], desktop = true) {
+// Silent PCM exercises the real browser decoder without playing music in tests.
+const samples = 8000 * 30;
+const audio = Buffer.alloc(44 + samples * 2);
+audio.write('RIFF');
+audio.writeUInt32LE(audio.length - 8, 4);
+audio.write('WAVEfmt ', 8);
+audio.writeUInt32LE(16, 16);
+audio.writeUInt16LE(1, 20);
+audio.writeUInt16LE(1, 22);
+audio.writeUInt32LE(8000, 24);
+audio.writeUInt32LE(16000, 28);
+audio.writeUInt16LE(2, 32);
+audio.writeUInt16LE(16, 34);
+audio.write('data', 36);
+audio.writeUInt32LE(samples * 2, 40);
+const stream = 'https://stream.radioparadise.com/**';
+async function start(page, preferences = {}, native = false) {
   await page.addInitScript(
-    ({ settingsKey, settings, initial, desktop }) => {
-      localStorage.setItem(settingsKey, JSON.stringify(settings));
-      window.mediaTest = { players: initial, calls: [], fail: false, failPoll: false, delay: 0 };
-      if (desktop)
+    ({ key, settings, radioKey, preferences, native }) => {
+      localStorage.setItem(key, JSON.stringify(settings));
+      if (!localStorage.getItem(radioKey))
+        localStorage.setItem(radioKey, JSON.stringify(preferences));
+      window.nativeCalls = [];
+      if (native)
         window.__TAURI__ = {
           core: {
-            async invoke(command, args) {
-              const state = window.mediaTest;
-              if (command === 'get_media_players') {
-                state.calls.push({ command });
-                const snapshot = structuredClone({ supported: true, players: state.players });
-                if (state.delay) await new Promise((resolve) => setTimeout(resolve, state.delay));
-                if (state.failPoll) throw new Error('test failure');
-                return snapshot;
-              }
-              if (command === 'control_media') {
-                state.calls.push({ command, ...args });
-                if (state.controlDelay)
-                  await new Promise((resolve) => setTimeout(resolve, state.controlDelay));
-                if (state.fail) throw new Error('test failure');
-                const target = state.players.find(
-                  (item) => item.id === args.player && item.owner === args.owner
-                );
-                if (!target) throw new Error('disconnected');
-                if (args.action === 'toggle')
-                  target.status = target.status === 'Playing' ? 'Paused' : 'Playing';
-                if (args.action === 'next') target.title = '下一首测试歌曲';
-                return;
-              }
-              if (command === 'get_autostart' || command === 'get_fullscreen') return false;
+            invoke: async (command, args) => {
+              window.nativeCalls.push({ command, args });
               return false;
             },
           },
         };
     },
     {
-      settingsKey: SETTINGS_KEY,
+      key: SETTINGS_KEY,
       settings: normalizeSettings({ onboarded: true }),
-      initial: players,
-      desktop,
+      radioKey: RADIO_KEY,
+      preferences,
+      native,
     }
   );
   await page.goto('/');
 }
+async function streams(page, count) {
+  await page.route(stream, (route) => {
+    count?.(route.request().url());
+    return route.fulfill({
+      body: audio,
+      contentType: 'audio/wav',
+      headers: { 'Access-Control-Allow-Origin': '*' },
+    });
+  });
+}
 
-test('controls stay on the clock, target the selected player, and read back state', async ({
+test('opening and choosing radio is offline until play, with no account or native player required', async ({
   page,
 }) => {
+  const requests = [];
+  await streams(page, (url) => requests.push(url));
   await start(page);
-  expect(await page.evaluate(() => window.mediaTest.calls)).toEqual([]);
-  await page.getByRole('button', { name: '音乐控制', exact: true }).click();
-  await expect(page.locator('#music-title')).toHaveText('测试歌曲');
-  await expect(page.locator('#music-artist')).toHaveText('测试歌手 · 网易云音乐');
-  await page.getByRole('button', { name: '暂停音乐', exact: true }).click();
-  await expect(page.locator('#music-status')).toHaveText('已暂停');
-  await page.getByRole('button', { name: '播放音乐', exact: true }).click();
-  await expect(page.locator('#music-status')).toHaveText('正在播放');
-  await page.getByRole('button', { name: '下一首', exact: true }).click();
-  await expect(page.locator('#music-title')).toHaveText('下一首测试歌曲');
-  await page.getByRole('button', { name: '上一首', exact: true }).click();
-  const commands = await page.evaluate(() =>
-    window.mediaTest.calls.filter((call) => call.command === 'control_media')
-  );
-  expect(commands.map((call) => call.action)).toEqual(['toggle', 'toggle', 'next', 'previous']);
+  await page.keyboard.press('m');
+  await expect(page.locator('#music-player')).toHaveValue('mellow');
+  await page.locator('#music-player').selectOption('serenity');
+  expect(requests).toEqual([]);
+  await expect(page.getByRole('button', { name: '播放电台', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: '播放电台', exact: true }).click();
+  await expect(page.locator('#music-status')).toHaveText('播放中');
+  expect(requests).toEqual([STATIONS[1].url]);
   expect(
-    commands.every(
-      (call) => call.player === 'org.mpris.MediaPlayer2.netease' && call.owner === ':1.22'
-    )
-  ).toBe(true);
-  await expect(page.locator('#hours')).not.toHaveText('--');
-  await expect(page.locator('dialog[open]')).toHaveCount(0);
+    await page.locator('#radio-stream').evaluate((el) => el.currentTime)
+  ).toBeGreaterThanOrEqual(0);
+  await page.getByRole('button', { name: '停止电台', exact: true }).click();
+  await expect(page.locator('#radio-stream')).toHaveCount(0);
+  await expect(page.locator('#music-status')).toHaveText('未播放');
 });
 
-test('multiple players require selection and losing a player never targets another', async ({
+test('changing channels keeps one stream and volume survives reload without autoplay', async ({
   page,
 }) => {
-  await start(page, [player(), player('browser')]);
+  const requests = [];
+  await streams(page, (url) => requests.push(url));
+  await start(page);
   await page.keyboard.press('m');
-  await expect(page.locator('#music-help')).toHaveText(/多个播放器/);
-  await expect(page.locator('#music-toggle')).toBeDisabled();
-  await page.locator('#music-player').selectOption('org.mpris.MediaPlayer2.netease|:1.22');
-  await expect(page.locator('#music-toggle')).toBeEnabled();
-  await page.evaluate(() => {
-    window.mediaTest.players.shift();
-  });
-  await expect(page.locator('#music-artist')).toHaveText('播放器已断开连接', { timeout: 6000 });
-  await expect(page.locator('#music-toggle')).toBeDisabled();
-  await page.locator('#music-player').selectOption('org.mpris.MediaPlayer2.browser|:1.23');
-  await page.getByRole('button', { name: '暂停音乐', exact: true }).click();
-  expect(
-    await page.evaluate(
-      () => window.mediaTest.calls.find((call) => call.command === 'control_media').player
-    )
-  ).toBe('org.mpris.MediaPlayer2.browser');
+  await page.locator('#music-volume').fill('18');
+  await page.locator('#music-volume').dispatchEvent('change');
+  await page.getByRole('button', { name: '播放电台', exact: true }).click();
+  await expect(page.locator('#music-status')).toHaveText('播放中');
+  await page.getByRole('button', { name: '下个频道', exact: true }).click();
+  await expect(page.locator('#music-player')).toHaveValue('serenity');
+  await expect(page.locator('#music-status')).toHaveText('播放中');
+  await expect(page.locator('#radio-stream')).toHaveCount(1);
+  expect(await page.locator('#radio-stream').evaluate((el) => el.volume)).toBe(0.18);
+  const before = requests.length;
+  await page.reload();
+  await page.keyboard.press('m');
+  await expect(page.locator('#music-player')).toHaveValue('serenity');
+  await expect(page.locator('#music-volume')).toHaveValue('18');
+  await expect(page.locator('#music-status')).toHaveText('未播放');
+  expect(requests.length).toBe(before);
 });
 
-test('capabilities disable unsupported actions and errors never claim success', async ({
+test('collapsing controls leaves intentional playback running and Escape restores focus', async ({
   page,
 }) => {
-  await start(page, [player('netease', { canNext: false, canPrevious: false })]);
-  await page.keyboard.press('m');
-  await expect(page.locator('#music-next')).toBeDisabled();
-  await expect(page.locator('#music-previous')).toBeDisabled();
-  await page.evaluate(() => {
-    window.mediaTest.fail = true;
-  });
-  await page.getByRole('button', { name: '暂停音乐', exact: true }).click();
-  await expect(page.locator('#toast')).toHaveText(/音乐控制未完成/);
-  await expect(page.locator('#music-status')).toHaveText('正在播放');
-  await expect(page.locator('#music-toggle')).toBeEnabled();
-});
-
-test('rapid repeated input sends only one command until readback completes', async ({ page }) => {
+  await streams(page);
   await start(page);
   await page.keyboard.press('m');
-  await expect(page.locator('#music-title')).toHaveText('测试歌曲');
-  await page.evaluate(() => {
-    window.mediaTest.controlDelay = 350;
-  });
-  await page.getByRole('button', { name: '暂停音乐', exact: true }).dblclick();
-  await expect(page.locator('#music-status')).toHaveText('已暂停');
-  expect(
-    await page.evaluate(
-      () => window.mediaTest.calls.filter((call) => call.command === 'control_media').length
-    )
-  ).toBe(1);
-});
-
-test('an older in-flight poll cannot overwrite command readback', async ({ page }) => {
-  await start(page);
-  await page.keyboard.press('m');
-  await expect(page.locator('#music-title')).toHaveText('测试歌曲');
-  await page.evaluate(() => {
-    window.mediaTest.delay = 500;
-  });
-  await page.waitForFunction(
-    () => window.mediaTest.calls.filter((call) => call.command === 'get_media_players').length > 1
-  );
-  await page.getByRole('button', { name: '下一首', exact: true }).click();
-  await expect(page.locator('#music-title')).toHaveText('下一首测试歌曲');
-  await expect(page.locator('#music-toggle')).toBeEnabled();
-});
-
-test('browser preview explains desktop requirement without fake controls', async ({ page }) => {
-  await start(page, [], false);
-  await page.keyboard.press('m');
-  await expect(page.locator('#music-help')).toHaveText(/浏览器预览无法控制/);
-  await expect(page.locator('#music-toggle')).toBeDisabled();
-});
-
-test('no player and reconnection stay honest, including a changed process owner', async ({
-  page,
-}) => {
-  await start(page, []);
-  await page.keyboard.press('m');
-  await expect(page.locator('#music-help')).toHaveText(/同一台设备/);
-  await expect(page.locator('#music-toggle')).toBeDisabled();
-  await page.evaluate((p) => {
-    window.mediaTest.players = [p];
-  }, player());
-  await expect(page.locator('#music-title')).toHaveText('测试歌曲', { timeout: 6000 });
-  await page.evaluate(() => {
-    window.mediaTest.players[0].owner = ':1.99';
-  });
-  await expect(page.locator('#music-artist')).toHaveText('播放器已断开连接', { timeout: 6000 });
-  await expect(page.locator('#music-toggle')).toBeDisabled();
-  await page.locator('#music-player').selectOption('org.mpris.MediaPlayer2.netease|:1.99');
-  await expect(page.locator('#music-toggle')).toBeEnabled();
-  await page.locator('#music-player').focus();
-  await page.keyboard.press('Escape');
-  await expect(page.locator('#music-panel')).toBeHidden();
-});
-
-test('a closed or hidden panel stops polling and discards late results', async ({ page }) => {
-  await start(page);
-  await page.keyboard.press('m');
-  await expect(page.locator('#music-title')).toHaveText('测试歌曲');
-  await page.evaluate(() => {
-    window.mediaTest.delay = 500;
-  });
-  await page.getByRole('button', { name: '收起音乐控制' }).click();
-  const calls = await page.evaluate(() => window.mediaTest.calls.length);
-  await page.waitForTimeout(3300);
-  expect(await page.evaluate(() => window.mediaTest.calls.length)).toBe(calls);
-  await expect(page.locator('#music-panel')).toBeHidden();
-  await page.keyboard.press('m');
-  await page.evaluate(() => {
-    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' });
-    document.dispatchEvent(new Event('visibilitychange'));
-  });
-  await page.waitForTimeout(600);
-  const hiddenCalls = await page.evaluate(() => window.mediaTest.calls.length);
-  await page.waitForTimeout(3300);
-  expect(await page.evaluate(() => window.mediaTest.calls.length)).toBe(hiddenCalls);
-  await page.evaluate(() => {
-    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
-    window.mediaTest.players[0].title = '恢复后的歌曲';
-    document.dispatchEvent(new Event('visibilitychange'));
-  });
-  await expect(page.locator('#music-title')).toHaveText('恢复后的歌曲');
+  await page.getByRole('button', { name: '播放电台', exact: true }).click();
+  await expect(page.locator('#music-status')).toHaveText('播放中');
   await page.keyboard.press('Escape');
   await expect(page.locator('#music-panel')).toBeHidden();
   await expect(page.locator('#music-open')).toBeFocused();
-});
-
-test('empty music controls keep the footer inside the clock viewport', async ({ page }) => {
-  await start(page, []);
+  expect(await page.locator('#radio-stream').evaluate((el) => el.paused)).toBe(false);
   await page.keyboard.press('m');
-  await expect(page.locator('#music-help')).toBeVisible();
-  for (const [width, height] of [
-    [1408, 792],
-    [1280, 720],
-    [390, 844],
-  ]) {
-    await page.setViewportSize({ width, height });
-    await page.waitForFunction(
-      ({ width, height }) =>
-        parseFloat(document.documentElement.style.getPropertyValue('--app-vw')) === width / 100 &&
-        parseFloat(document.documentElement.style.getPropertyValue('--app-vh')) === height / 100,
-      { width, height }
-    );
-    expect(
-      await page.evaluate(() => [
-        document.documentElement.scrollWidth,
-        document.documentElement.scrollHeight,
-      ]),
-      `${width}x${height}`
-    ).toEqual([width, height]);
-    await expect(page.locator('#night-toggle')).toBeInViewport({ ratio: 1 });
-  }
+  await expect(page.locator('#music-status')).toHaveText('播放中');
 });
 
-test('connection failures disable stale controls and recover automatically', async ({ page }) => {
-  await start(page);
-  await page.keyboard.press('m');
-  await expect(page.locator('#music-title')).toHaveText('测试歌曲');
-  await page.evaluate(() => {
-    window.mediaTest.failPoll = true;
-  });
-  await expect(page.locator('#music-artist')).toHaveText('暂时无法连接系统媒体服务', {
-    timeout: 6000,
-  });
-  await expect(page.locator('#music-toggle')).toBeDisabled();
-  await page.evaluate(() => {
-    window.mediaTest.failPoll = false;
-  });
-  await expect(page.locator('#music-title')).toHaveText('测试歌曲', { timeout: 6000 });
-});
-
-test('long metadata is text only and music fits desktop, scaled and mobile layouts', async ({
+test('failed connections are reported and stopping cancels automatic recovery', async ({
   page,
 }) => {
-  await start(page, [
-    player('netease', {
-      title: '<img src=x onerror=alert(1)>' + '长歌名'.repeat(100),
-      artist: '长歌手名'.repeat(100),
-    }),
-  ]);
+  let requests = 0;
+  await page.route(stream, (route) => {
+    requests++;
+    return route.abort();
+  });
+  await start(page);
+  await page.clock.install();
   await page.keyboard.press('m');
-  await expect(page.locator('#music-title')).toHaveText(/<img/);
-  await expect(page.locator('#music-title img')).toHaveCount(0);
-  for (const [width, height] of [
-    [1440, 900],
-    [1280, 800],
-    [1280, 720],
-    [1408, 792],
-    [800, 1280],
-    [390, 844],
-    [360, 740],
-  ]) {
-    await page.setViewportSize({ width, height });
-    await page.waitForFunction(
-      ({ width, height }) =>
-        parseFloat(document.documentElement.style.getPropertyValue('--app-vw')) === width / 100 &&
-        parseFloat(document.documentElement.style.getPropertyValue('--app-vh')) === height / 100,
-      { width, height }
-    );
-    expect(
-      await page.evaluate(() => [
-        document.documentElement.scrollWidth,
-        document.documentElement.scrollHeight,
-      ]),
-      `${width}x${height}`
-    ).toEqual([width, height]);
-    await expect(page.locator('#music-toggle')).toBeInViewport();
-    await expect(page.locator('#night-toggle')).toBeInViewport();
+  await page.getByRole('button', { name: '播放电台', exact: true }).click();
+  await expect(page.locator('#music-status')).toHaveText('正在重连');
+  await page.getByRole('button', { name: '停止电台', exact: true }).click();
+  await page.clock.runFor(60000);
+  expect(requests).toBe(1);
+  await expect(page.locator('#music-status')).toHaveText('未播放');
+  await expect(page.locator('#radio-stream')).toHaveCount(0);
+});
+
+test('a connection with no media response times out and can be canceled', async ({ page }) => {
+  await page.route(stream, () => {});
+  await start(page);
+  await page.clock.install();
+  await page.keyboard.press('m');
+  await page.getByRole('button', { name: '播放电台', exact: true }).click();
+  await expect(page.locator('#music-status')).toHaveText(/连接中|缓冲中/);
+  await page.clock.runFor(15100);
+  await expect(page.locator('#music-status')).toHaveText('正在重连');
+  await page.getByRole('button', { name: '停止电台', exact: true }).click();
+  await expect(page.locator('#radio-stream')).toHaveCount(0);
+});
+
+test('radio renders and plays under the actual desktop content policy', async ({ page }) => {
+  const config = JSON.parse(await readFile('src-tauri/tauri.conf.json', 'utf8'));
+  await page.route('**/index.html', async (route) => {
+    const response = await route.fetch();
+    await route.fulfill({
+      response,
+      headers: { ...response.headers(), 'Content-Security-Policy': config.app.security.csp },
+    });
+  });
+  await streams(page);
+  await start(page);
+  await page.goto('/index.html');
+  await page.keyboard.press('m');
+  await page.getByRole('button', { name: '播放电台', exact: true }).click();
+  await expect(page.locator('#music-status')).toHaveText('播放中');
+  expect(await page.locator('#radio-stream').getAttribute('crossorigin')).toBe('anonymous');
+});
+
+test('source uses a fixed native destination and stored invalid values are normalized', async ({
+  page,
+}) => {
+  await start(page, { station: 'https://bad.example', volume: 8 }, true);
+  await page.keyboard.press('m');
+  await expect(page.locator('#music-player')).toHaveValue('mellow');
+  await expect(page.locator('#music-volume')).toHaveValue('100');
+  await page.locator('#music-source').click();
+  expect(
+    await page.evaluate(() =>
+      window.nativeCalls.filter((call) => call.command === 'open_radio_source')
+    )
+  ).toEqual([{ command: 'open_radio_source', args: {} }]);
+});
+
+test('radio layout fits empty and playing states at desktop, scaled and narrow sizes', async ({
+  page,
+}) => {
+  await streams(page);
+  await start(page, {}, true);
+  await page.keyboard.press('m');
+  for (const playing of [false, true]) {
+    if (playing) {
+      await page.getByRole('button', { name: '播放电台', exact: true }).click();
+      await expect(page.locator('#music-status')).toHaveText('播放中');
+    }
+    for (const [width, height] of [
+      [1440, 900],
+      [1280, 800],
+      [1280, 720],
+      [1408, 792],
+      [800, 1280],
+      [390, 844],
+      [360, 740],
+    ]) {
+      await page.setViewportSize({ width, height });
+      await page.waitForFunction(
+        ({ width, height }) =>
+          parseFloat(document.documentElement.style.getPropertyValue('--app-vw')) === width / 100 &&
+          parseFloat(document.documentElement.style.getPropertyValue('--app-vh')) === height / 100,
+        { width, height }
+      );
+      expect(
+        await page.evaluate(() => [
+          document.documentElement.scrollWidth,
+          document.documentElement.scrollHeight,
+        ]),
+        `${width}x${height}; ${playing}`
+      ).toEqual([width, height]);
+      await expect(page.locator('#night-toggle')).toBeInViewport({ ratio: 1 });
+    }
   }
 });

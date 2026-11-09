@@ -102,3 +102,14 @@ The normal installed build restored full screen, Shanghai weather and awake inhi
 The empty-state follow-up passed all 55 browser regressions, 20 Node checks, frontend build, formatting and whitespace checks.
 
 The previous observation was canceled after 43 samples and 2522.2 seconds, with its log retained; this is not a 72-hour pass. No replacement observation is authorized. Native evidence remains in the private handoff evidence directory. The official NetEase web player was opened in an independent Chromium window, with the clock returned to the foreground; no account or real music playback was tested.
+
+## Account-free network radio — local revision, 2026-11-09
+
+Paige chose channel-based live music without local files, accounts or single-song requests. The radio bar uses the official Radio Paradise stream-links page's Mellow Mix, Serenity and Main Mix addresses, with verified HTTPS variants. The provider's current page explicitly presents these URLs for WiFi radios and other players. SomaFM was excluded after its current terms were checked; network reachability alone is not an embedding permission.
+
+- 28 Node checks and all 52 browser regressions passed. Eight controller checks cover explicit playback intent, validated preferences, stream release, stale events, bounded retries, denied autoplay, buffering deadlines and repeated stall events. A full-run timeout regression exposed late buffering events extending the connection deadline; the deadline now remains fixed until playback starts, and a targeted regression preserves that behavior.
+- Eight browser radio checks use generated silent PCM to exercise the real browser media element: no requests before Play, selection/volume persistence without autoplay, background playback while collapsed, stop/retry cancellation, slow responses, the actual desktop CSP, fixed source opening and empty/playing layout across seven sizes. These fixtures are distinct from live station verification.
+- A live Chromium run decoded the real Mellow Mix MP3 stream with anonymous CORS and volume zero, reaching readyState3 and the Playing event. All three official stream endpoints returned audio and matching CORS headers from Omarchy (Mellow/Main MP3; Serenity AAC). This is not yet an installed WebKit decode result.
+- Frontend build, formatting/whitespace, locked macOS native check, two existing Rust source-link tests and all-target clippy with warnings denied passed. Desktop/narrow-screen screenshots were visually reviewed. No production dependency was added; music's native MPRIS commands and their direct serde/dev-zbus requirements were removed. Existing zbus remains for Linux awake behavior.
+
+Live Omarchy decoding, controls and final installation are recorded separately. The canceled 72-hour observer is to remain off.

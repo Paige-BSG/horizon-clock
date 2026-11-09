@@ -286,14 +286,50 @@ svg {
   align-items: center;
   gap: 12px;
 }
-.music-player-info select {
-  max-width: 190px;
+.music-track-text select {
+  max-width: 100%;
+  width: 250px;
   border: 1px solid var(--line);
   border-radius: 6px;
-  padding: 8px;
+  padding: 4px 8px;
   background: #122027;
   color: var(--text);
-  font: inherit;
+  font: 14px var(--font);
+}
+#music-source {
+  color: var(--muted);
+  font-size: 11px;
+  text-decoration: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#music-source:hover {
+  color: var(--accent);
+}
+.music-volume {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  min-height: 44px;
+}
+.music-volume svg {
+  width: 18px;
+  height: 18px;
+}
+.music-volume input {
+  width: 85px;
+  height: 24px;
+  accent-color: var(--accent);
+}
+#music-volume-value {
+  min-width: 30px;
+  text-align: right;
+}
+#music-open.music-active {
+  color: var(--accent);
 }
 .music-actions {
   display: flex;
@@ -329,8 +365,8 @@ body.music-visible .main-time {
   font-size: min(calc(var(--app-vw, 1vw) * 27), calc(var(--app-vh, 1vh) * 28));
 }
 body.music-visible .information {
-  padding-top: 24px;
-  padding-bottom: 24px;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 @media (max-width: 700px) {
   .music-panel {
@@ -346,12 +382,12 @@ body.music-visible .information {
     align-items: flex-end;
     max-width: 100%;
   }
-  .music-player-info select {
-    max-width: 160px;
-  }
   .music-actions {
     width: 100%;
     justify-content: center;
+  }
+  .music-volume input {
+    width: 65px;
   }
   #music-close {
     margin-left: auto;
@@ -374,6 +410,24 @@ body.music-visible .information {
     gap: 9px;
     letter-spacing: 2px;
     font-size: 13px;
+  }
+}
+@media (max-width: 540px) and (max-height: 800px) {
+  body.music-visible .information {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    gap: 12px;
+  }
+  body.music-visible .date-content,
+  body.music-visible .weather-content,
+  body.music-visible .weather-panel {
+    padding-top: 12px;
+  }
+  body.music-visible .date-secondary {
+    margin-top: 8px;
+  }
+  body.music-visible .time-section {
+    padding-top: 12px;
   }
 }
 .time-section {

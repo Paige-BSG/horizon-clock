@@ -5,9 +5,6 @@ use tauri::{Manager, WebviewWindow};
 use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_opener::OpenerExt;
 mod awake;
-mod media;
-#[cfg(any(target_os = "linux", all(test, unix)))]
-mod media_mpris;
 mod photo_source;
 #[cfg(target_os = "linux")]
 mod wayland;
@@ -86,6 +83,16 @@ fn open_photo_source(app: tauri::AppHandle, url: String) -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn open_radio_source(app: tauri::AppHandle) -> Result<(), String> {
+    app.opener()
+        .open_url(
+            "https://radioparadise.com/listen/stream-links",
+            None::<&str>,
+        )
+        .map_err(|e| e.to_string())
+}
+
 fn main() {
     let builder = tauri::Builder::default();
     // Native automation is opt-in and absent from normal desktop builds.
@@ -113,7 +120,6 @@ fn main() {
                 .build(),
         )
         .manage(AwakeState::default())
-        .manage(media::MediaState::default())
         .invoke_handler(tauri::generate_handler![
             set_keep_awake,
             set_autostart,
@@ -121,8 +127,7 @@ fn main() {
             set_fullscreen,
             get_fullscreen,
             open_photo_source,
-            media::get_media_players,
-            media::control_media
+            open_radio_source
         ])
         .setup(|app| {
             if let Some(window) = app.get_webview_window("main") {

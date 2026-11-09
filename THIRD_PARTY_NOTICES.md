@@ -9,3 +9,7 @@ The MIT license at the repository root covers HORIZON's original code, interface
 - **Desktop dependencies:** Tauri, the Tauri autostart and opener plugins, zbus, keepawake and their dependencies retain their respective licenses. Exact versions are recorded in `src-tauri/Cargo.lock` and `package-lock.json`. Development tooling is not bundled in the frontend distribution.
 
 No sponsorship or endorsement by asset creators or service providers is implied.
+
+## Network radio
+
+Radio Paradise supplies the optional live audio streams. Official stream addresses and codec choices are published at <https://radioparadise.com/listen/stream-links>. HORIZON provides a direct personal-listening player and links back to that page; it does not relay, record or distribute the audio. Radio Paradise and the musical works retain their respective rights and are not covered by this repository's MIT license. This project is independent of Radio Paradise. No provider account, API credential, artwork or song-metadata API is used.

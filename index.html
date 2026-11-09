@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#080d10" />
+    <meta name="referrer" content="no-referrer" />
     <meta
       name="description"
       content="HORIZON：面向墙面平板的开源环境时钟，支持风景背景、当地天气和夜间显示。"
@@ -55,6 +56,10 @@
         <ellipse cx="18" cy="16" rx="3" ry="3" />
       </symbol>
       <symbol id="icon-play" viewBox="0 0 24 24"><path d="m9 5 11 7-11 7Z" /></symbol>
+      <symbol id="icon-stop" viewBox="0 0 24 24"><path d="M7 7h10v10H7Z" /></symbol>
+      <symbol id="icon-volume" viewBox="0 0 24 24">
+        <path d="M4 9h4l5-4v14l-5-4H4ZM17 8a6 6 0 0 1 0 8M20 5a10 10 0 0 1 0 14" />
+      </symbol>
       <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" /></symbol>
       <symbol id="icon-skip-next" viewBox="0 0 24 24"><path d="m5 5 10 7-10 7ZM19 5v14" /></symbol>
       <symbol id="icon-skip-previous" viewBox="0 0 24 24">
@@ -88,8 +93,8 @@
             <button
               class="icon-button"
               id="music-open"
-              aria-label="音乐控制"
-              title="音乐 · M"
+              aria-label="网络电台"
+              title="网络电台 · M"
               aria-expanded="false"
               aria-controls="music-panel"
             >
@@ -126,38 +131,26 @@
         </div>
       </header>
 
-      <section id="music-panel" class="music-panel" aria-label="音乐播放" hidden>
+      <section id="music-panel" class="music-panel" aria-label="网络电台" hidden>
         <div class="music-track">
           <span class="music-mark" aria-hidden="true"
             ><svg><use href="#icon-music" /></svg
           ></span>
           <div class="music-track-text">
-            <strong id="music-title">音乐，留在此刻</strong>
-            <span id="music-artist">等待播放器</span>
+            <select id="music-player" aria-label="选择电台频道"></select>
+            <a id="music-source" target="_blank" rel="noopener noreferrer" title="查看电台官方来源"
+              ><span id="music-artist">Radio Paradise · 免登录直播电台</span> ↗</a
+            >
           </div>
         </div>
-        <div class="music-player-info">
-          <span id="music-status" role="status">未连接</span>
-          <select id="music-player" aria-label="选择音乐播放器" hidden></select>
-        </div>
+        <div class="music-player-info"><span id="music-status" role="status">未播放</span></div>
         <div class="music-actions">
-          <button
-            type="button"
-            class="icon-button"
-            id="music-previous"
-            aria-label="上一首"
-            title="上一首"
-            disabled
-          >
-            <svg><use href="#icon-skip-previous" /></svg>
-          </button>
           <button
             type="button"
             class="icon-button music-play"
             id="music-toggle"
-            aria-label="播放音乐"
-            title="播放音乐"
-            disabled
+            aria-label="播放电台"
+            title="播放电台"
           >
             <svg><use id="music-toggle-icon" href="#icon-play" /></svg>
           </button>
@@ -165,12 +158,23 @@
             type="button"
             class="icon-button"
             id="music-next"
-            aria-label="下一首"
-            title="下一首"
-            disabled
+            aria-label="下个频道"
+            title="下个频道"
           >
             <svg><use href="#icon-skip-next" /></svg>
           </button>
+          <label class="music-volume" title="电台音量"
+            ><svg aria-hidden="true"><use href="#icon-volume" /></svg
+            ><input
+              id="music-volume"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="30"
+              aria-label="电台音量"
+            /><span id="music-volume-value">30%</span></label
+          >
           <button
             type="button"
             class="icon-button"
@@ -181,7 +185,7 @@
             <svg><use href="#icon-close" /></svg>
           </button>
         </div>
-        <p id="music-help">先在网易云官方播放器登录并播放一首歌，再回到时钟。</p>
+        <p id="music-help">点击播放后连接 Radio Paradise。按频道直播，不支持点播单曲。</p>
       </section>
 
       <section class="time-section" aria-label="当前时间">

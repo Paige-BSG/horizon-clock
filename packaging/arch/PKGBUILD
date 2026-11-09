@@ -1,5 +1,5 @@
 pkgname=horizon-clock
-pkgver=0.2.0alpha1
+pkgver=0.2.0alpha2
 pkgrel=1
 pkgdesc='Ambient wall clock with landscapes, weather and optional network radio'
 arch=('x86_64')
@@ -10,6 +10,7 @@ depends=(
   'libsoup3' 'wayland' 'webkit2gtk-4.1' 'xdg-utils'
   'gstreamer' 'gst-plugins-good' 'gst-libav' 'libpulse'
 )
+optdepends=('geoclue: System location for local weather')
 # Preserve the exact normal-build executable that is verified before publication.
 options=('!strip' '!debug')
 

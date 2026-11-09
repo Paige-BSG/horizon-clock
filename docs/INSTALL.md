@@ -2,24 +2,26 @@
 
 ## 支持范围
 
-首个安装包是 **0.2.0-alpha.1 预览版**，面向 **Omarchy 4.5、x86_64、Wayland / Hyprland**。其他 Arch Linux 版本可能可用，但没有实机验证。ARM 平板、Windows 和 macOS 不在本安装包的支持范围内。
+当前安装包是 **0.2.0-alpha.2 预览版**，面向 **Omarchy 4.5、x86_64、Wayland / Hyprland**。其他 Arch Linux 版本可能可用，但没有实机验证。ARM 平板、Windows 和 macOS 不在本安装包的支持范围内。
 
 安装包包含应用、离线字体、21 张风景、桌面启动图标和第三方声明。不需要安装 Node.js、Rust 或克隆源码。系统组件由 pacman 检查；安装时可能需要联网取得缺少的依赖。
 
 ## 下载与安装
 
-1. 打开 [GitHub Releases](https://github.com/Paige-BSG/horizon-clock/releases/tag/v0.2.0-alpha.1)。
-2. 下载 `horizon-clock-0.2.0alpha1-1-x86_64.pkg.tar.zst` 和同名的 `.sha256` 文件，放在同一个文件夹。
+1. 打开 [GitHub Releases](https://github.com/Paige-BSG/horizon-clock/releases/tag/v0.2.0-alpha.2)。
+2. 下载 `horizon-clock-0.2.0alpha2-1-x86_64.pkg.tar.zst` 和同名的 `.sha256` 文件，放在同一个文件夹。
 3. 在该文件夹打开终端，执行：
 
 ```sh
-sha256sum -c horizon-clock-0.2.0alpha1-1-x86_64.pkg.tar.zst.sha256
-sudo pacman -U ./horizon-clock-0.2.0alpha1-1-x86_64.pkg.tar.zst
+sha256sum -c horizon-clock-0.2.0alpha2-1-x86_64.pkg.tar.zst.sha256
+sudo pacman -U ./horizon-clock-0.2.0alpha2-1-x86_64.pkg.tar.zst
 ```
 
 校验结果必须是 `OK`，再继续安装。校验用于发现文件损坏；本预览包没有独立的发布签名。不要为安装而关闭系统签名检查。若本机策略拒绝未签名的本地安装包，请停止安装并反馈。
 
-从应用列表打开 **HORIZON**，也可以在终端执行 `horizon-clock`。首次启动可选择离线使用。登录自启动、全屏和常亮由用户在应用内选择；安装本身不修改电源设置。电台只在点击播放后联网。
+从应用列表打开 **HORIZON**，也可以在终端执行 `horizon-clock`。首次启动直接显示时钟，默认启用系统定位天气和 22:00–07:00 自动调暗；系统可能要求定位授权。可在设置里关闭天气或手动选择城市。登录自启动、全屏和常亮由用户在应用内选择；安装本身不修改电源设置。电台只在点击播放后联网。
+
+系统定位依赖 WebKitGTK 的可选组件 `geoclue` 和系统允许的位置服务。未安装、权限被拒绝或服务不可用时，应用会显示定位状态，可在「设置 → 天气」手动选择城市；不会自动猜测城市。时钟和背景不受影响。
 
 若 `pacman` 报依赖不存在、版本冲突或下载失败，请先停止安装，按 Omarchy 官方维护方式处理系统状态后重试。不要为了这个应用单独升级系统底层库。
 
@@ -47,6 +49,6 @@ sudo pacman -R horizon-clock
 
 ## English
 
-This unsigned alpha package targets Omarchy 4.5 on x86_64 with Wayland / Hyprland. Download the `.pkg.tar.zst` and matching `.sha256` from the linked release, verify with `sha256sum -c`, then install with `sudo pacman -U ./horizon-clock-0.2.0alpha1-1-x86_64.pkg.tar.zst`. Launch HORIZON from the application menu. Node.js and Rust are not required. Pacman checks system dependencies; do not disable signature policy or partially upgrade system libraries to install this preview.
+This unsigned alpha package targets Omarchy 4.5 on x86_64 with Wayland / Hyprland. Download the `.pkg.tar.zst` and matching `.sha256` from the linked release, verify with `sha256sum -c`, then install with `sudo pacman -U ./horizon-clock-0.2.0alpha2-1-x86_64.pkg.tar.zst`. Launch HORIZON from the application menu. Node.js and Rust are not required. Pacman checks system dependencies; do not disable signature policy or partially upgrade system libraries to install this preview.
 
 For an existing source installation, quit, export settings and run the source uninstaller first; personal data is retained. Re-enable autostart after migration. Before removal, disable autostart and quit, then run `sudo pacman -R horizon-clock`. Settings and photos are retained. Updates are manual. Touch, a full login-cycle autostart test, physical readability and a 72-hour soak remain unqualified. Original code is MIT; bundled assets and online providers have their own terms; see `THIRD_PARTY_NOTICES.md`.

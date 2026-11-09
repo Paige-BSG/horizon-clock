@@ -29,7 +29,7 @@ async function mock(context, state = { base: 300000001, requests: 0, images: 0 }
     state.requests++;
     if (state.fail) return route.abort();
     const params = new URL(route.request().url()).searchParams;
-    const ids = Array.from({ length: 8 }, (_, i) => state.base + i);
+    const ids = Array.from({ length: 30 }, (_, i) => state.base + i);
     return route.fulfill({
       json: params.get('list')
         ? { query: { categorymembers: ids.map((pageid) => ({ pageid })) } }
@@ -57,12 +57,14 @@ async function open(page) {
   // Real pointer movement wakes the toolbar after the simulated day of inactivity.
   await page.mouse.move(0, 0);
   await page.mouse.move(1, 1);
+  await page.locator('#settings-open').click();
+  await page.getByRole('tab', { name: '背景', exact: true }).click();
   await page.locator('#background-open').click();
 }
 async function enable(page) {
   await open(page);
   await page.locator('#online-gallery-toggle').click();
-  await expect(page.locator('#online-gallery-status')).toContainText('6 张在线风景已缓存');
+  await expect(page.locator('#online-gallery-status')).toContainText('24 张在线风景已缓存');
 }
 
 test('21 bundled landscapes work offline, show matching credits and make no background requests', async ({
@@ -84,14 +86,14 @@ test('21 bundled landscapes work offline, show matching credits and make no back
   expect(state.requests + state.images).toBe(0);
 });
 
-test('consent downloads six licensed images, selection and source survive offline reload', async ({
+test('consent downloads 24 licensed images, selection and source survive offline reload', async ({
   page,
 }) => {
   const state = await mock(page);
   await start(page);
   await enable(page);
   expect(state.requests).toBe(2);
-  expect(state.images).toBe(6);
+  expect(state.images).toBe(24);
   await page.locator('[data-quick-scene="commons:300000001"]').click();
   await expect(page.locator('.landscape-layer.visible')).toHaveAttribute('src', /^blob:/);
   await expect(page.locator('#scene-credit')).toContainText('Fixture Photographer');
@@ -99,7 +101,34 @@ test('consent downloads six licensed images, selection and source survive offlin
   await page.reload();
   await expect(page.locator('.landscape-layer.visible')).toHaveAttribute('src', /^blob:/);
   await expect(page.locator('#scene-credit')).toContainText('CC BY-SA 4.0');
-  expect(state.images).toBe(6);
+  expect(state.images).toBe(24);
+});
+
+test('checking an unchanged catalog reuses all 24 local images', async ({ page }) => {
+  const state = await mock(page);
+  await start(page);
+  await enable(page);
+  await page.clock.fastForward(60001);
+  await page.locator('#online-gallery-refresh').click();
+  await expect.poll(() => state.requests).toBe(4);
+  await expect(page.locator('#online-gallery-status')).toContainText('24 张在线风景已缓存');
+  expect(state.images).toBe(24);
+});
+
+test('failed images are skipped while the expanded gallery retains catalog order', async ({
+  page,
+}) => {
+  await mock(page);
+  await page.route('https://thumb.wikimedia.org/**', (route) => {
+    const failed = /30000000[1-3]\.jpg/.test(route.request().url());
+    return failed ? route.abort() : route.fulfill({ body: jpeg, contentType: 'image/jpeg' });
+  });
+  await start(page);
+  await enable(page);
+  const images = page.locator('#quick-builtin-scenes [data-quick-scene]');
+  await expect(images).toHaveCount(45);
+  await expect(images.nth(21)).toHaveAttribute('data-quick-scene', 'commons:300000004');
+  await expect(images.last()).toHaveAttribute('data-quick-scene', 'commons:300000027');
 });
 
 test('daily update follows category order, protects selected image and disabling stops future requests', async ({
@@ -112,7 +141,7 @@ test('daily update follows category order, protects selected image and disabling
   state.base = 200000001;
   await page.clock.fastForward(24 * 3600 * 1000 + 1000);
   await open(page);
-  await expect(page.locator('#online-gallery-status')).toContainText('7 张在线风景已缓存');
+  await expect(page.locator('#online-gallery-status')).toContainText('25 张在线风景已缓存');
   await expect(page.locator('[data-quick-scene="commons:300000001"]')).toHaveCount(1);
   await expect(page.locator('#quick-builtin-scenes [data-quick-scene]').nth(21)).toHaveAttribute(
     'data-quick-scene',
@@ -134,7 +163,7 @@ test('failed update preserves cache and retries at bounded frequency', async ({ 
   await page.clock.fastForward(60001);
   await page.locator('#online-gallery-refresh').click();
   await expect(page.locator('#online-gallery-status')).toContainText('暂时不可用');
-  await expect(page.locator('#quick-builtin-scenes [data-quick-scene]')).toHaveCount(27);
+  await expect(page.locator('#quick-builtin-scenes [data-quick-scene]')).toHaveCount(45);
   const before = state.requests;
   await page.clock.fastForward(30 * 60 * 1000);
   expect(state.requests).toBe(before);

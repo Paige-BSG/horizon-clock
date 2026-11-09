@@ -2421,6 +2421,12 @@ input[type='time'] {
   }
 }
 
+.background-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0;
+}
 .background-open {
   display: inline-flex;
   align-items: center;

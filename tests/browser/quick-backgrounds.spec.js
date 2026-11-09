@@ -15,6 +15,8 @@ async function start(page, settings = {}) {
   await page.goto('/');
 }
 async function open(page) {
+  await page.locator('#settings-open').click();
+  await page.getByRole('tab', { name: '背景', exact: true }).click();
   await page.getByRole('button', { name: '选择背景', exact: true }).click();
   await expect(picker(page)).toBeVisible();
 }
@@ -27,7 +29,7 @@ async function importPhotos(page, files) {
   await (await chooser).setFiles(files);
 }
 
-test('choose a builtin in two clicks, save and return to the clock', async ({ page }) => {
+test('choose a builtin through settings, save and return to the clock', async ({ page }) => {
   await start(page, { nightScene: 'coast' });
   await open(page);
   await expect(page.locator('#settings-dialog')).not.toBeVisible();
@@ -207,13 +209,19 @@ test('finishing a slow import cannot overwrite a newer explicit selection or clo
   expect(await preferences(page)).toMatchObject({ collection: 'builtin', scene: 'mountain' });
 });
 
-test('keyboard focus keeps the toolbar available after closing the picker', async ({ page }) => {
+test('toolbar has only music, fullscreen and settings; picker returns keyboard focus to settings', async ({
+  page,
+}) => {
   await start(page);
-  await page.getByRole('button', { name: '选择背景', exact: true }).focus();
-  await page.keyboard.press('Enter');
-  await expect(picker(page)).toBeVisible();
+  await expect(page.locator('.toolbar button')).toHaveCount(3);
+  expect(
+    await page
+      .locator('.toolbar button')
+      .evaluateAll((buttons) => buttons.map((button) => button.id))
+  ).toEqual(['music-open', 'fullscreen', 'settings-open']);
+  await open(page);
   await page.keyboard.press('Escape');
   await page.clock.runFor(8100);
-  await expect(page.getByRole('button', { name: '选择背景', exact: true })).toBeFocused();
+  await expect(page.locator('#settings-open')).toBeFocused();
   await expect(page.locator('body')).not.toHaveClass(/immersive/);
 });

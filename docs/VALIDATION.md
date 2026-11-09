@@ -2,6 +2,16 @@
 
 Validation layers are separate. A browser test or successful executable build does not prove Omarchy sleep behavior, physical readability or product acceptance.
 
+## Current UI and expanded gallery — 2026-11-09
+
+The main toolbar contains only music, fullscreen and settings. Background selection and next-image controls are in Settings → Background. Main-screen labels and settings copy are shorter. The gallery caches up to 24 online images plus up to two selected older images, with a 96 MiB storage bound and at most three concurrent downloads; network consent remains opt-in.
+
+- `npm run check`: 28 Node tests and frontend build passed. Formatting and whitespace checks passed.
+- With the repository-supported `PLAYWRIGHT_CHROMIUM_CHANNEL=chrome`, the full 59-test browser suite passed. The expanded 11-test gallery suite then passed, including two additional regressions for cache reuse and failed-image fallback/order. The default Playwright launch first failed because its bundled browser was absent; the installed Chrome required no dependency changes.
+- A separate real-network browser check downloaded and cached 24 Wikimedia Commons images and showed 45 total landscapes with no failed requests. This is separate from mocked regression fixtures; availability and catalog contents can change.
+- Desktop, settings, gallery and 390-pixel gallery screenshots were rendered and visually inspected. Updated documentation images are in `docs/images/`; local real-network evidence is `previews/live-online-gallery.png`.
+- These changes are local source/browser validation. The installed Omarchy application and public alpha package have not been replaced by this task. Native webview, touch and human visual acceptance for this revision remain unverified.
+
 ## Local checks — 2026-11-09
 
 | Layer                                        | Evidence / scope                                                                                                                                                                              |

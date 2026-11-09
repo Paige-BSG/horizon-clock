@@ -35,6 +35,14 @@ try {
   await mkdir('docs/images', { recursive: true });
   await mkdir('previews', { recursive: true });
   await page.screenshot({ path: 'previews/quick-clock.png' });
+  await page.screenshot({ path: 'docs/images/clock.png' });
+  await page.locator('#settings-open').click();
+  await page.screenshot({ path: 'previews/concise-settings.png' });
+  await page.getByRole('tab', { name: '背景', exact: true }).click();
+  await page.screenshot({ path: 'docs/images/background-settings.png' });
+  await page.keyboard.press('Escape');
+  await page.locator('#settings-open').click();
+  await page.getByRole('tab', { name: '背景', exact: true }).click();
   await page.getByRole('button', { name: '选择背景', exact: true }).click();
   await page
     .locator('#quick-builtin-scenes img')
@@ -48,6 +56,8 @@ try {
       'assets/landscapes/coast.jpg',
     ]);
   await page.waitForFunction(() => !document.getElementById('background-picker').open);
+  await page.locator('#settings-open').click();
+  await page.getByRole('tab', { name: '背景', exact: true }).click();
   await page.getByRole('button', { name: '选择背景', exact: true }).click();
   await page
     .locator('#quick-photo-list img')
@@ -58,6 +68,8 @@ try {
   await page.screenshot({ path: 'docs/images/quick-personal.png' });
   await page.getByRole('button', { name: '使用湖畔晨雾', exact: true }).click();
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('#settings-open').click();
+  await page.getByRole('tab', { name: '背景', exact: true }).click();
   await page.getByRole('button', { name: '选择背景', exact: true }).click();
   await page.evaluate(
     () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))

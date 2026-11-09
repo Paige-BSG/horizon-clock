@@ -43,4 +43,7 @@ Implementation has browser coverage and native Omarchy picker/storage checks. De
 
 ## Later candidates
 
+- [x] Local Linux MPRIS controls for song information, play/pause and previous/next; browser and protocol tests are separate from official-player qualification.
+- [ ] Verify the intended NetEase official player or official web player on Omarchy, including background playback, capability reporting and process reconnection. Deploying a new clock build requires accounting for any interrupted soak observation.
+
 More cities/search, localization and additional operating systems. These are candidates, not committed features or support promises. No account, subscription or cloud control plane is required for the initial product.

@@ -5,6 +5,9 @@ use tauri::{Manager, WebviewWindow};
 use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_opener::OpenerExt;
 mod awake;
+mod media;
+#[cfg(any(target_os = "linux", all(test, unix)))]
+mod media_mpris;
 mod photo_source;
 #[cfg(target_os = "linux")]
 mod wayland;
@@ -110,13 +113,16 @@ fn main() {
                 .build(),
         )
         .manage(AwakeState::default())
+        .manage(media::MediaState::default())
         .invoke_handler(tauri::generate_handler![
             set_keep_awake,
             set_autostart,
             get_autostart,
             set_fullscreen,
             get_fullscreen,
-            open_photo_source
+            open_photo_source,
+            media::get_media_players,
+            media::control_media
         ])
         .setup(|app| {
             if let Some(window) = app.get_webview_window("main") {

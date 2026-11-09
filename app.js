@@ -2,6 +2,7 @@ import { createBackgrounds } from './lib/backgrounds.js';
 import { SETTINGS_KEY as storageKey, readSettings } from './lib/settings.js';
 import { isDesktop, native } from './lib/desktop.js';
 import { initializeViewport } from './lib/viewport.js';
+import { initializeMusic } from './lib/music.js';
 import { effectiveNight, nextNightBoundary } from './lib/night.js';
 import {
   initializeProduct,
@@ -18,6 +19,7 @@ let nativeAwake = false;
 let toastTimer;
 let idleTimer;
 const dialog = $('settings-dialog');
+const music = initializeMusic({ toast, resetIdle });
 const backgrounds = createBackgrounds({
   getSettings: () => preferences,
   save,
@@ -182,6 +184,7 @@ function resetIdle() {
     if (
       !document.querySelector('dialog[open]') &&
       !document.querySelector('.toolbar :focus-visible') &&
+      !document.querySelector('#music-panel :focus-visible') &&
       !$('night-toggle').matches(':focus-visible')
     )
       document.body.classList.add('immersive');
@@ -277,14 +280,13 @@ document.addEventListener('visibilitychange', () => {
 });
 document.addEventListener('keydown', (event) => {
   resetIdle();
-  if (
-    document.querySelector('dialog[open]') ||
-    /INPUT|SELECT|TEXTAREA/.test(event.target.tagName) ||
-    event.metaKey ||
-    event.ctrlKey ||
-    event.altKey
-  )
+  if (document.querySelector('dialog[open]') || event.metaKey || event.ctrlKey || event.altKey)
     return;
+  if (event.key === 'Escape' && music.isOpen()) {
+    music.toggle(false);
+    return;
+  }
+  if (/INPUT|SELECT|TEXTAREA/.test(event.target.tagName)) return;
   if (event.key === 'Escape' && isDesktop)
     native('set_fullscreen', { enabled: false })
       .then(() => $('fullscreen').setAttribute('aria-label', '进入全屏'))
@@ -294,6 +296,10 @@ document.addEventListener('keydown', (event) => {
     toggleFullscreen();
   }
   if (event.key.toLowerCase() === 'n') toggleNight();
+  if (event.key.toLowerCase() === 'm') {
+    event.preventDefault();
+    music.toggle();
+  }
   if (event.key.toLowerCase() === 's') {
     event.preventDefault();
     openSettings();

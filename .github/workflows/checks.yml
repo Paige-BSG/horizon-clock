@@ -37,6 +37,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run desktop:check
+      - run: node scripts/cargo.mjs test --locked --manifest-path src-tauri/Cargo.toml
       - run: npm run desktop:build -- --no-bundle
       - name: Test user-local installation and removal
         run: |

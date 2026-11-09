@@ -49,6 +49,17 @@
         <path d="m3 17 5-5 4 4 4-6 5 7" />
       </symbol>
       <symbol id="icon-next" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" /></symbol>
+      <symbol id="icon-music" viewBox="0 0 24 24">
+        <path d="M9 18V5l12-2v13M9 9l12-2" />
+        <ellipse cx="6" cy="18" rx="3" ry="3" />
+        <ellipse cx="18" cy="16" rx="3" ry="3" />
+      </symbol>
+      <symbol id="icon-play" viewBox="0 0 24 24"><path d="m9 5 11 7-11 7Z" /></symbol>
+      <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" /></symbol>
+      <symbol id="icon-skip-next" viewBox="0 0 24 24"><path d="m5 5 10 7-10 7ZM19 5v14" /></symbol>
+      <symbol id="icon-skip-previous" viewBox="0 0 24 24">
+        <path d="m19 5-10 7 10 7ZM5 5v14" />
+      </symbol>
     </svg>
 
     <div class="landscape-backdrop" id="landscape-backdrop" aria-hidden="true">
@@ -74,6 +85,16 @@
         <div class="header-right">
           <span class="live-label"><i></i>此刻，刚刚好</span>
           <div class="toolbar">
+            <button
+              class="icon-button"
+              id="music-open"
+              aria-label="音乐控制"
+              title="音乐 · M"
+              aria-expanded="false"
+              aria-controls="music-panel"
+            >
+              <svg><use href="#icon-music" /></svg>
+            </button>
             <button
               class="background-open"
               id="background-open"
@@ -104,6 +125,64 @@
           </div>
         </div>
       </header>
+
+      <section id="music-panel" class="music-panel" aria-label="音乐播放" hidden>
+        <div class="music-track">
+          <span class="music-mark" aria-hidden="true"
+            ><svg><use href="#icon-music" /></svg
+          ></span>
+          <div class="music-track-text">
+            <strong id="music-title">音乐，留在此刻</strong>
+            <span id="music-artist">等待播放器</span>
+          </div>
+        </div>
+        <div class="music-player-info">
+          <span id="music-status" role="status">未连接</span>
+          <select id="music-player" aria-label="选择音乐播放器" hidden></select>
+        </div>
+        <div class="music-actions">
+          <button
+            type="button"
+            class="icon-button"
+            id="music-previous"
+            aria-label="上一首"
+            title="上一首"
+            disabled
+          >
+            <svg><use href="#icon-skip-previous" /></svg>
+          </button>
+          <button
+            type="button"
+            class="icon-button music-play"
+            id="music-toggle"
+            aria-label="播放音乐"
+            title="播放音乐"
+            disabled
+          >
+            <svg><use id="music-toggle-icon" href="#icon-play" /></svg>
+          </button>
+          <button
+            type="button"
+            class="icon-button"
+            id="music-next"
+            aria-label="下一首"
+            title="下一首"
+            disabled
+          >
+            <svg><use href="#icon-skip-next" /></svg>
+          </button>
+          <button
+            type="button"
+            class="icon-button"
+            id="music-close"
+            aria-label="收起音乐控制"
+            title="收起"
+          >
+            <svg><use href="#icon-close" /></svg>
+          </button>
+        </div>
+        <p id="music-help">先在网易云官方播放器登录并播放一首歌，再回到时钟。</p>
+      </section>
 
       <section class="time-section" aria-label="当前时间">
         <div class="section-label">

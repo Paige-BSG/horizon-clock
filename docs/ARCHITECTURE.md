@@ -10,7 +10,7 @@ Vanilla HTML, CSS and ECMAScript modules preserve the accepted visual design wit
 
 Tauri 2 embeds the frontend in the platform webview. Five narrow commands expose fullscreen state/control, autostart state/control and awake control. Autostart uses the maintained Tauri plugin and changes only after user interaction. Native awake requests run off the interface thread.
 
-Linux uses D-Bus `org.freedesktop.ScreenSaver.Inhibit` plus a systemd-logind `idle` inhibitor. Both requests must succeed; partial failure cleans up the first request. Closing or disabling releases the handles. Service disappearance during logout is handled without a cleanup panic. Other development platforms use `keepawake`. This backend deliberately does not block explicit manual suspend or rewrite system power policies. Compatibility with the actual Omarchy service must be verified on-device.
+Native Wayland sessions use `zwp_idle_inhibit_manager_v1` on the clock window’s existing surface, plus a systemd-logind `idle` inhibitor. A separate event queue borrows GTK’s connection without owning its display or surface. Acquisition and window-close cleanup run on the GTK thread so borrowed handles cannot race window destruction. Non-Wayland Linux sessions retain the ScreenSaver D-Bus backend. Both display and logind requests must succeed; partial failure releases the first inhibitor. Disabling or closing the window releases both. Other development platforms use `keepawake`. The application does not change global power policies or block explicit manual suspend. A hidden/unmapped Wayland surface follows compositor visibility rules.
 
 The frontend has no shell or arbitrary filesystem API. A restricted content policy allows local assets, native IPC and the two optional network hosts. Browser previews use the Screen Wake Lock API instead of native controls.
 
@@ -25,6 +25,6 @@ The frontend has no shell or arbitrary filesystem API. A restricted content poli
 
 ## Build and maintenance choices
 
-Production dependencies are confined to desktop integration: Tauri, its autostart plugin, zbus on Linux and keepawake on other platforms. Their cost is the native Rust/GTK/webview build toolchain and OS-specific testing. Development uses Node built-ins, Playwright and Prettier. Lockfiles pin dependencies. Public CI uses standard Ubuntu runners and does not upload artifacts or enable build caches.
+Production dependencies are confined to desktop integration: Tauri, its autostart plugin, zbus and Wayland protocol bindings on Linux, and keepawake on other platforms. Wayland bindings are necessary because Omarchy 4.5 has no ScreenSaver D-Bus service. The optional `native-qa` feature adds an embedded loopback-only WebDriver server for testing; it is absent from normal builds. Their cost is the native Rust/GTK/webview build toolchain and OS-specific testing. Development uses Node built-ins, Playwright and Prettier. Lockfiles pin dependencies. Public CI uses standard Ubuntu runners and does not upload artifacts or enable build caches.
 
 Sources: [Tauri prerequisites](https://tauri.app/start/prerequisites/), [autostart](https://tauri.app/plugin/autostart/), [Linux distribution](https://tauri.app/distribute/), [Open-Meteo API](https://open-meteo.com/en/docs), [Omarchy idle behavior](https://omarchy.org/manual/toggles-idle-screensaver/).

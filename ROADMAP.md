@@ -20,12 +20,12 @@ These checkboxes describe implementation, not Omarchy physical-device qualificat
 - [x] Independent day/night background sources, contrast and information brightness, with temporary in-settings previews.
 - [x] Versioned settings backups that accept v1 and v2; photos remain in the device library.
 
-Implementation has browser coverage. Native photo-picker/storage behavior and all device gates below remain pending.
+Implementation has browser coverage and native Omarchy picker/storage checks. Device observations and remaining acceptance gates are recorded in docs/VALIDATION.md.
 
-- [ ] Build and run the installed application on Omarchy 4.5 / Wayland, initially x86_64.
+- [x] Build and run the installed application on Omarchy 4.5 / Wayland, initially x86_64.
 - [ ] Verify touch targets, fullscreen entry/exit, app focus and landscape/portrait rendering at the panel's actual scaling.
-- [ ] Verify native settings export/import and storage persistence in Linux WebKitGTK.
-- [ ] Verify idle/display inhibitors against the actual Omarchy desktop service; request success alone is insufficient.
+- [x] Verify native settings export/import and storage persistence in Linux WebKitGTK.
+- [x] Verify idle/display inhibition and release with live Omarchy/Quickshell idle monitors. Actual lock timeout, lid and manual-suspend policies remain separate device checks.
 - [ ] Measure CPU/memory and display behavior while rotating images and while offline.
 - [ ] Readability review from the sofa by day, room light and darkness. Adjust hardware backlight if needed; interface dimming alone is not backlight control.
 

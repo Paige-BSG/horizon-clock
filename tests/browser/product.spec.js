@@ -244,3 +244,27 @@ test('weather symbols reflect rain rather than showing sunshine at night', async
   await expect(page.locator('#weather-rain')).toBeVisible();
   await expect(page.locator('#weather-snow')).toBeHidden();
 });
+
+test('desktop layout fits logical viewports after fullscreen-size changes', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__TAURI__ = { core: { invoke: async () => false } };
+  });
+  await page.setViewportSize({ width: 1408, height: 792 });
+  await start(page);
+  await page.evaluate(() => document.fonts.ready);
+  for (const viewport of [
+    { width: 1408, height: 792 },
+    { width: 1920, height: 1080 },
+    { width: 1280, height: 800 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await expect
+      .poll(() =>
+        page.evaluate(() => ({
+          width: document.documentElement.scrollWidth,
+          height: document.documentElement.scrollHeight,
+        }))
+      )
+      .toEqual(viewport);
+  }
+});

@@ -11,15 +11,22 @@ rust-version = "1.90"
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
+[features]
+native-qa = ["dep:tauri-plugin-wdio-webdriver"]
+
 [dependencies]
 tauri = { version = "2", features = [] }
 tauri-plugin-autostart = "2"
+tauri-plugin-wdio-webdriver = { version = "=1.5.1", optional = true }
 
 [target.'cfg(not(target_os = "linux"))'.dependencies]
 keepawake = "0.6.1"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 zbus = { version = "5", default-features = false, features = ["blocking-api", "async-io"] }
+raw-window-handle = "0.6"
+wayland-client = { version = "0.31", features = ["system"] }
+wayland-protocols = { version = "0.32", features = ["client", "unstable"] }
 
 [profile.release]
 codegen-units = 1

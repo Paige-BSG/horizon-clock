@@ -1,6 +1,7 @@
 import { createBackgrounds } from './lib/backgrounds.js';
 import { SETTINGS_KEY as storageKey, readSettings } from './lib/settings.js';
 import { isDesktop, native } from './lib/desktop.js';
+import { initializeViewport } from './lib/viewport.js';
 import { effectiveNight, nextNightBoundary } from './lib/night.js';
 import {
   initializeProduct,
@@ -10,6 +11,7 @@ import {
 } from './lib/product.js';
 
 const $ = (id) => document.getElementById(id);
+initializeViewport(isDesktop);
 let preferences = readSettings({ getItem: (key) => localStorage.getItem(key) });
 let wakeLock = null;
 let nativeAwake = false;

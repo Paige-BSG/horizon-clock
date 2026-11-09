@@ -4,27 +4,45 @@ use std::sync::Mutex;
 use tauri::{Manager, WebviewWindow};
 use tauri_plugin_autostart::ManagerExt;
 mod awake;
+#[cfg(target_os = "linux")]
+mod wayland;
 
 #[derive(Default)]
 struct AwakeState(Mutex<Option<awake::Guard>>);
 
 #[tauri::command]
-async fn set_keep_awake(enabled: bool, app: tauri::AppHandle) -> Result<bool, String> {
-    tauri::async_runtime::spawn_blocking(move || {
-        let state = app.state::<AwakeState>();
-        let mut guard = state
-            .0
-            .lock()
-            .map_err(|_| "Awake state unavailable".to_string())?;
-        if enabled && guard.is_none() {
-            *guard = Some(awake::acquire()?);
-        } else if !enabled {
-            *guard = None;
-        }
-        Ok(guard.is_some())
-    })
-    .await
-    .map_err(|e| e.to_string())?
+async fn set_keep_awake(
+    enabled: bool,
+    app: tauri::AppHandle,
+    window: WebviewWindow,
+) -> Result<bool, String> {
+    let (sender, mut receiver) = tauri::async_runtime::channel(1);
+    // Serialize borrowed Wayland handles with GTK window destruction.
+    app.clone()
+        .run_on_main_thread(move || {
+            let result = (|| {
+                let state = app.state::<AwakeState>();
+                let mut guard = state
+                    .0
+                    .lock()
+                    .map_err(|_| "Awake state unavailable".to_string())?;
+                if enabled && guard.is_none() {
+                    *guard = Some(awake::acquire(&window)?);
+                } else if !enabled {
+                    if let Some(active) = guard.as_mut() {
+                        awake::release(active)?;
+                    }
+                    *guard = None;
+                }
+                Ok(guard.is_some())
+            })();
+            let _ = sender.try_send(result);
+        })
+        .map_err(|e| e.to_string())?;
+    receiver
+        .recv()
+        .await
+        .ok_or_else(|| "Awake request interrupted".to_string())?
 }
 
 #[tauri::command]
@@ -56,7 +74,21 @@ fn get_fullscreen(window: WebviewWindow) -> Result<bool, String> {
 }
 
 fn main() {
-    tauri::Builder::default()
+    let builder = tauri::Builder::default();
+    // Native automation is opt-in and absent from normal desktop builds.
+    #[cfg(feature = "native-qa")]
+    let builder = builder.plugin(tauri_plugin_wdio_webdriver::init());
+    builder
+        .on_window_event(|window, event| {
+            if matches!(
+                event,
+                tauri::WindowEvent::CloseRequested { .. } | tauri::WindowEvent::Destroyed
+            ) {
+                if let Ok(mut guard) = window.state::<AwakeState>().0.lock() {
+                    *guard = None;
+                }
+            }
+        })
         .plugin(
             tauri_plugin_autostart::Builder::new()
                 .app_name("HORIZON")

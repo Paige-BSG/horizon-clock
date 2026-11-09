@@ -244,6 +244,8 @@ test('radio layout fits empty and playing states at desktop, scaled and narrow s
       [800, 1280],
       [390, 844],
       [360, 740],
+      [360, 540],
+      [960, 540],
     ]) {
       await page.setViewportSize({ width, height });
       await page.waitForFunction(
@@ -259,14 +261,109 @@ test('radio layout fits empty and playing states at desktop, scaled and narrow s
         ]),
         `${width}x${height}; ${playing}`
       ).toEqual([width, height]);
-      const channels = page.getByRole('group', { name: '电台频道' }).getByRole('button');
-      for (const button of await channels.all()) {
-        await expect(button).toBeInViewport({ ratio: 1 });
-        expect((await button.boundingBox()).height).toBeLessThanOrEqual(44);
-      }
-      if (width <= 700)
-        expect((await page.locator('#music-panel').boundingBox()).height).toBeLessThan(130);
-      await expect(page.locator('#night-toggle')).toBeInViewport({ ratio: 1 });
+      const panel = page.getByRole('dialog', { name: '网络电台' });
+      expect((await panel.boundingBox()).height).toBe(height);
+      for (const control of [
+        '#music-toggle',
+        '#music-channels',
+        '#music-volume',
+        '#music-close',
+        '#music-source',
+        '#music-motion',
+      ])
+        await expect(page.locator(control)).toBeInViewport({ ratio: 0.999 });
+      expect(await panel.evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true);
     }
   }
+});
+
+test('listening room contains focus, returns to the clock and does not expose background shortcuts', async ({
+  page,
+}) => {
+  await start(page);
+  await page.keyboard.press('m');
+  await expect(page.getByRole('dialog', { name: '网络电台' })).toBeVisible();
+  await expect(page.locator('.clock-shell')).toHaveAttribute('inert', '');
+  await page.keyboard.press('Shift+Tab');
+  await expect(page.locator('#music-motion')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#music-close')).toBeFocused();
+  await page.keyboard.press('s');
+  await expect(page.locator('#settings-dialog')).not.toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#music-open')).toBeFocused();
+  await expect(page.locator('.clock-shell')).not.toHaveAttribute('inert', '');
+});
+
+test('ambient motion respects reduced motion, can be enabled and pauses when closed', async ({
+  page,
+}) => {
+  await start(page);
+  await page.keyboard.press('m');
+  const panel = page.locator('#music-panel');
+  await expect(panel).toHaveAttribute('data-renderer', 'webgl');
+  await expect(panel).toHaveAttribute('data-animating', 'false');
+  await page.getByRole('button', { name: '开启动效', exact: true }).click();
+  await expect(panel).toHaveAttribute('data-animating', 'true');
+  const before = Number(await panel.getAttribute('data-frames'));
+  await expect
+    .poll(async () => Number(await panel.getAttribute('data-frames')))
+    .toBeGreaterThan(before + 2);
+  await page.getByRole('button', { name: '暂停画面动效', exact: true }).click();
+  const stopped = await panel.getAttribute('data-frames');
+  await page.waitForTimeout(150);
+  expect(await panel.getAttribute('data-frames')).toBe(stopped);
+  await page.getByRole('button', { name: '开启动效', exact: true }).click();
+  await page.keyboard.press('Escape');
+  const closed = await panel.getAttribute('data-frames');
+  await page.waitForTimeout(150);
+  expect(await panel.getAttribute('data-frames')).toBe(closed);
+  await page.keyboard.press('m');
+  await expect(panel).toHaveAttribute('data-animating', 'true');
+  await page.getByRole('button', { name: '静谧', exact: true }).click();
+  await expect(page.locator('#music-title')).toHaveText('静谧');
+  await expect(page.locator('#music-subtitle')).toHaveText('Serenity');
+});
+
+test('radio remains usable with a real poster when WebGL is unavailable', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (type, ...args) {
+      if (type === 'webgl') return null;
+      return original.call(this, type, ...args);
+    };
+  });
+  await streams(page);
+  await start(page);
+  await page.keyboard.press('m');
+  await expect(page.locator('#music-panel')).toHaveAttribute('data-renderer', 'poster');
+  await expect
+    .poll(() => page.locator('.music-poster').evaluate((img) => img.naturalWidth))
+    .toBeGreaterThan(0);
+  await page.getByRole('button', { name: '随心', exact: true }).click();
+  await page.getByRole('button', { name: '播放电台', exact: true }).click();
+  await expect(page.locator('#music-status')).toHaveText('播放中');
+  await page.getByRole('button', { name: '停止电台', exact: true }).click();
+  await expect(page.locator('#radio-stream')).toHaveCount(0);
+});
+
+test('graphics context loss falls back without interrupting playback and restores rendering', async ({
+  page,
+}) => {
+  await streams(page);
+  await start(page);
+  await page.keyboard.press('m');
+  await page.getByRole('button', { name: '播放电台', exact: true }).click();
+  await expect(page.locator('#music-status')).toHaveText('播放中');
+  await page.evaluate(() => {
+    window.lostGraphics = document
+      .querySelector('canvas')
+      .getContext('webgl')
+      .getExtension('WEBGL_lose_context');
+    window.lostGraphics.loseContext();
+  });
+  await expect(page.locator('#music-panel')).toHaveAttribute('data-renderer', 'poster');
+  await expect(page.locator('#music-status')).toHaveText('播放中');
+  await page.evaluate(() => window.lostGraphics.restoreContext());
+  await expect(page.locator('#music-panel')).toHaveAttribute('data-renderer', 'webgl');
 });

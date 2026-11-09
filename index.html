@@ -131,22 +131,67 @@
         </div>
       </header>
 
-      <section id="music-panel" class="music-panel" aria-label="网络电台" hidden>
-        <button
-          type="button"
-          class="icon-button music-play"
-          id="music-toggle"
-          aria-label="播放电台"
-          title="播放电台"
-        >
-          <svg><use id="music-toggle-icon" href="#icon-play" /></svg>
-        </button>
-        <div id="music-channels" class="music-channels" role="group" aria-label="电台频道"></div>
-        <span id="music-status" role="status">未播放</span>
-        <div class="music-actions">
+      <section
+        id="music-panel"
+        class="music-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="网络电台"
+        tabindex="-1"
+        hidden
+      >
+        <div class="music-art" aria-hidden="true">
+          <img class="music-poster" src="assets/radio-sculpture.png" alt="" />
+          <canvas id="music-canvas"></canvas>
+        </div>
+        <header class="music-header">
+          <div class="music-wordmark">HORIZON<span>听见此刻</span></div>
+          <div class="music-header-right">
+            <time id="music-time"></time>
+            <button
+              type="button"
+              class="music-return"
+              id="music-close"
+              aria-label="收起音乐控制"
+              title="返回时钟 · Esc"
+            >
+              返回时钟<svg><use href="#icon-close" /></svg>
+            </button>
+          </div>
+        </header>
+        <div class="music-composition">
+          <div class="music-editorial">
+            <div class="music-eyebrow"><span id="music-index">01</span><i></i> HORIZON RADIO</div>
+            <h1 id="music-title">舒缓</h1>
+            <p class="music-subtitle" id="music-subtitle">Mellow Mix</p>
+            <div class="music-state">
+              <i aria-hidden="true"></i><span id="music-status" role="status">未播放</span>
+            </div>
+            <p id="music-help" hidden></p>
+          </div>
+          <div class="music-art-caption" aria-hidden="true">
+            <span>THE SHAPE OF SOUND</span><span>音 · 形</span>
+          </div>
+        </div>
+        <div class="music-console">
+          <div class="music-transport">
+            <button
+              type="button"
+              class="music-play"
+              id="music-toggle"
+              aria-label="播放电台"
+              title="播放电台"
+            >
+              <svg><use id="music-toggle-icon" href="#icon-play" /></svg>
+            </button>
+            <div class="music-transport-label">
+              <span id="music-action-label">开始聆听</span><span>RADIO PARADISE</span>
+            </div>
+          </div>
+          <div id="music-channels" class="music-channels" role="group" aria-label="电台频道"></div>
           <label class="music-volume" title="电台音量"
-            ><svg aria-hidden="true"><use href="#icon-volume" /></svg
-            ><input
+            ><svg aria-hidden="true"><use href="#icon-volume" /></svg>
+            <input
               id="music-volume"
               type="range"
               min="0"
@@ -154,8 +199,11 @@
               step="1"
               value="30"
               aria-label="电台音量"
-            /><span id="music-volume-value">30%</span></label
-          >
+            />
+            <span id="music-volume-value">30%</span>
+          </label>
+        </div>
+        <footer class="music-footer">
           <a
             id="music-source"
             aria-label="Radio Paradise 官方来源"
@@ -164,17 +212,18 @@
             title="查看电台官方来源"
             >Radio Paradise ↗</a
           >
+          <span class="music-footer-note">LIVE RADIO · 无需登录</span>
           <button
             type="button"
-            class="icon-button"
-            id="music-close"
-            aria-label="收起音乐控制"
-            title="收起"
+            class="music-motion"
+            id="music-motion"
+            aria-label="暂停画面动效"
+            aria-pressed="false"
+            title="暂停画面动效"
           >
-            <svg><use href="#icon-close" /></svg>
+            <svg><use href="#icon-pause" /></svg><span>画面动效</span>
           </button>
-        </div>
-        <p id="music-help" hidden></p>
+        </footer>
       </section>
 
       <section class="time-section" aria-label="当前时间">

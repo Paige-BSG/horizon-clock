@@ -90,3 +90,15 @@ Normal-motion tests reproduced a coverage dip when both background layers faded 
 The outgoing image now stays fully opaque beneath the incoming fade. A subsequent request waits for the current fade to finish, then checks that it is still the latest selection before reusing the hidden layer. The contrast mask remains above both images. The initial image is decoded and displayed without a separate image-opacity fade; the existing backdrop entrance remains. Reduced-motion settings still skip transitions.
 
 All 54 browser regressions, 20 Node checks, frontend build and formatting/whitespace checks passed locally. The two new checks exercise normal-motion mid-fade coverage and rapid selection. These results establish browser behavior; Omarchy/WebKit verification is recorded separately after deployment. Paige canceled the running 72-hour observation; it was stopped, its records retained, and no new observation is to be started without a new request.
+
+## Omarchy music and transition checks — 2026-11-09
+
+Source `b38bca8` passed all six Rust tests, Linux all-target clippy with warnings denied, and normal/QA native release builds on the target. An isolated QA profile passed 13 native checks at the existing 1.3636 device scale: actual session D-Bus discovery through Tauri IPC, displayed test metadata, Play/Pause/Previous/Next, rejected non-media and stale-owner requests, clock updates and connected music layout. The test service was explicitly labeled as a fixture and played no audio. Stopping it removed it from discovery and disabled its old controls. This does not qualify the intended official NetEase player.
+
+Both actual WebKit transition checks retained minimum combined image coverage of 1.0 across 55 samples each, with motion enabled, including rapid requests. This verifies the reported dark-gap mechanism in the native engine; physical visual acceptance remains with the user.
+
+The normal installed build restored full screen, Shanghai weather and awake inhibition. Its compositor screenshot exposed an additional empty-player layout overflow: 803 CSS pixels of content in the 792-pixel logical viewport. A new browser regression reproduced that exact overflow. Reducing the expanded music view's time-height limit from 30% to 28% restored 792-pixel containment in live WebKit QA style validation and in the browser regression, including desktop and narrow-screen empty states. The collapsed clock retains its original size.
+
+The empty-state follow-up passed all 55 browser regressions, 20 Node checks, frontend build, formatting and whitespace checks.
+
+The previous observation was canceled after 43 samples and 2522.2 seconds, with its log retained; this is not a 72-hour pass. No replacement observation is authorized. Native evidence remains in the private handoff evidence directory. The official NetEase web player was opened in an independent Chromium window, with the clock returned to the foreground; no account or real music playback was tested.

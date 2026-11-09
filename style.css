@@ -326,7 +326,7 @@ body.music-visible .clock-face {
   padding: 0 0 16px;
 }
 body.music-visible .main-time {
-  font-size: min(calc(var(--app-vw, 1vw) * 27), calc(var(--app-vh, 1vh) * 30));
+  font-size: min(calc(var(--app-vw, 1vw) * 27), calc(var(--app-vh, 1vh) * 28));
 }
 body.music-visible .information {
   padding-top: 24px;

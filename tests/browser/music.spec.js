@@ -221,6 +221,33 @@ test('a closed or hidden panel stops polling and discards late results', async (
   await expect(page.locator('#music-open')).toBeFocused();
 });
 
+test('empty music controls keep the footer inside the clock viewport', async ({ page }) => {
+  await start(page, []);
+  await page.keyboard.press('m');
+  await expect(page.locator('#music-help')).toBeVisible();
+  for (const [width, height] of [
+    [1408, 792],
+    [1280, 720],
+    [390, 844],
+  ]) {
+    await page.setViewportSize({ width, height });
+    await page.waitForFunction(
+      ({ width, height }) =>
+        parseFloat(document.documentElement.style.getPropertyValue('--app-vw')) === width / 100 &&
+        parseFloat(document.documentElement.style.getPropertyValue('--app-vh')) === height / 100,
+      { width, height }
+    );
+    expect(
+      await page.evaluate(() => [
+        document.documentElement.scrollWidth,
+        document.documentElement.scrollHeight,
+      ]),
+      `${width}x${height}`
+    ).toEqual([width, height]);
+    await expect(page.locator('#night-toggle')).toBeInViewport({ ratio: 1 });
+  }
+});
+
 test('connection failures disable stale controls and recover automatically', async ({ page }) => {
   await start(page);
   await page.keyboard.press('m');

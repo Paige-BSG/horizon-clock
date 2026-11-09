@@ -1,0 +1,22 @@
+name: Bug report
+description: Report a problem with HORIZON
+body:
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: Include steps, expected behavior and actual behavior. Do not include private information.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: HORIZON version
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Environment
+      description: OS/version, desktop/Wayland session, display size/scaling, and browser or desktop build.
+  - type: textarea
+    attributes:
+      label: Evidence
+      description: Relevant screenshots or redacted errors. A successful build is separate from on-device behavior.

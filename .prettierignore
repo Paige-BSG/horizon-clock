@@ -1,0 +1,10 @@
+node_modules
+dist
+previews
+src-tauri/target
+src-tauri/gen
+test-results
+playwright-report
+assets/OFL.txt
+package-lock.json
+src-tauri/Cargo.lock

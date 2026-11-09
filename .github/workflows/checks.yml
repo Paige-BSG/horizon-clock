@@ -1,0 +1,48 @@
+name: Checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm run check
+      - run: npm run format:check
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+  linux-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      - name: Install Linux build prerequisites
+        run: sudo apt-get update && sudo apt-get install -y build-essential libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libssl-dev libxdo-dev
+      - run: rustup toolchain install stable --profile minimal
+      - run: npm ci
+      - run: npm run build
+      - run: npm run desktop:check
+      - run: npm run desktop:build -- --no-bundle
+      - name: Test user-local installation and removal
+        run: |
+          bash scripts/install-linux.sh
+          test -x "$HOME/.local/share/horizon-clock/horizon-clock"
+          test -f "$HOME/.local/share/applications/horizon-clock.desktop"
+          bash scripts/uninstall-linux.sh
+          test ! -e "$HOME/.local/share/horizon-clock/horizon-clock"
+          test ! -e "$HOME/.local/share/applications/horizon-clock.desktop"

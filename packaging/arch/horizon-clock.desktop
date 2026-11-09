@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=HORIZON
+Comment=Ambient wall clock
+Exec=horizon-clock
+Icon=horizon-clock
+Categories=Utility;Clock;
+Terminal=false

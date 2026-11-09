@@ -21,3 +21,4 @@ playwright-report/
 *.AppImage
 *.pkg.tar.zst
 previews/
+release/

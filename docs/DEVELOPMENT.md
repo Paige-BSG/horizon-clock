@@ -22,7 +22,9 @@ When testing against an existing Chrome installation, set `PLAYWRIGHT_CHROMIUM_C
 
 ## Omarchy / Linux source build
 
-This alpha has no qualified prebuilt Linux release yet. Developer source builds require Rust and the [Tauri Linux prerequisites](https://tauri.app/start/prerequisites/#linux). On Arch-derived systems, prepare the documented WebKitGTK 4.1, GTK development tools, OpenSSL, librsvg, appindicator and build tools through the OS package manager. Check the actual device configuration first; this repository does not run a remote bootstrap script or upgrade the operating system.
+For the prebuilt x86_64 Omarchy preview package, see [installation](INSTALL.md). It does not require a developer toolchain. This alpha is not a fully qualified appliance release.
+
+Developer source builds require Rust and the [Tauri Linux prerequisites](https://tauri.app/start/prerequisites/#linux). On Arch-derived systems, prepare the documented WebKitGTK 4.1, GTK development tools, OpenSSL, librsvg, appindicator and build tools through the OS package manager. Check the actual device configuration first; this repository does not run a remote bootstrap script or upgrade the operating system.
 
 ```sh
 git clone https://github.com/Paige-BSG/horizon-clock.git
@@ -43,6 +45,17 @@ bash scripts/uninstall-linux.sh
 Only an autostart entry pointing at this exact installation is removed. Settings are intentionally retained. Do not manually delete webview data without backing up settings first.
 
 For a Linux AppImage build, use `npm run desktop:build` on Linux after installing the distribution prerequisites. The appimage target is configured, but a successful build is not the Omarchy runtime qualification or release acceptance.
+
+## Omarchy package build
+
+On x86_64 Omarchy / Arch Linux with the source-build prerequisites, `base-devel`, `desktop-file-utils` and the runtime dependencies listed in `packaging/arch/PKGBUILD` already installed:
+
+```sh
+npm ci
+npm run package:arch
+```
+
+This rebuilds the normal executable with locked Rust dependencies, without the `native-qa` feature, then runs `makepkg` in a temporary directory. It produces `release/horizon-clock-0.2.0alpha1-1-x86_64.pkg.tar.zst` and its SHA256 file. It does not install packages, use sudo, modify the running application or publish anything. The package includes the desktop entry, icon and asset notices, and preserves the verified executable without extra stripping. Keep its version aligned with `package.json`, Cargo and Tauri configuration. A published release must identify its source commit and record package installation/runtime verification separately from prior source-build checks.
 
 ## Linux radio runtime
 

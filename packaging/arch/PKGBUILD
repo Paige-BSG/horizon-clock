@@ -1,0 +1,25 @@
+pkgname=horizon-clock
+pkgver=0.2.0alpha1
+pkgrel=1
+pkgdesc='Ambient wall clock with landscapes, weather and optional network radio'
+arch=('x86_64')
+url='https://github.com/Paige-BSG/horizon-clock'
+license=('MIT')
+depends=(
+  'cairo' 'dbus' 'gcc-libs' 'gdk-pixbuf2' 'glib2' 'glibc' 'gtk3'
+  'libsoup3' 'wayland' 'webkit2gtk-4.1' 'xdg-utils'
+  'gstreamer' 'gst-plugins-good' 'gst-libav' 'libpulse'
+)
+# Preserve the exact normal-build executable that is verified before publication.
+options=('!strip' '!debug')
+
+package() {
+  install -Dm755 "$startdir/horizon-clock" "$pkgdir/usr/bin/horizon-clock"
+  install -Dm644 "$startdir/horizon-clock.desktop" "$pkgdir/usr/share/applications/horizon-clock.desktop"
+  install -Dm644 "$startdir/icon.png" "$pkgdir/usr/share/icons/hicolor/256x256/apps/horizon-clock.png"
+  install -Dm644 "$startdir/LICENSE" "$pkgdir/usr/share/licenses/horizon-clock/LICENSE"
+  local name
+  for name in README.md THIRD_PARTY_NOTICES.md assets/OFL.txt assets/landscapes/CREDITS.md assets/landscapes/commons/CREDITS.md assets/landscapes/commons/CATALOG.json; do
+    install -Dm644 "$startdir/$name" "$pkgdir/usr/share/doc/horizon-clock/$name"
+  done
+}

@@ -7,7 +7,7 @@
 
 HORIZON 把闲置平板变成客厅里的环境时钟：远处一眼看清时间，靠近时调整风景、天气与夜间显示。
 
-**当前是 `0.2.0-alpha.1` 开发预览版。** 界面和桌面应用已实现，首个目标平台为 Omarchy 4.5。目标平板上的运行、长期常亮和 72 小时验收仍待完成。当前版本没有正式认证的 Linux 下载包，也没有自动安装更新的能力。
+**当前是 `0.2.0-alpha.1` 开发预览版。** 首个目标平台为 Omarchy 4.5 / x86_64，提供原生安装包，见 [下载安装说明](docs/INSTALL.md) 和 [GitHub Releases](https://github.com/Paige-BSG/horizon-clock/releases/tag/v0.2.0-alpha.1)。Omarchy 上已有原生功能验证；触屏、长期常亮和 72 小时验收仍待完成。当前没有自动安装更新的能力。
 
 ## 已有功能
 
@@ -41,7 +41,9 @@ npm run dev
 
 ## Omarchy 桌面版
 
-当前提供开发者源码构建流程，见 **[开发与安装说明](docs/DEVELOPMENT.md)**。准备 Rust 和 Tauri Linux 系统依赖后：
+**普通用户：** 下载 `.pkg.tar.zst` 安装包，校验后用 `sudo pacman -U ./文件名.pkg.tar.zst` 安装，无需 Node.js 或 Rust。完整步骤、旧源码安装迁移及卸载见 **[下载安装说明](docs/INSTALL.md)**。
+
+**开发者源码构建：** 见 **[开发与安装说明](docs/DEVELOPMENT.md)**。准备 Rust 和 Tauri Linux 系统依赖后：
 
 ```sh
 npm ci
@@ -73,4 +75,4 @@ bash scripts/install-linux.sh
 
 HORIZON is a local-first ambient clock for a wall-mounted tablet. It combines large readable time, bundled landscape backgrounds, optional city weather, scheduled night dimming, settings backup, and a Tauri desktop application. Omarchy 4.5 is the first qualification target.
 
-This is an **alpha**, not a qualified appliance release. Native build success and browser regressions are recorded separately from Omarchy runtime, physical readability and the required 72-hour soak test. Start with `npm ci && npm run dev`; native build instructions and release gates are linked above. Original code is MIT; bundled fonts/photos and the optional weather service have separate licenses and terms.
+This is an **alpha**, not a qualified appliance release. An x86_64 Omarchy package and [installation instructions](docs/INSTALL.md) are available. Native build success and browser regressions are recorded separately from Omarchy runtime, physical readability and the required 72-hour soak test. For development, start with `npm ci && npm run dev`; native build instructions and release gates are linked above. Original code is MIT; bundled fonts/photos and the optional weather service have separate licenses and terms.

@@ -20,6 +20,7 @@
     "check": "node --check app.js && node --check lib/product.js && npm test && npm run build",
     "desktop:dev": "node scripts/tauri.mjs dev",
     "desktop:build": "node scripts/tauri.mjs build",
+    "package:arch": "bash scripts/package-arch.sh",
     "desktop:check": "node scripts/cargo.mjs check --locked --manifest-path src-tauri/Cargo.toml",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

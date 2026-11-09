@@ -35,7 +35,7 @@ Implementation has browser coverage and native Omarchy picker/storage checks. De
 
 - [ ] Complete a documented 72-hour physical-device soak test covering sleep prevention, midnight, night transitions, network loss/recovery and process restart.
 - [ ] Verify login autostart, clean exit, uninstall, data retention and reinstall on the target OS.
-- [ ] Produce a versioned Linux package/AppImage with checksums, asset notices and user installation instructions.
+- [x] Produce a versioned x86_64 Omarchy / Arch Linux preview package with checksums, asset notices and user installation instructions. Full product qualification remains separate.
 - [ ] Define update signing, key custody, distribution channel, data migration and rollback. Do not generate or store signing secrets as part of ordinary builds.
 - [ ] Implement and verify authenticated update installation; current metadata checking is not a self-updater.
 - [ ] Test update from the previous published version without losing settings.

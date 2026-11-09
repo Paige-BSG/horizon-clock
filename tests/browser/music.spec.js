@@ -340,6 +340,11 @@ test('particles follow decoded audio energy and settle when playback stops', asy
     values.push(Number(await page.locator('#music-panel').getAttribute('data-energy')));
   }
   expect(Math.max(...values) - Math.min(...values)).toBeGreaterThan(0.015);
+  await page.locator('#music-volume').fill('0');
+  await expect
+    .poll(async () => Number(await page.locator('#music-panel').getAttribute('data-energy')))
+    .toBeLessThan(0.005);
+  await expect(page.locator('#music-analysis')).toBeHidden();
   await page.getByRole('button', { name: '停止电台', exact: true }).click();
   await expect
     .poll(async () => Number(await page.locator('#music-panel').getAttribute('data-energy')))

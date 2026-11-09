@@ -48,6 +48,7 @@
         <circle cx="8" cy="8" r="1.5" />
         <path d="m3 17 5-5 4 4 4-6 5 7" />
       </symbol>
+      <symbol id="icon-next" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" /></symbol>
     </svg>
 
     <div class="landscape-backdrop" id="landscape-backdrop" aria-hidden="true">
@@ -74,12 +75,20 @@
           <span class="live-label"><i></i>此刻，刚刚好</span>
           <div class="toolbar">
             <button
+              class="background-open"
+              id="background-open"
+              aria-label="选择背景"
+              title="选择背景"
+            >
+              <svg><use href="#icon-landscape" /></svg><span>换背景</span>
+            </button>
+            <button
               class="icon-button"
               id="background-next"
               aria-label="换一幅风景"
               title="换一幅风景 · B"
             >
-              <svg><use href="#icon-landscape" /></svg>
+              <svg><use href="#icon-next" /></svg>
             </button>
             <button class="icon-button" id="fullscreen" aria-label="进入全屏" title="全屏 · F">
               <svg><use href="#icon-expand" /></svg>
@@ -205,6 +214,104 @@
         </button>
       </footer>
     </main>
+
+    <dialog id="background-picker" class="background-picker" aria-labelledby="picker-title">
+      <div class="picker-heading">
+        <div>
+          <div class="eyebrow">YOUR VIEW</div>
+          <h1 id="picker-title">换个风景</h1>
+        </div>
+        <div class="picker-heading-actions">
+          <button type="button" class="secondary-button" id="quick-photo-import">导入照片</button>
+          <button type="button" class="icon-button" id="picker-close" aria-label="关闭背景选择">
+            <svg><use href="#icon-close" /></svg>
+          </button>
+        </div>
+      </div>
+      <p class="picker-context" id="picker-context">正在设置白天 · 选好即用，自动保存</p>
+      <div class="picker-content">
+        <div class="picker-section-heading"><span>精选风景</span><span>点选后返回时钟</span></div>
+        <div class="quick-scene-grid" role="group" aria-label="选择背景">
+          <button
+            type="button"
+            class="quick-scene"
+            data-quick-scene="lake"
+            aria-label="使用湖畔晨雾"
+            aria-pressed="false"
+          >
+            <img src="assets/landscapes/lake.jpg" alt="" /><span>湖畔晨雾</span
+            ><svg><use href="#icon-check" /></svg>
+          </button>
+          <button
+            type="button"
+            class="quick-scene"
+            data-quick-scene="mountain"
+            aria-label="使用群山之间"
+            aria-pressed="false"
+          >
+            <img src="assets/landscapes/mountain.jpg" alt="" /><span>群山之间</span
+            ><svg><use href="#icon-check" /></svg>
+          </button>
+          <button
+            type="button"
+            class="quick-scene"
+            data-quick-scene="coast"
+            aria-label="使用蓝色潮汐"
+            aria-pressed="false"
+          >
+            <img src="assets/landscapes/coast.jpg" alt="" /><span>蓝色潮汐</span
+            ><svg><use href="#icon-check" /></svg>
+          </button>
+          <button
+            type="button"
+            class="quick-scene quick-solid"
+            id="quick-solid"
+            aria-label="使用纯色背景"
+            aria-pressed="false"
+          >
+            <span>安静的纯色</span><svg><use href="#icon-check" /></svg>
+          </button>
+        </div>
+        <div class="picker-section-heading picker-album-heading">
+          <span>我的照片 <small id="quick-photo-status" aria-live="polite"></small></span>
+        </div>
+        <div id="quick-photo-list" class="quick-scene-grid" aria-label="选择我的照片"></div>
+        <p id="quick-photo-empty" class="quick-photo-empty">
+          选一张自己的照片，导入后直接使用。原照片保留在原处。
+        </p>
+      </div>
+      <div id="quick-adjustments" class="quick-adjustments">
+        <div class="quick-brightness">
+          <div class="range-label">
+            <label for="quick-background-brightness">背景亮度</label
+            ><output id="quick-background-brightness-value" for="quick-background-brightness"
+              >55%</output
+            >
+          </div>
+          <input
+            id="quick-background-brightness"
+            class="dim-slider"
+            type="range"
+            min="25"
+            max="65"
+            value="55"
+          />
+        </div>
+        <div class="quick-rotation">
+          <div>
+            <span>风景轮换</span>
+            <p id="quick-rotation-status">自动更换风景</p>
+          </div>
+          <button type="button" class="secondary-button" id="quick-rotate">固定这张</button>
+        </div>
+      </div>
+      <div class="picker-footer">
+        <span>选图与亮度按昼夜保存，轮换开关共用。</span
+        ><button type="button" id="picker-advanced">
+          构图与更多设置 <span aria-hidden="true">↗</span>
+        </button>
+      </div>
+    </dialog>
 
     <dialog id="settings-dialog" aria-labelledby="settings-title">
       <form id="settings-form">

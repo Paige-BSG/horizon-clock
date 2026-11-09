@@ -23,6 +23,7 @@ const backgrounds = createBackgrounds({
   save,
   toast,
   applyNight: () => applyNight(preferences),
+  openAdvanced: () => openSettings('background'),
 });
 function save() {
   try {
@@ -169,8 +170,9 @@ function toggleNight() {
   renderPreferences();
   save();
 }
-function openSettings() {
+function openSettings(tab) {
   document.body.classList.remove('immersive');
+  if (typeof tab === 'string') selectSettingsTab(tab);
   dialog.showModal();
 }
 function resetIdle() {
@@ -179,8 +181,8 @@ function resetIdle() {
   idleTimer = setTimeout(() => {
     if (
       !document.querySelector('dialog[open]') &&
-      !document.querySelector('.toolbar:focus-within') &&
-      document.activeElement !== $('night-toggle')
+      !document.querySelector('.toolbar :focus-visible') &&
+      !$('night-toggle').matches(':focus-visible')
     )
       document.body.classList.add('immersive');
   }, 8000);
@@ -218,19 +220,21 @@ $('settings-form').addEventListener('submit', (event) => {
   event.preventDefault();
   dialog.close();
 });
-dialog.addEventListener('click', (event) => {
-  if (event.target === dialog) {
-    const r = dialog.getBoundingClientRect();
-    if (
-      event.clientX < r.left ||
-      event.clientX > r.right ||
-      event.clientY < r.top ||
-      event.clientY > r.bottom
-    )
-      dialog.close();
-  }
-});
+for (const modal of [dialog, $('background-picker')])
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) {
+      const r = modal.getBoundingClientRect();
+      if (
+        event.clientX < r.left ||
+        event.clientX > r.right ||
+        event.clientY < r.top ||
+        event.clientY > r.bottom
+      )
+        modal.close();
+    }
+  });
 dialog.addEventListener('close', resetIdle);
+$('background-picker').addEventListener('close', resetIdle);
 document.querySelectorAll('.theme-option').forEach((button) =>
   button.addEventListener('click', () => {
     preferences.theme = button.dataset.color;

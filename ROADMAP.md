@@ -19,6 +19,7 @@ These checkboxes describe implementation, not Omarchy physical-device qualificat
 - [x] Local photo import with per-photo framing, deduplication, persistence and participation controls.
 - [x] Independent day/night background sources, contrast and information brightness, with temporary in-settings previews.
 - [x] Versioned settings backups that accept v1 and v2; photos remain in the device library.
+- [x] Direct background picker, import-to-display, quick brightness/pinning and automatic return to the clock; full controls remain available. Browser validation is recorded separately from the running device build.
 
 Implementation has browser coverage and native Omarchy picker/storage checks. Device observations and remaining acceptance gates are recorded in docs/VALIDATION.md.
 

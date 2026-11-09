@@ -54,3 +54,9 @@ The normal installed build, long-duration observations and login-cycle results m
 The normal build was installed, removed and reinstalled while retaining the application data directory, then launched through its installed desktop entry. Fullscreen, Shanghai weather, automatic night scheduling and awake mode recovered from the retained profile. The native autostart checkbox created an entry pointing at the installed executable; a full logout/login cycle remains pending. The normal process had no listener on the QA port. The original Pi console was retained and the temporary Herdr/Pi pane was closed.
 
 ![Installed Omarchy clock at the user's existing fractional scale](images/omarchy-native.png)
+
+## Quick daily controls — browser revision
+
+The direct background picker retains all detailed settings and adds immediate scene selection, import-to-display, brightness and pinning. Local verification passed 14 Node checks and 33 browser regressions. The nine new regressions cover the two-click selection path, current day/night group, chooser-triggered import from solid color, cancellation/failure, quick controls and detailed settings, slow-import races, logical viewport containment and pointer/keyboard focus behavior. Desktop and narrow-screen screenshots were inspected; see [interaction paths](INTERACTION.md).
+
+The native Omarchy results above apply to commit `c1fb704`. The new picker has not replaced that installed build or its ongoing 72-hour observation. Its native chooser/touch behavior remains to be checked after this observation.

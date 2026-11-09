@@ -259,6 +259,13 @@ test('radio layout fits empty and playing states at desktop, scaled and narrow s
         ]),
         `${width}x${height}; ${playing}`
       ).toEqual([width, height]);
+      const channels = page.getByRole('group', { name: '电台频道' }).getByRole('button');
+      for (const button of await channels.all()) {
+        await expect(button).toBeInViewport({ ratio: 1 });
+        expect((await button.boundingBox()).height).toBeLessThanOrEqual(44);
+      }
+      if (width <= 700)
+        expect((await page.locator('#music-panel').boundingBox()).height).toBeLessThan(130);
       await expect(page.locator('#night-toggle')).toBeInViewport({ ratio: 1 });
     }
   }

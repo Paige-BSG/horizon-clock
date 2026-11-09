@@ -54,6 +54,9 @@ async function start(page) {
   await page.goto('/');
 }
 async function open(page) {
+  // Real pointer movement wakes the toolbar after the simulated day of inactivity.
+  await page.mouse.move(0, 0);
+  await page.mouse.move(1, 1);
   await page.locator('#background-open').click();
 }
 async function enable(page) {

@@ -221,6 +221,9 @@ test('desktop controls call only the intended native operations', async ({ page 
   await expect(page.locator('#wake-status')).toHaveText('屏幕常亮已开启');
   await page.locator('#keep-awake').uncheck();
   await expect(page.locator('#wake-status')).toHaveText('常亮待开启');
+  await page.getByRole('button', { name: '完成设置' }).click();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button', { name: '进入全屏', exact: true })).toBeVisible();
   expect(await page.evaluate(() => window.testNativeCalls)).toEqual(
     expect.arrayContaining([
       { command: 'set_autostart', args: { enabled: true } },
@@ -228,4 +231,16 @@ test('desktop controls call only the intended native operations', async ({ page 
       { command: 'set_keep_awake', args: { enabled: false } },
     ])
   );
+});
+
+test('weather symbols reflect rain rather than showing sunshine at night', async ({ page }) => {
+  const weather = weatherFixture();
+  weather.current.weather_code = 95;
+  weather.current.is_day = 0;
+  await page.route(api, (route) => route.fulfill({ json: weather }));
+  await start(page, { weatherEnabled: true });
+  await expect(page.locator('#weather-description')).toHaveText('雷阵雨');
+  await expect(page.locator('#weather-sun')).toBeHidden();
+  await expect(page.locator('#weather-rain')).toBeVisible();
+  await expect(page.locator('#weather-snow')).toBeHidden();
 });

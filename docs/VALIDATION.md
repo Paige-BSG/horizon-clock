@@ -4,17 +4,19 @@ Validation layers are separate. A browser test or successful executable build do
 
 ## Local checks — 2026-11-09
 
-| Layer                                        | Evidence / scope                                                                                                                                      |
-| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit regressions                             | `npm test`: settings validation/migration, backup boundaries, night schedules and overrides, weather parsing/units/expiry                             |
-| Browser regressions                          | `npm run test:e2e`: first-run consent, midnight/year rollover, backgrounds, weather failures/timeouts/cache, backup, updates and eight viewport sizes |
-| Real weather request                         | An actual Open-Meteo response for Shanghai was retrieved and parsed successfully; this is separate from mocked weather regressions                    |
-| Frontend distribution                        | `npm run build` produces the fixed asset set in `dist/`                                                                                               |
-| Native compilation                           | Local macOS ARM64 `cargo check` and application bundle build succeeded; not Linux runtime proof                                                       |
-| Linux compilation/install                    | Automated by the public repository's **Checks** workflow; inspect its result for the relevant commit                                                  |
-| Visual inspection                            | Current browser-rendered screenshots are under `docs/images/`; they do not establish distant viewing or hardware brightness acceptance                |
-| Omarchy physical qualification               | Pending                                                                                                                                               |
-| 72-hour soak and update/reinstall acceptance | Pending                                                                                                                                               |
+| Layer                                        | Evidence / scope                                                                                                                                                                              |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit regressions                             | `npm test`: 11 passing checks for settings validation/migration, backup boundaries, night schedules and overrides, weather parsing/units/expiry                                               |
+| Browser regressions                          | `npm run test:e2e`: 14 passing browser regressions covering first-run consent, midnight/year rollover, backgrounds, weather failures/timeouts/cache, backup, updates and eight viewport sizes |
+| Real weather request                         | An actual Open-Meteo response for Shanghai was retrieved and parsed successfully; this is separate from mocked weather regressions                                                            |
+| Frontend distribution                        | `npm run build` produces the fixed asset set in `dist/`                                                                                                                                       |
+| Native compilation                           | Local macOS ARM64 `cargo check` and application bundle build succeeded; not Linux runtime proof                                                                                               |
+| Linux compilation/install                    | Automated by the public repository's **Checks** workflow; inspect its result for the relevant commit                                                                                          |
+| Visual inspection                            | Current browser-rendered screenshots are under `docs/images/`; they do not establish distant viewing or hardware brightness acceptance                                                        |
+| Omarchy physical qualification               | Pending                                                                                                                                                                                       |
+| 72-hour soak and update/reinstall acceptance | Pending                                                                                                                                                                                       |
+
+The local macOS release build emitted a Rust toolchain symbol-stripping warning (`rust-objcopy` could not load `libLLVM.dylib`). The build exited successfully and produced the application bundle. This does not establish native runtime behavior. `cargo check` and `cargo clippy -- -D warnings` passed.
 
 ## Physical-device checklist
 

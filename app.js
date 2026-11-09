@@ -384,7 +384,9 @@ document.addEventListener('keydown', (event) => {
   )
     return;
   if (event.key === 'Escape' && isDesktop)
-    native('set_fullscreen', { enabled: false }).catch(() => toast('未能退出全屏。'));
+    native('set_fullscreen', { enabled: false })
+      .then(() => $('fullscreen').setAttribute('aria-label', '进入全屏'))
+      .catch(() => toast('未能退出全屏。'));
   if (event.key.toLowerCase() === 'f') {
     event.preventDefault();
     toggleFullscreen();

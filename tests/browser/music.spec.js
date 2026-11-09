@@ -368,3 +368,20 @@ test('playback and clock survive an unavailable particle canvas', async ({ page 
   await page.getByRole('button', { name: '停止电台', exact: true }).click();
   await expect(page.locator('#radio-stream')).toHaveCount(0);
 });
+
+test('music clock fits the logical display when native viewport units differ under font scaling', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await start(page, {}, true);
+  await page.keyboard.press('m');
+  await page.evaluate(() => {
+    document.documentElement.style.setProperty('--app-vw', '14.08px');
+    document.documentElement.style.setProperty('--app-vh', '7.92px');
+  });
+  const size = await page
+    .locator('.main-time')
+    .evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+  expect(size).toBeLessThan(220);
+  expect(size).toBeGreaterThan(180);
+});

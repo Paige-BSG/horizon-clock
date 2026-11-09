@@ -234,7 +234,7 @@ svg {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding-right: clamp(22px, 3vw, 48px);
+  padding-right: clamp(22px, calc(var(--app-vw, 1vw) * 3), 48px);
   border-right: 1px solid #c5dedc28;
   align-self: stretch;
   justify-content: center;
@@ -290,7 +290,7 @@ svg {
 }
 #music-title {
   font:
-    300 clamp(30px, 3vw, 48px)/1.2 'Songti SC',
+    300 clamp(30px, calc(var(--app-vw, 1vw) * 3), 48px)/1.2 'Songti SC',
     'Noto Serif CJK SC',
     serif;
   color: var(--text);
@@ -300,14 +300,14 @@ svg {
 #music-subtitle {
   color: #a8bdb7;
   font:
-    300 clamp(14px, 1.3vw, 20px) Plex,
+    300 clamp(14px, calc(var(--app-vw, 1vw) * 1.3), 20px) Plex,
     sans-serif;
   letter-spacing: 1px;
 }
 .music-art {
   position: relative;
   width: 100%;
-  height: clamp(160px, 34vh, 340px);
+  height: clamp(160px, calc(var(--app-vh, 1vh) * 34), 340px);
   min-height: 0;
   margin: 10px 0 6px;
 }
@@ -441,7 +441,7 @@ svg {
   height: 17px;
 }
 .music-volume input {
-  width: clamp(65px, 8vw, 124px);
+  width: clamp(65px, calc(var(--app-vw, 1vw) * 8), 124px);
   height: 30px;
   accent-color: var(--radio-accent);
 }
@@ -485,7 +485,7 @@ body.music-visible .clock-shell {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
-  column-gap: clamp(28px, 4vw, 64px);
+  column-gap: clamp(28px, calc(var(--app-vw, 1vw) * 4), 64px);
   height: calc(var(--app-vh, 1svh) * 100);
   min-height: 0;
 }
@@ -511,13 +511,13 @@ body.music-visible .clock-face {
   margin: 0;
   min-height: 0;
   padding: 14px 0 22px;
-  gap: 2vw;
+  gap: calc(var(--app-vw, 1vw) * 2);
 }
 body.music-visible .main-time {
-  font-size: clamp(110px, min(17vw, 27vh), 290px);
+  font-size: clamp(110px, min(calc(var(--app-vw, 1vw) * 17), calc(var(--app-vh, 1vh) * 27)), 290px);
 }
 body.music-visible .seconds {
-  font-size: clamp(32px, 4.5vw, 72px);
+  font-size: clamp(32px, calc(var(--app-vw, 1vw) * 4.5), 72px);
 }
 body.music-visible .seconds-block {
   margin-top: 8px;
@@ -550,7 +550,7 @@ body.music-visible .date-line {
   gap: 8px 12px;
 }
 body.music-visible .date-line > span:first-child {
-  font-size: clamp(24px, 2.5vw, 38px);
+  font-size: clamp(24px, calc(var(--app-vw, 1vw) * 2.5), 38px);
 }
 body.music-visible .weekday {
   font-size: 14px;
@@ -581,7 +581,7 @@ body.music-visible .weather-art {
   height: 42px;
 }
 body.music-visible .temperature {
-  font-size: clamp(38px, 4vw, 60px);
+  font-size: clamp(38px, calc(var(--app-vw, 1vw) * 4), 60px);
 }
 body.music-visible .weather-description {
   font-size: 12px;
@@ -619,7 +619,7 @@ body.music-visible .landscape-backdrop {
 }
 @media (max-height: 680px) and (min-width: 741px) {
   .music-art {
-    height: 27vh;
+    height: calc(var(--app-vh, 1vh) * 27);
   }
   .music-title-line {
     margin-top: 8px;
@@ -664,7 +664,7 @@ body.music-visible .landscape-backdrop {
     gap: 14px;
   }
   body.music-visible .main-time {
-    font-size: clamp(90px, 25vw, 150px);
+    font-size: clamp(90px, calc(var(--app-vw, 1vw) * 25), 150px);
   }
   body.music-visible .seconds {
     font-size: 34px;

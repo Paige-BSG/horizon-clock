@@ -1672,11 +1672,13 @@ kbd {
   opacity: 0;
   transition: opacity 1.8s ease-in-out;
 }
-.landscape-layer.visible {
+.landscape-layer.visible,
+.landscape-layer.retained {
   opacity: 1;
 }
 .landscape-shade {
   position: absolute;
+  z-index: 2;
   inset: 0;
   background:
     linear-gradient(

@@ -6,6 +6,8 @@ Vanilla HTML, CSS and ECMAScript modules preserve the accepted visual design wit
 
 `scripts/build.mjs` copies a fixed frontend file set into `dist/`. No source server, package manager or Node runtime is required by the installed app. Assets are local and embedded in the desktop distribution. `scripts/serve.mjs` is a loopback-only development server with an explicit file allowlist.
 
+Background transitions retain an opaque outgoing image under a decoded incoming image, with the contrast mask above both. Only the incoming image fades; simultaneous fade-out/fade-in would expose the dark backdrop. Reuse of the two image layers waits for transition completion (with a bounded fallback), and superseded requests are discarded before committing. Reduced-motion settings skip the fade.
+
 ## Desktop
 
 Tauri 2 embeds the frontend in the platform webview. Five narrow commands expose fullscreen state/control, autostart state/control and awake control. Autostart uses the maintained Tauri plugin and changes only after user interaction. Native awake requests run off the interface thread.

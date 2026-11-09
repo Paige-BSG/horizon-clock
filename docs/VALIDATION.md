@@ -82,3 +82,11 @@ The optional inline music bar adds song/artist/status, play/pause, previous/next
 - A read-only check on the Omarchy target found Chromium available and no currently exported MPRIS players. The normal clock and its ongoing 72-hour observer were active. No player was installed or launched, no account was accessed, and the installed clock/observer were not restarted or replaced.
 
 Remaining: compile and run this revision on Linux; verify the intended official NetEase client or official web player, supported controls, background playback and reconnection. Deployment must record any interrupted soak observation separately. See [music setup and limitations](MUSIC.md).
+
+## Background transition correction — 2026-11-09
+
+Normal-motion tests reproduced a coverage dip when both background layers faded simultaneously. Rapid requests could also reuse a still-visible layer. Both new regressions failed before the correction: sampled combined image opacity fell below full coverage, exposing the dark backdrop.
+
+The outgoing image now stays fully opaque beneath the incoming fade. A subsequent request waits for the current fade to finish, then checks that it is still the latest selection before reusing the hidden layer. The contrast mask remains above both images. The initial image is decoded and displayed without a separate image-opacity fade; the existing backdrop entrance remains. Reduced-motion settings still skip transitions.
+
+All 54 browser regressions, 20 Node checks, frontend build and formatting/whitespace checks passed locally. The two new checks exercise normal-motion mid-fade coverage and rapid selection. These results establish browser behavior; Omarchy/WebKit verification is recorded separately after deployment. Paige canceled the running 72-hour observation; it was stopped, its records retained, and no new observation is to be started without a new request.

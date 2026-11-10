@@ -154,7 +154,7 @@ test('waveform follows native samples, pauses flat and releases capture in libra
       )
     )
     .toBe(false);
-  await page.locator('#music-close').click();
+  await page.locator('#music-open').click();
   await expect(page.locator('#music-panel')).toBeHidden();
   expect(
     await page.evaluate(() => window.nativeCalls.some((c) => c.args?.action?.type === 'stop'))
@@ -169,4 +169,90 @@ test('an unavailable canvas leaves native playback controls functional', async (
   await page.locator('#music-toggle').click();
   await expect(page.locator('#music-status')).toHaveText('已暂停');
   await expect(page.locator('#music-panel')).toHaveAttribute('data-renderer', 'none');
+});
+
+test('all player actions stay in the bottom console and the toolbar owns open and close', async ({
+  page,
+}) => {
+  await start(page);
+  await choose(page);
+  await page.locator('#netease-tracks button').first().click();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#music-close, .music-heading, .music-provider')).toHaveCount(0);
+  await expect(page.locator('#music-panel').getByText('网易云音乐', { exact: true })).toHaveCount(
+    0
+  );
+  for (const button of await page.locator('#music-panel button').all()) {
+    expect(
+      await button.evaluate((e) => !!e.closest('.music-console') || !!e.closest('#netease-tracks'))
+    ).toBe(true);
+  }
+  const player = await page.locator('.music-console').boundingBox();
+  await page.locator('#music-library-toggle').click();
+  const library = await page.locator('.music-console').boundingBox();
+  expect(Math.abs(player.y - library.y)).toBeLessThanOrEqual(1);
+  await page.locator('#music-open').click();
+  await expect(page.locator('#music-panel')).toBeHidden();
+  await expect(page.locator('#music-open')).toHaveAttribute('aria-label', '展开音乐');
+  await expect(page.locator('#music-open')).toHaveAttribute('aria-expanded', 'false');
+  await page.locator('#music-open').click();
+  await expect(page.locator('#music-open')).toHaveAttribute('aria-label', '收起音乐');
+  await expect(page.locator('#music-open')).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('#music-status')).toHaveText('播放中');
+  expect(
+    await page.evaluate(
+      () => window.nativeCalls.filter((c) => c.args?.action?.type === 'play').length
+    )
+  ).toBe(1);
+});
+
+test('the complete bottom console fits compact libraries with shuffle and load-more visible', async ({
+  page,
+}) => {
+  await start(page, true, true);
+  await page.evaluate(
+    () =>
+      (window.extraTracks = [{ id: '999', name: '末页测试', artist: '测试歌手', duration: 180 }])
+  );
+  await page.locator('#music-library-toggle').click();
+  await page.locator('#netease-playlists').selectOption('21');
+  await page.locator('#netease-tracks button').first().click();
+  for (const [width, height] of [
+    [1408, 792],
+    [1280, 720],
+    [960, 540],
+    [390, 844],
+    [360, 540],
+  ]) {
+    await page.setViewportSize({ width, height });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+    if (width > 740)
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.scrollHeight))
+        .toBe(height);
+    else await page.locator('.music-console').scrollIntoViewIfNeeded();
+    const console = await page.locator('.music-console').boundingBox();
+    const content = await page.locator('.music-content').boundingBox();
+    expect(console.y).toBeGreaterThanOrEqual(content.y + content.height - 1);
+    for (const id of [
+      'music-fm',
+      'music-library-toggle',
+      'netease-shuffle',
+      'netease-more',
+      'music-mode',
+      'music-toggle',
+    ]) {
+      const action = page.locator(`#${id}`);
+      await expect(action).toBeVisible();
+      const box = await action.boundingBox();
+      expect(box.x, id).toBeGreaterThanOrEqual(console.x - 1);
+      expect(box.x + box.width, id).toBeLessThanOrEqual(console.x + console.width + 1);
+      expect(box.y + box.height, id).toBeLessThanOrEqual(console.y + console.height + 1);
+      expect(box.height, id).toBeGreaterThanOrEqual(44);
+    }
+    await page.screenshot({
+      path: `/tmp/horizon-bottom-console-${width}.png`,
+      fullPage: width <= 740,
+    });
+  }
 });

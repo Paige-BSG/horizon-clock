@@ -91,7 +91,7 @@ export default async function neteaseSmoke() {
   $('music-volume').value = 50;
   $('music-volume').dispatchEvent(new Event('change'));
   await until(() => $('music-volume-value').textContent === '50%');
-  $('music-close').click();
+  $('music-open').click();
   check(
     'collapse preserves intentional playback',
     (await api({ type: 'status' })).playback.state === 'playing'

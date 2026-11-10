@@ -114,8 +114,8 @@
             <button
               class="icon-button"
               id="music-open"
-              aria-label="网易云音乐"
-              title="网易云音乐 · M"
+              aria-label="展开音乐"
+              title="展开音乐 · M"
               aria-expanded="false"
               aria-controls="music-panel"
             >
@@ -136,79 +136,39 @@
         </div>
       </header>
 
-      <section id="music-panel" class="music-panel" aria-label="网易云音乐" hidden>
-        <div class="music-heading">
-          <span class="music-provider">网易云音乐</span>
-          <div class="music-heading-actions">
-            <button
-              type="button"
-              id="music-fm"
-              class="music-link"
-              aria-pressed="false"
-              title="播放网易云推荐"
-              hidden
-            >
-              随心听
-            </button>
-            <button
-              type="button"
-              id="music-library-toggle"
-              class="music-link"
-              aria-expanded="false"
-              aria-controls="netease-library"
-            >
-              <svg aria-hidden="true"><use id="music-library-icon" href="#icon-library" /></svg
-              ><span id="music-library-label">歌单</span>
-            </button>
-            <button
-              type="button"
-              class="icon-button"
-              id="music-close"
-              aria-label="收起音乐控制"
-              title="收起播放器 · Esc"
-            >
-              <svg><use href="#icon-close" /></svg>
-            </button>
-          </div>
-        </div>
-        <p id="music-help" role="alert" hidden></p>
-        <div id="music-now-playing" class="music-now-playing">
-          <div class="music-title-line">
-            <h1 id="music-title">还未选曲</h1>
-            <span id="music-subtitle">从歌单开始播放</span>
-            <div class="music-state">
-              <i aria-hidden="true"></i><span id="music-status" role="status">未播放</span
-              ><span id="music-queue-label" hidden></span>
+      <section id="music-panel" class="music-panel" aria-label="音乐播放器" hidden>
+        <div class="music-content" role="group" aria-label="歌曲与歌单">
+          <p id="music-help" role="alert" hidden></p>
+          <div id="music-now-playing" class="music-now-playing">
+            <div class="music-title-line">
+              <h1 id="music-title">还未选曲</h1>
+              <span id="music-subtitle">从歌单开始播放</span>
+              <div class="music-state">
+                <i aria-hidden="true"></i><span id="music-status" role="status">未播放</span
+                ><span id="music-queue-label" hidden></span>
+              </div>
             </div>
+            <div class="music-art" aria-hidden="true"><canvas id="music-canvas"></canvas></div>
+            <span id="music-analysis" hidden>声纹暂不可用</span>
           </div>
-          <div class="music-art" aria-hidden="true"><canvas id="music-canvas"></canvas></div>
-          <span id="music-analysis" hidden>声纹暂不可用</span>
-          <button type="button" id="music-account-open" class="secondary-button" hidden>
-            登录网易云
-          </button>
-        </div>
-        <div id="netease-library" hidden>
-          <div id="netease-browser" hidden>
-            <div class="music-list-heading">
-              <label id="netease-list-label" class="field-label" for="netease-playlists"
-                >我的歌单</label
-              ><button type="button" id="netease-shuffle" class="music-link" disabled>
-                <svg aria-hidden="true"><use href="#icon-shuffle" /></svg>随机播放
-              </button>
-            </div>
-            <select id="netease-playlists" aria-label="网易云歌单">
-              <option value="">选择歌单</option>
-            </select>
-            <div id="netease-track-list">
-              <div id="netease-tracks" role="group" aria-label="歌单歌曲"></div>
-              <p id="netease-empty" class="settings-note">选择一个歌单</p>
-              <button type="button" id="netease-more" class="secondary-button" hidden>
-                加载更多
-              </button>
+          <div id="netease-library" hidden>
+            <div id="netease-browser" hidden>
+              <div class="music-list-heading">
+                <label id="netease-list-label" class="field-label" for="netease-playlists"
+                  >我的歌单</label
+                >
+              </div>
+              <select id="netease-playlists" aria-label="网易云歌单">
+                <option value="">选择歌单</option>
+              </select>
+              <div id="netease-track-list">
+                <div id="netease-tracks" role="group" aria-label="歌单歌曲"></div>
+                <p id="netease-empty" class="settings-note">选择一个歌单</p>
+              </div>
             </div>
           </div>
         </div>
-        <div class="music-console">
+        <div class="music-console" role="group" aria-label="播放控制">
           <div id="netease-progress-group" hidden>
             <progress id="music-progress" max="100" value="0" aria-label="歌曲进度"></progress>
             <span id="netease-progress">0:00 / 0:00</span>
@@ -269,6 +229,44 @@
                 disabled
               /><span id="music-volume-value">50%</span></label
             >
+          </div>
+          <div class="music-navigation" role="group" aria-label="音乐浏览">
+            <div class="music-navigation-primary">
+              <button
+                type="button"
+                id="music-library-toggle"
+                class="music-link"
+                aria-expanded="false"
+                aria-controls="netease-library"
+              >
+                <svg aria-hidden="true"><use id="music-library-icon" href="#icon-library" /></svg
+                ><span id="music-library-label">歌单</span></button
+              ><button
+                type="button"
+                id="music-fm"
+                class="music-link"
+                aria-pressed="false"
+                title="播放网易云推荐"
+                hidden
+              >
+                随心听</button
+              ><button type="button" id="music-account-open" class="music-link" hidden>
+                登录网易云
+              </button>
+            </div>
+            <div id="music-library-actions" class="music-library-actions" hidden>
+              <button
+                type="button"
+                id="netease-shuffle"
+                class="music-link"
+                aria-label="随机播放歌单"
+                title="随机播放歌单"
+                disabled
+              >
+                <svg aria-hidden="true"><use href="#icon-shuffle" /></svg
+                ><span>随机播放</span></button
+              ><button type="button" id="netease-more" class="music-link" hidden>加载更多</button>
+            </div>
           </div>
         </div>
       </section>

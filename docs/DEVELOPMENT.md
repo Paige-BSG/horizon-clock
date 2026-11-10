@@ -55,7 +55,7 @@ npm ci
 npm run package:arch
 ```
 
-This rebuilds the normal executable with locked Rust dependencies, without the `native-qa` feature, then runs `makepkg` in a temporary directory. It produces `release/horizon-clock-0.2.0alpha4-1-x86_64.pkg.tar.zst` and its SHA256 file. It does not install packages, use sudo, modify the running application or publish anything. The package includes the desktop entry, icon and asset notices, and preserves the verified executable without extra stripping. Keep its version aligned with `package.json`, Cargo and Tauri configuration. A published release must identify its source commit and record package installation/runtime verification separately from prior source-build checks.
+This rebuilds the normal executable with locked Rust dependencies, without the `native-qa` feature, then runs `makepkg` in a temporary directory. It produces `release/horizon-clock-0.2.0alpha5-1-x86_64.pkg.tar.zst` and its SHA256 file. It does not install packages, use sudo, modify the running application or publish anything. The package includes the desktop entry, icon and asset notices, and preserves the verified executable without extra stripping. Keep its version aligned with `package.json`, Cargo and Tauri configuration. A published release must identify its source commit and record package installation/runtime verification separately from prior source-build checks.
 
 ## Linux music runtime
 

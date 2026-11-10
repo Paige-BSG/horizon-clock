@@ -7,7 +7,7 @@
 
 HORIZON 把闲置平板变成客厅里的环境时钟：远处一眼看清时间，靠近时调整风景、天气与夜间显示。
 
-**当前是 `0.2.0-alpha.4` 开发预览版。** 首个目标平台为 Omarchy 4.5 / x86_64，提供原生安装包，见 [下载安装说明](docs/INSTALL.md) 和 [GitHub Releases](https://github.com/Paige-BSG/horizon-clock/releases/tag/v0.2.0-alpha.4)。Omarchy 上已有原生功能验证；触屏、长期常亮和 72 小时验收仍待完成。当前没有自动安装更新的能力。
+**当前是 `0.2.0-alpha.5` 开发预览版。** 首个目标平台为 Omarchy 4.5 / x86_64，提供原生安装包，见 [下载安装说明](docs/INSTALL.md) 和 [GitHub Releases](https://github.com/Paige-BSG/horizon-clock/releases/tag/v0.2.0-alpha.5)。Omarchy 上已有原生功能验证；触屏、长期常亮和 72 小时验收仍待完成。当前没有自动安装更新的能力。
 
 ## 已有功能
 

@@ -1,6 +1,6 @@
 {
   "name": "horizon-clock",
-  "version": "0.2.0-alpha.4",
+  "version": "0.2.0-alpha.5",
   "private": true,
   "description": "An open-source ambient wall clock for Omarchy and Linux tablets.",
   "type": "module",

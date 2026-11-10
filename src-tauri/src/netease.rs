@@ -9,6 +9,7 @@ pub enum Action {
     CancelLogin {},
     Logout {},
     Tracks { playlist: String, offset: u32 },
+    Fm { append: bool },
     Play { id: String },
     Pause { paused: bool },
     Volume { volume: u8 },

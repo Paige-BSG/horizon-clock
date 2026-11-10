@@ -31,6 +31,7 @@ export async function start(page, loggedIn = true, longPlaylist = false) {
         tracks: [],
         total: 0,
         playback: idle(),
+        queue: 'playlist',
       };
       window.nativeCalls = [];
       window.__TAURI__ = {
@@ -46,12 +47,26 @@ export async function start(page, loggedIn = true, longPlaylist = false) {
                 window.finishRestore = r;
               });
             if (a.type === 'tracks') {
-              view.tracks = tracks;
+              view.tracks = a.offset ? view.tracks.concat(window.extraTracks || []) : tracks;
+              view.queue = 'playlist';
               view.playlist = a.playlist;
-              view.total = tracks.length;
+              view.total = tracks.length + (window.extraTracks?.length || 0);
+            }
+            if (a.type === 'fm') {
+              window.fmBatches = (window.fmBatches || 0) + 1;
+              const batch = Array.from({ length: 2 }, (_, i) => ({
+                id: String(300 + window.fmBatches * 2 + i),
+                name: `推荐歌曲 ${window.fmBatches}-${i + 1}`,
+                artist: '推荐歌手',
+                duration: 180,
+              }));
+              view.tracks = a.append ? view.tracks.concat(batch) : batch;
+              view.playlist = null;
+              view.queue = 'fm';
+              view.total = view.tracks.length;
             }
             if (a.type === 'play') {
-              const track = tracks.find((t) => t.id === a.id);
+              const track = view.tracks.find((t) => t.id === a.id);
               view.playback = {
                 state: 'playing',
                 track,

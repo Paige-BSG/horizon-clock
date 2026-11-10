@@ -217,6 +217,7 @@ pub struct View {
     playlist: Option<String>,
     tracks: Vec<Track>,
     total: u64,
+    queue: String,
     playback: Playback,
 }
 #[derive(Clone, Serialize)]
@@ -256,6 +257,7 @@ struct Engine {
     tracks: Vec<Track>,
     total: u64,
     volume: Option<u8>,
+    fm: bool,
 }
 #[derive(Default)]
 pub struct Controller {
@@ -434,12 +436,39 @@ impl Controller {
                     e.tracks.clear();
                 }
                 e.tracks.extend(tracks);
+                e.fm = false;
                 e.playlist = Some(playlist);
                 e.total = total;
                 // Some unavailable/deleted songs may be omitted by the service.
                 if songs.len() < 100 {
                     e.total = e.tracks.len() as u64;
                 }
+            }
+            Action::Fm { append } => {
+                if append && !e.fm {
+                    return Err("推荐队列已变化，请重新开启随心听".into());
+                }
+                let api = e.api.as_ref().ok_or("请先扫码登录")?;
+                let body = checked(bounded(api.personal_fm(&Query::new())).await?)?;
+                let incoming = fm_tracks(&body)?;
+                let mut tracks = if append { e.tracks.clone() } else { Vec::new() };
+                let before = tracks.len();
+                for song in incoming {
+                    if !tracks.iter().any(|existing| existing.id == song.id) {
+                        tracks.push(song);
+                    }
+                }
+                if tracks.len() == before {
+                    return Err("暂未获得新的推荐，请稍后重试".into());
+                }
+                // Retain bounded recent history for Previous without an unbounded recommendation cache.
+                if tracks.len() > 100 {
+                    tracks.drain(..tracks.len() - 100);
+                }
+                e.tracks = tracks;
+                e.playlist = None;
+                e.fm = true;
+                e.total = e.tracks.len() as u64;
             }
             Action::Play { id } => {
                 self.stop();
@@ -530,6 +559,7 @@ impl Controller {
             playlist: e.playlist.clone(),
             tracks: e.tracks.clone(),
             total: e.total,
+            queue: if e.fm { "fm" } else { "playlist" }.into(),
             playback,
         })
     }
@@ -562,11 +592,21 @@ async fn read_playlists(api: &ApiClient) -> Result<Vec<Playlist>> {
         })
         .collect())
 }
+fn fm_tracks(body: &Value) -> Result<Vec<Track>> {
+    let songs = body["data"].as_array().ok_or("随心听返回格式暂不可用")?;
+    let tracks: Vec<_> = songs.iter().take(20).filter_map(track).collect();
+    if tracks.is_empty() {
+        return Err("当前账号暂时没有随心听推荐".into());
+    }
+    Ok(tracks)
+}
 fn track(v: &Value) -> Option<Track> {
     Some(Track {
         id: v["id"].as_u64()?.to_string(),
         name: v["name"].as_str()?.chars().take(200).collect(),
-        artist: v["ar"]
+        artist: v
+            .get("ar")
+            .or_else(|| v.get("artists"))?
             .as_array()
             .map(|a| {
                 a.iter()
@@ -578,7 +618,7 @@ fn track(v: &Value) -> Option<Track> {
             .chars()
             .take(300)
             .collect(),
-        duration: v["dt"].as_f64()? / 1000.0,
+        duration: v.get("dt").or_else(|| v.get("duration"))?.as_f64()? / 1000.0,
     })
 }
 fn permitted_stream(item: &Value) -> Result<String> {
@@ -827,5 +867,26 @@ mod tests {
         assert!(!query.random_cn_ip);
         assert!(query.proxy.is_none());
         assert!(query.domain.is_none());
+    }
+}
+
+#[cfg(test)]
+mod fm_tests {
+    use super::*;
+    #[test]
+    fn personal_fm_metadata_uses_duration_and_artists_without_exposing_provider_fields() {
+        let songs = fm_tracks(&json!({"data":[{"id":123,"name":"Test","artists":[{"name":"Artist"}],"duration":180000,"url":"private"}]})).unwrap();
+        assert_eq!(songs[0].duration, 180.0);
+        assert_eq!(songs[0].artist, "Artist");
+        assert!(serde_json::to_value(&songs[0])
+            .unwrap()
+            .get("url")
+            .is_none());
+    }
+    #[test]
+    fn missing_empty_or_invalid_recommendations_are_explicit_errors() {
+        assert!(fm_tracks(&json!({})).is_err());
+        assert!(fm_tracks(&json!({"data":[]})).is_err());
+        assert!(fm_tracks(&json!({"data":[{"id":5}]})).is_err());
     }
 }

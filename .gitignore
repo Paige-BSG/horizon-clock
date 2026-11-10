@@ -22,3 +22,4 @@ playwright-report/
 *.pkg.tar.zst
 previews/
 release/
+experiments/netease-native/target/

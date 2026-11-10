@@ -535,8 +535,9 @@ body.music-visible .landscape-backdrop {
 .seconds-track i {
   display: block;
   height: 100%;
+  width: 100%;
   background: var(--accent);
-  transition: width 0.4s;
+  transform-origin: left;
 }
 .hide-seconds .seconds-block {
   display: none;

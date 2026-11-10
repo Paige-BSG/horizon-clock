@@ -261,3 +261,19 @@ Awake system-service acquisition and release run on blocking workers with serial
 The browsing and delayed-Pause browser regressions, plus native completion without frontend polling, failed before their fixes and passed afterward. Additional coverage checks ordered Next/Pause clicks, personal-FM continuation while browsing another playlist, immediate native shutdown on duration mismatch, and closing during stalled IPC.30Node tests, all87Chrome browser regressions,19macOS Rust tests and21Linux Rust tests passed. Clippy with warnings denied passed on both platforms. Frontend checks/build, formatting and whitespace checks passed. A normal locked macOS release build and normal locked Linux debug build passed; macOS emitted a nonfatal local LLVM debug-info stripping warning. Linux checks ran in an isolated local aarch64 Debian container using Rust1.94.1, without a graphical session or music credentials. No production dependency or lockfile changed.
 
 These checks do not establish Omarchy x86_64 runtime behavior, real-account playback, actual Wayland inhibition, human listening, or long-run acceptance. No device installation, push or publication was performed.
+
+## Idle clock CPU — 2026-11-10
+
+The seconds progress line updates once per second using a fixed-width element and a horizontal scale. It has no continuous transition. Its length, color and position remain the same; it resets at the minute boundary. This avoids the previous 0.4-second width animation on every tick.
+
+On the home Surface (Omarchy 4.5 / x86_64 / Wayland, 1368×912 logical pixels at scale 2), an isolated GTK 3 / WebKitGTK 4.1 window loaded the actual frontend with an ephemeral profile. Weather, online scenery and rotation were disabled; night brightness was 42%. Three consecutive 15-second process-tree samples measured CPU as a percentage of one core:
+
+| Frontend                           | CPU    |
+| ---------------------------------- | ------ |
+| Published alpha.4 source           | 29.00% |
+| Local optimized source             | 2.93%  |
+| Published alpha.4 source, repeated | 29.27% |
+
+Time continued advancing in every sample. The test window used the same device and engine as the installed application, but did not include Tauri commands, music or the user's profile. These measurements establish the frontend rendering improvement; they are not battery, temperature, long-run or updated-package acceptance results. The installed package was not replaced.
+
+The browser regression checks progress geometry, absence of a running progress animation, second 59 and minute rollover with normal motion preferences. It failed on the previous implementation and passed after the fix. All 30 Node checks, all 88 Chrome browser regressions, frontend build and formatting/whitespace checks passed.

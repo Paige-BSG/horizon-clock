@@ -89,7 +89,7 @@ function updateClock() {
     .querySelector('.clock-face')
     .setAttribute('aria-label', `${hours}点${minutes}分${seconds}秒`);
   document.title = `${hours}:${minutes} · HORIZON`;
-  $('seconds-progress').style.width = `${(now.getSeconds() / 59) * 100}%`;
+  $('seconds-progress').style.transform = `scaleX(${now.getSeconds() / 59})`;
   const progress = (now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()) / 864;
   $('day-progress').style.width = `${progress}%`;
   $('day-marker').style.left = `${progress}%`;

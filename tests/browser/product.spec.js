@@ -32,6 +32,37 @@ test('clock crosses midnight and year boundaries using device local time', async
   await expect(page.locator('#week-number')).toHaveText('第 53 周');
 });
 
+test('seconds progress updates per tick without continuous animation and wraps each minute', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await start(page, { rotate: false });
+  const progress = page.locator('#seconds-progress');
+  async function geometry() {
+    return progress.evaluate((element) => {
+      return {
+        layout: element.offsetWidth,
+        visible: element.getBoundingClientRect().width,
+        track: element.parentElement.getBoundingClientRect().width,
+        animations: element.getAnimations().length,
+      };
+    });
+  }
+  for (const [elapsed, seconds] of [
+    [29000, 30],
+    [58000, 59],
+    [59000, 0],
+  ]) {
+    await page.clock.setSystemTime(new Date(NOW + elapsed));
+    await page.clock.runFor(1000);
+    await expect(page.locator('#seconds')).toHaveText(String(seconds).padStart(2, '0'));
+    const size = await geometry();
+    expect(size.animations).toBe(0);
+    expect(Math.abs(size.layout - size.track)).toBeLessThanOrEqual(1);
+    expect(Math.abs(size.visible - (size.track * seconds) / 59)).toBeLessThanOrEqual(1);
+  }
+});
+
 test('landscapes rotate, can be fixed, and can be replaced by solid color', async ({ page }) => {
   await start(page, { interval: 30 });
   await expect(page.locator('.landscape-backdrop')).toHaveClass(/ready/);

@@ -43,6 +43,9 @@ test('choose a builtin through settings, save and return to the clock', async ({
   await expect(picker(page)).not.toBeVisible();
   await expect(page.locator('.landscape-layer.visible')).toHaveAttribute('src', /mountain.jpg/);
   expect(await preferences(page)).toMatchObject({ scene: 'mountain', nightScene: 'coast' });
+  await expect(page.locator('#settings-open')).toBeFocused();
+  await page.locator('.clock-face').click();
+  await expect(page.locator('#settings-open')).not.toBeFocused();
   await page.clock.runFor(8100);
   await expect(page.locator('body')).toHaveClass(/immersive/);
 });

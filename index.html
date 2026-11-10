@@ -193,9 +193,6 @@
       </section>
       <div class="clock-information">
         <section class="time-section" aria-label="当前时间">
-          <div class="section-label">
-            <span>本地时间</span><span id="timezone" class="timezone">UTC+09:00</span>
-          </div>
           <div class="clock-face" role="timer" aria-live="off" aria-label="当前时间">
             <div class="main-time">
               <span id="hours">--</span><span class="colon" aria-hidden="true"><i></i><i></i></span
@@ -218,9 +215,6 @@
 
         <div class="information">
           <section class="date-panel" aria-label="当前日期">
-            <div class="section-label">
-              <span>日期</span>
-            </div>
             <div class="date-content">
               <div class="date-line">
                 <span id="month-day">11月09日</span><span class="weekday" id="weekday">星期一</span>
@@ -233,13 +227,6 @@
             </div>
           </section>
           <section class="weather-panel" aria-label="当地天气">
-            <div class="section-label">
-              <span>天气</span
-              ><span class="location"
-                ><svg><use href="#icon-pin" /></svg><span id="city-label">东京</span
-                ><span class="demo-badge" id="weather-status">未启用</span></span
-              >
-            </div>
             <div class="weather-content">
               <div class="weather-main">
                 <svg class="weather-art" viewBox="0 0 90 70" fill="none" aria-hidden="true">
@@ -266,6 +253,11 @@
                     ><span id="weather-high">--°</span><span> / </span
                     ><span id="weather-low">--°</span></span
                   >
+                  <span class="location" aria-label="天气地点与更新状态">
+                    <svg aria-hidden="true"><use href="#icon-pin" /></svg
+                    ><span id="city-label">东京</span>
+                    <span class="demo-badge" id="weather-status">未启用</span>
+                  </span>
                 </div>
               </div>
               <div class="weather-details">

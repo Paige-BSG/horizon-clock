@@ -253,7 +253,16 @@ test('split music mode retains clock, date and weather with a 4:6 desktop compos
     [360, 540],
   ]) {
     await page.setViewportSize({ width, height });
-    await page.waitForFunction((w) => innerWidth === w, width);
+    await page.waitForFunction(
+      ([w, h]) => {
+        const style = document.documentElement.style;
+        return (
+          Math.abs(parseFloat(style.getPropertyValue('--app-vw')) * 100 - w) < 0.1 &&
+          Math.abs(parseFloat(style.getPropertyValue('--app-vh')) * 100 - h) < 0.1
+        );
+      },
+      [width, height]
+    );
     for (const selector of ['.time-section', '.date-panel', '.weather-panel', '#music-panel'])
       await expect(page.locator(selector)).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);

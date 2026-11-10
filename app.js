@@ -102,9 +102,6 @@ function updateClock() {
   );
   $('day-of-year').textContent = `第 ${pad(day)} 天`;
   $('week-number').textContent = `第 ${pad(isoWeek(now))} 周`;
-  const offset = -now.getTimezoneOffset();
-  $('timezone').textContent =
-    `UTC${offset >= 0 ? '+' : '−'}${pad(Math.floor(Math.abs(offset) / 60))}:${pad(Math.abs(offset) % 60)}`;
   setTimeout(updateClock, 1000 - (Date.now() % 1000));
 }
 function updateWakeStatus(message) {

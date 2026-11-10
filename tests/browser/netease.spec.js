@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { normalizeSettings, SETTINGS_KEY } from '../../lib/settings.js';
 
-import { start, choose, account } from './music-fixture.js';
+import { start, choose, account, sourceAction } from './music-fixture.js';
 
 test('restored account shows own playlists without autoplay; clock stays visible', async ({
   page,
@@ -120,7 +120,7 @@ test('readable text keeps a long library scrollable and native playback controls
   page,
 }) => {
   await start(page, true, true);
-  await page.locator('#music-library-toggle').click();
+  await sourceAction(page, 'music-library-toggle');
   await page.locator('#netease-playlists').selectOption('21');
   await expect(page.locator('#netease-tracks button')).toHaveCount(100);
   await page.locator('#netease-tracks button').first().click();
@@ -146,7 +146,7 @@ test('readable text keeps a long library scrollable and native playback controls
         .evaluate((e) => parseFloat(getComputedStyle(e).fontSize))
     ).toBeGreaterThanOrEqual(13);
     await page.screenshot({ path: `/tmp/horizon-netease-library-${width}.png` });
-    await page.locator('#music-library-toggle').click();
+    await sourceAction(page, 'music-library-toggle');
     await expect(page.locator('#music-title')).toBeInViewport({ ratio: 0.99 });
     await expect(page.locator('#music-toggle')).toBeInViewport({ ratio: 0.99 });
     const title = await page.locator('#music-title').boundingBox();
@@ -154,7 +154,7 @@ test('readable text keeps a long library scrollable and native playback controls
     expect(title.x + title.width).toBeLessThanOrEqual(stage.x + stage.width + 1);
     expect(title.height).toBeLessThanOrEqual(105);
     await page.screenshot({ path: `/tmp/horizon-netease-playing-${width}.png` });
-    await page.locator('#music-library-toggle').click();
+    await sourceAction(page, 'music-library-toggle');
   }
 });
 

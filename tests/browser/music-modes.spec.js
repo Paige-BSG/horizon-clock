@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { start, choose } from './music-fixture.js';
+import { start, choose, sourceAction } from './music-fixture.js';
 const played = (page) =>
   page.evaluate(() =>
     window.nativeCalls.filter((c) => c.args?.action?.type === 'play').map((c) => c.args.action.id)
@@ -53,7 +53,7 @@ test('shuffle includes unloaded pages and Previous returns to the song actually 
     () =>
       (window.extraTracks = [{ id: '999', name: '末页歌曲', artist: '测试歌手', duration: 180 }])
   );
-  await page.locator('#music-library-toggle').click();
+  await sourceAction(page, 'music-library-toggle');
   await page.locator('#netease-playlists').selectOption('21');
   await page.locator('#music-shuffle').click();
   await page.locator('#netease-tracks button').first().click();
@@ -73,7 +73,7 @@ test('personal recommendations continue with another batch and returning to a pl
 }) => {
   await start(page);
   await page.locator('#music-repeat').click();
-  await page.locator('#music-fm').click();
+  await sourceAction(page, 'music-fm');
   await expect(page.locator('#music-title')).toHaveText('推荐歌曲 1-1');
   await expect(page.locator('#music-repeat')).toBeDisabled();
   await page.locator('#netease-next').click();
@@ -94,7 +94,7 @@ test('recommendation errors are visible, do not replace the playing song, and ne
   await page.locator('#netease-tracks button').first().click();
   await page.keyboard.press('Escape');
   await page.evaluate(() => (window.failAction = 'fm'));
-  await page.locator('#music-fm').click();
+  await sourceAction(page, 'music-fm');
   await expect(page.locator('#music-help')).toBeVisible();
   await expect(page.locator('#music-title')).toHaveText('测试歌曲甲');
   await expect(page.locator('#music-status')).toHaveText('播放中');
@@ -111,7 +111,7 @@ test('sequential playback loads the next playlist page before stopping at the tr
   );
   await page.locator('#music-repeat').click();
   await page.locator('#music-repeat').click();
-  await page.locator('#music-library-toggle').click();
+  await sourceAction(page, 'music-library-toggle');
   await page.locator('#netease-playlists').selectOption('21');
   await page.locator('#netease-tracks button').last().click();
   await eof(page);

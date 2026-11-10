@@ -126,7 +126,7 @@ export async function start(page, loggedIn = true, longPlaylist = false) {
   await expect(page.locator('#netease-account-status')).toHaveText(loggedIn ? '已登录' : '未登录');
 }
 export async function choose(page) {
-  await page.locator('#music-library-toggle').click();
+  await sourceAction(page, 'music-library-toggle');
   await page.locator('#netease-playlists').selectOption('21');
   await expect(page.locator('#netease-tracks button')).toHaveCount(2);
 }
@@ -134,4 +134,9 @@ export async function choose(page) {
 export async function account(page) {
   await page.keyboard.press('s');
   await page.getByRole('tab', { name: '应用', exact: true }).click();
+}
+
+export async function sourceAction(page, id) {
+  await page.locator('#music-source-toggle').click();
+  await page.locator(`#${id}`).click();
 }

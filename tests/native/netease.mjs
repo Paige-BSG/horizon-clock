@@ -27,6 +27,7 @@ export default async function neteaseSmoke() {
   );
   const list = library.playlists.find((p) => p.count > 0);
   if (!list) throw new Error('No populated account playlist for acceptance');
+  $('music-source-toggle').click();
   $('music-library-toggle').click();
   await until(() => !$('netease-library').hidden);
   $('netease-playlists').value = list.id;
@@ -52,6 +53,7 @@ export default async function neteaseSmoke() {
     'native track starts',
     await until(() => $('music-panel').dataset.state === 'playing', 20000)
   );
+  $('music-source-toggle').click();
   $('music-library-toggle').click();
   if ($('music-motion').getAttribute('aria-pressed') === 'true') {
     $('settings-open').click();
@@ -97,6 +99,7 @@ export default async function neteaseSmoke() {
     (await api({ type: 'status' })).playback.state === 'playing'
   );
   $('music-open').click();
+  $('music-source-toggle').click();
   $('music-library-toggle').click();
   check(
     'library preserves playback with fixed transport',
@@ -104,6 +107,7 @@ export default async function neteaseSmoke() {
       !$('netease-library').hidden &&
       $('music-toggle').getBoundingClientRect().bottom <= innerHeight
   );
+  $('music-source-toggle').click();
   $('music-library-toggle').click();
   $('music-toggle').click();
   check(

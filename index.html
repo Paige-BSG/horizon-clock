@@ -231,27 +231,41 @@
             </button>
           </div>
           <div class="music-secondary">
-            <div class="music-navigation" role="group" aria-label="音乐浏览">
-              <div class="music-navigation-primary">
+            <div class="music-navigation">
+              <button
+                type="button"
+                id="music-source-toggle"
+                class="icon-button"
+                aria-label="选歌"
+                title="选歌"
+                aria-haspopup="menu"
+                aria-expanded="false"
+                aria-controls="music-source-menu"
+              >
+                <svg aria-hidden="true"><use href="#icon-library" /></svg>
+              </button>
+              <div id="music-source-menu" role="menu" aria-label="选歌方式" hidden>
                 <button
                   type="button"
                   id="music-library-toggle"
-                  class="music-link"
-                  aria-expanded="false"
+                  role="menuitem"
+                  tabindex="-1"
                   aria-controls="netease-library"
+                  aria-label="打开我的歌单"
                 >
-                  <svg aria-hidden="true"><use id="music-library-icon" href="#icon-library" /></svg
-                  ><span id="music-library-label">我的歌单</span></button
-                ><button
+                  <span id="music-library-label">我的歌单</span>
+                </button>
+                <button
                   type="button"
                   id="music-fm"
-                  class="music-link"
-                  aria-pressed="false"
+                  role="menuitem"
+                  tabindex="-1"
                   title="播放网易云推荐"
                   hidden
                 >
-                  随心听</button
-                ><button type="button" id="music-account-open" class="music-link" hidden>
+                  随心听
+                </button>
+                <button type="button" id="music-account-open" role="menuitem" tabindex="-1" hidden>
                   登录网易云
                 </button>
               </div>

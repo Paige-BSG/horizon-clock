@@ -2532,12 +2532,6 @@ body.music-visible .weather-description .demo-badge {
 .music-panel [hidden] {
   display: none;
 }
-#music-library-toggle {
-  min-height: 44px;
-  padding: 8px 14px;
-  font-size: var(--type-small);
-  white-space: nowrap;
-}
 .music-now-playing {
   flex: 1;
   min-height: 0;
@@ -2905,9 +2899,6 @@ body.music-visible .weather-description .demo-badge {
   opacity: 0.4;
   cursor: default;
 }
-#music-library-toggle {
-  padding: 8px 6px;
-}
 #music-queue-label {
   margin-left: 4px;
   color: var(--subtle);
@@ -2928,7 +2919,6 @@ body.music-visible .weather-description .demo-badge {
   gap: 12px;
 }
 .music-secondary,
-.music-navigation-primary,
 .music-utilities {
   display: flex;
   align-items: center;
@@ -2937,21 +2927,16 @@ body.music-visible .weather-description .demo-badge {
   justify-content: space-between;
   gap: 12px;
 }
-.music-navigation-primary {
-  gap: 12px;
-}
-.music-navigation .music-link {
-  padding: 8px 4px;
-}
 .music-utilities {
   gap: 4px;
 }
-.music-utilities .icon-button {
+.music-utilities .icon-button,
+#music-source-toggle {
   width: 44px;
   height: 44px;
 }
 #netease-transport .icon-button[aria-pressed='true'],
-#music-library-toggle[aria-expanded='true'],
+#music-source-toggle[aria-expanded='true'],
 #music-queue-toggle[aria-expanded='true'],
 #music-volume-toggle[aria-expanded='true'],
 #music-open[aria-expanded='true'] {
@@ -3008,13 +2993,48 @@ body.music-visible .weather-description .demo-badge {
   font-size: var(--type-small);
 }
 @media (max-width: 400px) {
-  .music-navigation-primary {
-    gap: 8px;
-  }
   .music-secondary {
     gap: 4px;
   }
   .music-link {
     gap: 5px;
   }
+}
+
+#music-source-menu {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  min-width: 160px;
+  max-width: 100%;
+  padding: 6px;
+  border: 1px solid #c5dedc38;
+  border-radius: 6px;
+  background: #122026;
+  z-index: 2;
+}
+#music-source-menu button {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  font: var(--type-small)/1.5 var(--font);
+  text-align: left;
+  white-space: nowrap;
+}
+#music-source-menu button:hover,
+#music-source-menu button:focus-visible {
+  background: #bdebd918;
+  color: var(--accent);
+}
+#music-source-menu button[aria-current='true'] {
+  color: var(--accent);
+}
+#music-source-menu button:disabled {
+  opacity: 0.4;
+  cursor: default;
 }

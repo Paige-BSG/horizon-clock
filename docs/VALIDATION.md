@@ -289,3 +289,9 @@ Playback now uses an anonymous Unix socket pair passed to mpv as stdin with `--i
 On the same builder, all 24 Linux release-profile Rust tests passed, including all three real-mpv lifetime regressions. One ignored Rust entry is the subprocess helper called explicitly by those regressions. The previous source failed both abnormal-exit cases; the fixed source passed. CI installs mpv so these regressions also run there. `tempfile` is now a test-only direct dependency; no production dependency was added.
 
 Surface's pre-existing orphan mpv was started during alpha.4, before its alpha.5 upgrade. It proves a historical leftover, not which signal or crash caused it. The account-free backend regression establishes the alpha.5 defect independently. Long-run resource trends, touch, physical readability and a full login cycle remain separate acceptance checks; this repair does not restart the previously canceled 72-hour observer.
+
+## Installed version display — 2026-11-11
+
+Surface acceptance of published alpha.6 found that the settings page still displayed alpha.5, despite the correct alpha.6 package and executable hashes. The independent frontend VERSION constant had not been updated. Alpha.6 passed package integrity, settings retention and the three real-mpv lifecycle regressions on Surface, but did not pass complete acceptance because of this visible mismatch. Its release artifacts and tag remain unchanged.
+
+Alpha.7 synchronizes the settings version with the package. The frontend build now rejects a mismatched settings/package version before producing assets. This guard failed against the alpha.6 source. A browser regression opening Settings → Application also failed against alpha.6 because the displayed version differed from package.json. The fixed source must pass both checks before publication. The player-lifetime fix is unchanged.

@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 import { normalizeSettings, SETTINGS_KEY } from '../../lib/settings.js';
+
+const packageVersion = JSON.parse(
+  readFileSync(new URL('../../package.json', import.meta.url), 'utf8')
+).version;
 
 async function start(page) {
   await page.addInitScript(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), {
@@ -8,6 +13,14 @@ async function start(page) {
   });
   await page.goto('/');
 }
+
+test('settings show the installed package version', async ({ page }) => {
+  await start(page);
+  await page.locator('#settings-open').click();
+  await page.getByRole('tab', { name: '应用', exact: true }).click();
+  await expect(page.locator('#app-version')).toBeVisible();
+  await expect(page.locator('#app-version')).toHaveText(packageVersion);
+});
 
 test('bottom details are available only in settings and keep their controls', async ({ page }) => {
   await start(page);

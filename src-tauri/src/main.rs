@@ -1,6 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::sync::Mutex;
 use tauri::{Manager, WebviewWindow};
 use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_opener::OpenerExt;
@@ -12,42 +11,13 @@ mod photo_source;
 #[cfg(target_os = "linux")]
 mod wayland;
 
-#[derive(Default)]
-struct AwakeState(Mutex<Option<awake::Guard>>);
-
 #[tauri::command]
 async fn set_keep_awake(
     enabled: bool,
     app: tauri::AppHandle,
     window: WebviewWindow,
 ) -> Result<bool, String> {
-    let (sender, mut receiver) = tauri::async_runtime::channel(1);
-    // Serialize borrowed Wayland handles with GTK window destruction.
-    app.clone()
-        .run_on_main_thread(move || {
-            let result = (|| {
-                let state = app.state::<AwakeState>();
-                let mut guard = state
-                    .0
-                    .lock()
-                    .map_err(|_| "Awake state unavailable".to_string())?;
-                if enabled && guard.is_none() {
-                    *guard = Some(awake::acquire(&window)?);
-                } else if !enabled {
-                    if let Some(active) = guard.as_mut() {
-                        awake::release(active)?;
-                    }
-                    *guard = None;
-                }
-                Ok(guard.is_some())
-            })();
-            let _ = sender.try_send(result);
-        })
-        .map_err(|e| e.to_string())?;
-    receiver
-        .recv()
-        .await
-        .ok_or_else(|| "Awake request interrupted".to_string())?
+    awake::set(enabled, app, window).await
 }
 
 #[tauri::command]
@@ -121,9 +91,7 @@ fn main() {
             ) {
                 window.state::<music_meter::MusicMeter>().cancel();
                 window.state::<netease::Controller>().close();
-                if let Ok(mut guard) = window.state::<AwakeState>().0.lock() {
-                    *guard = None;
-                }
+                window.state::<awake::Controller>().close();
             }
         })
         .plugin(
@@ -136,7 +104,7 @@ fn main() {
                 .open_js_links_on_click(false)
                 .build(),
         )
-        .manage(AwakeState::default())
+        .manage(awake::Controller::default())
         .manage(netease::Controller::default())
         .manage(music_meter::MusicMeter::default())
         .invoke_handler(tauri::generate_handler![

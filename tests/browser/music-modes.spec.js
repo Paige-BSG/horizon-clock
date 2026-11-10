@@ -83,6 +83,8 @@ test('personal recommendations continue with another batch and returning to a pl
   await page.locator('#netease-previous').click();
   await expect(page.locator('#music-title')).toHaveText('推荐歌曲 1-2');
   await choose(page);
+  await expect(page.locator('#music-repeat')).toBeDisabled();
+  await page.locator('#netease-tracks button').first().click();
   await expect(page.locator('#music-repeat')).toBeEnabled();
   await expect(page.locator('#music-repeat')).toHaveAttribute('aria-label', '循环模式：单曲循环');
 });
@@ -142,4 +144,82 @@ test('shuffle and repeat have independent state, restore together, and never sta
   await expect(page.locator('#music-repeat')).toHaveAttribute('aria-label', '循环模式：单曲循环');
   await expect(page.locator('#music-shuffle')).toHaveAttribute('aria-pressed', 'true');
   expect(await played(page)).toEqual([]);
+});
+
+test('browsing another playlist preserves transport, current list and automatic continuation', async ({
+  page,
+}) => {
+  await start(page);
+  await choose(page);
+  await page.locator('#netease-tracks button').first().click();
+  await page.evaluate(() => {
+    window.otherTracks = {
+      22: [{ id: '31', name: '另一歌单歌曲', artist: '测试歌手', duration: 180 }],
+    };
+    document.querySelector('#netease-playlists').add(new Option('另一歌单', '22'));
+  });
+  await page.locator('#netease-playlists').selectOption('22');
+  await expect(page.locator('#netease-tracks button')).toHaveCount(1);
+  await expect(page.locator('#netease-next')).toBeEnabled();
+  await page.locator('#music-queue-toggle').click();
+  await expect(page.locator('#netease-tracks button')).toHaveCount(2);
+  await eof(page);
+  await expect(page.locator('#music-title')).toHaveText('测试歌曲乙');
+  expect(await played(page)).toEqual(['11', '12']);
+  await sourceAction(page, 'music-library-toggle');
+  await expect(page.locator('#netease-playlists')).toHaveValue('22');
+  await page.locator('#netease-tracks button').first().click();
+  await expect(page.locator('#music-title')).toHaveText('另一歌单歌曲');
+});
+
+test('pause clicked during a slow status poll executes after that poll', async ({ page }) => {
+  await start(page);
+  await choose(page);
+  await page.locator('#netease-tracks button').first().click();
+  await page.evaluate(() => (window.delayStatus = true));
+  await expect.poll(() => page.evaluate(() => typeof window.finishStatus)).toBe('function');
+  await page.locator('#music-toggle').click();
+  await page.evaluate(() => {
+    window.delayStatus = false;
+    window.finishStatus();
+  });
+  await expect(page.locator('#music-status')).toHaveText('已暂停');
+  const pauses = await page.evaluate(() =>
+    window.nativeCalls.filter((c) => c.args?.action?.type === 'pause')
+  );
+  expect(pauses).toHaveLength(1);
+  expect(pauses[0].args.action.paused).toBe(true);
+});
+
+test('transport operations during polling execute in click order', async ({ page }) => {
+  await start(page);
+  await choose(page);
+  await page.locator('#netease-tracks button').first().click();
+  await page.evaluate(() => (window.delayStatus = true));
+  await expect.poll(() => page.evaluate(() => typeof window.finishStatus)).toBe('function');
+  await page.locator('#netease-next').click();
+  await page.locator('#music-toggle').click();
+  await page.evaluate(() => {
+    window.delayStatus = false;
+    window.finishStatus();
+  });
+  await expect(page.locator('#music-title')).toHaveText('测试歌曲乙');
+  await expect(page.locator('#music-status')).toHaveText('已暂停');
+  expect(await played(page)).toEqual(['11', '12']);
+});
+
+test('personal FM keeps its recommendation queue while another playlist is browsed', async ({
+  page,
+}) => {
+  await start(page);
+  await sourceAction(page, 'music-fm');
+  await choose(page);
+  await eof(page);
+  await expect(page.locator('#music-title')).toHaveText('推荐歌曲 1-2');
+  await page.locator('#netease-next').click();
+  await expect(page.locator('#music-title')).toHaveText('推荐歌曲 2-1');
+  await expect(page.locator('#netease-playlists')).toHaveValue('21');
+  await expect(page.locator('#netease-tracks button')).toHaveCount(2);
+  await page.locator('#music-queue-toggle').click();
+  await expect(page.locator('#netease-tracks button')).toHaveCount(4);
 });

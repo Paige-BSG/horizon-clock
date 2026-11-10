@@ -1,15 +1,16 @@
 use super::Action;
+#[path = "player.rs"]
+mod player;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use ncm_api_rs::{create_client, request::ApiResponse, ApiClient, Query};
+use player::Player;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::{
     collections::BTreeMap,
     fs,
     future::Future,
-    io::{BufRead, BufReader, Cursor, Read, Write},
-    os::unix::net::UnixStream,
-    process::{Child, Command, Stdio},
+    io::{Cursor, Read},
     sync::{
         atomic::{AtomicBool, AtomicU64, Ordering},
         Mutex,
@@ -139,62 +140,6 @@ fn media_url(raw: &str) -> Result<String> {
         .map_err(|_| "音频地址必须支持 HTTPS")?;
     Ok(url.to_string())
 }
-struct Ipc {
-    stream: UnixStream,
-    reader: BufReader<UnixStream>,
-    end_reason: Option<String>,
-}
-impl Ipc {
-    fn new(stream: UnixStream) -> Result<Self> {
-        stream
-            .set_read_timeout(Some(Duration::from_secs(2)))
-            .map_err(|_| "播放器超时设置失败")?;
-        stream
-            .set_write_timeout(Some(Duration::from_secs(2)))
-            .map_err(|_| "播放器超时设置失败")?;
-        let reader = BufReader::new(stream.try_clone().map_err(|_| "播放器连接失败")?);
-        Ok(Self {
-            stream,
-            reader,
-            end_reason: None,
-        })
-    }
-    fn request(&mut self, command: Value, id: u64) -> Result<Value> {
-        writeln!(
-            self.stream,
-            "{}",
-            json!({"command":command,"request_id":id})
-        )
-        .map_err(|_| "播放器连接已关闭")?;
-        loop {
-            let mut line = String::new();
-            self.reader
-                .read_line(&mut line)
-                .map_err(|_| "播放器响应超时")?;
-            if line.is_empty() {
-                return Err("播放器已退出".into());
-            }
-            let value: Value = serde_json::from_str(&line).map_err(|_| "播放器返回无效状态")?;
-            if value["event"] == "end-file" {
-                self.end_reason = Some(value["reason"].as_str().unwrap_or("unknown").to_owned());
-            }
-            if value["request_id"].as_u64() == Some(id) {
-                if value["error"] != "success" {
-                    return Err("播放器尚未准备好".into());
-                }
-                return Ok(value["data"].clone());
-            }
-        }
-    }
-}
-fn complete_track(reason: &str, elapsed: f64, duration: f64, metadata_duration: f64) -> bool {
-    reason == "eof"
-        && duration > 1.0
-        && metadata_duration > 1.0
-        && (duration - metadata_duration).abs() < 5.0
-        && elapsed >= duration - 3.0
-}
-
 #[derive(Clone, Serialize)]
 pub struct Playlist {
     id: String,
@@ -208,6 +153,13 @@ pub struct Track {
     artist: String,
     duration: f64,
 }
+#[derive(Clone, Serialize)]
+pub struct LoadedQueue {
+    playlist: Option<String>,
+    tracks: Vec<Track>,
+    total: u64,
+    queue: String,
+}
 #[derive(Serialize)]
 pub struct View {
     authenticated: bool,
@@ -219,6 +171,7 @@ pub struct View {
     total: u64,
     queue: String,
     playback: Playback,
+    playing_queue: Option<LoadedQueue>,
 }
 #[derive(Clone, Serialize)]
 pub struct Playback {
@@ -258,6 +211,7 @@ struct Engine {
     total: u64,
     volume: Option<u8>,
     fm: bool,
+    playing_queue: Option<LoadedQueue>,
 }
 #[derive(Default)]
 pub struct Controller {
@@ -406,15 +360,25 @@ impl Controller {
                 }
                 *e = Engine::default();
             }
-            Action::Tracks { playlist, offset } => {
+            Action::Tracks {
+                playlist,
+                offset,
+                from_queue,
+            } => {
                 let list = e
                     .playlists
                     .iter()
                     .find(|p| p.id == playlist)
                     .ok_or("请先选择自己的歌单")?;
                 let total = list.count;
-                if offset > 0
-                    && (e.playlist.as_ref() != Some(&playlist) || offset as usize != e.tracks.len())
+                let (loaded_playlist, loaded_tracks) = if from_queue {
+                    let queue = e.playing_queue.as_ref().ok_or("请先选择歌曲")?;
+                    (queue.playlist.as_ref(), queue.tracks.len())
+                } else {
+                    (e.playlist.as_ref(), e.tracks.len())
+                };
+                if (from_queue || offset > 0)
+                    && (loaded_playlist != Some(&playlist) || offset as usize != loaded_tracks)
                 {
                     return Err("歌单页码已变化，请重新选择".into());
                 }
@@ -432,26 +396,54 @@ impl Controller {
                 )?;
                 let songs = body["songs"].as_array().ok_or("歌单暂不可用")?;
                 let tracks = songs.iter().filter_map(track).collect::<Vec<_>>();
-                if offset == 0 {
-                    e.tracks.clear();
-                }
-                e.tracks.extend(tracks);
-                e.fm = false;
-                e.playlist = Some(playlist);
-                e.total = total;
-                // Some unavailable/deleted songs may be omitted by the service.
-                if songs.len() < 100 {
-                    e.total = e.tracks.len() as u64;
+                let total = if songs.len() < 100 {
+                    if offset == 0 {
+                        tracks.len() as u64
+                    } else {
+                        loaded_tracks as u64 + tracks.len() as u64
+                    }
+                } else {
+                    total
+                };
+                if from_queue {
+                    let queue = e.playing_queue.as_mut().ok_or("请先选择歌曲")?;
+                    if offset == 0 {
+                        queue.tracks.clear();
+                    }
+                    queue.tracks.extend(tracks);
+                    queue.playlist = Some(playlist.clone());
+                    queue.queue = "playlist".into();
+                    queue.total = total;
+                    let tracks = queue.tracks.clone();
+                    if !e.fm
+                        && e.playlist.as_ref() == Some(&playlist)
+                        && e.tracks.len() < tracks.len()
+                    {
+                        e.tracks = tracks;
+                        e.total = total;
+                    }
+                } else {
+                    if offset == 0 {
+                        e.tracks.clear();
+                    }
+                    e.tracks.extend(tracks);
+                    e.fm = false;
+                    e.playlist = Some(playlist);
+                    e.total = total;
                 }
             }
             Action::Fm { append } => {
-                if append && !e.fm {
+                if append && e.playing_queue.as_ref().is_none_or(|q| q.queue != "fm") {
                     return Err("推荐队列已变化，请重新开启随心听".into());
                 }
                 let api = e.api.as_ref().ok_or("请先扫码登录")?;
                 let body = checked(bounded(api.personal_fm(&Query::new())).await?)?;
                 let incoming = fm_tracks(&body)?;
-                let mut tracks = if append { e.tracks.clone() } else { Vec::new() };
+                let mut tracks = if append {
+                    e.playing_queue.as_ref().unwrap().tracks.clone()
+                } else {
+                    Vec::new()
+                };
                 let before = tracks.len();
                 for song in incoming {
                     if !tracks.iter().any(|existing| existing.id == song.id) {
@@ -465,19 +457,36 @@ impl Controller {
                 if tracks.len() > 100 {
                     tracks.drain(..tracks.len() - 100);
                 }
-                e.tracks = tracks;
-                e.playlist = None;
-                e.fm = true;
-                e.total = e.tracks.len() as u64;
+                if append {
+                    let queue = e.playing_queue.as_mut().unwrap();
+                    queue.total = tracks.len() as u64;
+                    queue.tracks = tracks;
+                } else {
+                    e.tracks = tracks;
+                    e.playlist = None;
+                    e.fm = true;
+                    e.total = e.tracks.len() as u64;
+                }
             }
-            Action::Play { id } => {
-                self.stop();
-                let track = e
+            Action::Play { id, from_queue } => {
+                let collection = if from_queue {
+                    e.playing_queue.clone().ok_or("请先选择歌曲")?
+                } else {
+                    LoadedQueue {
+                        playlist: e.playlist.clone(),
+                        tracks: e.tracks.clone(),
+                        total: e.total,
+                        queue: if e.fm { "fm" } else { "playlist" }.into(),
+                    }
+                };
+                let track = collection
                     .tracks
                     .iter()
                     .find(|t| t.id == id)
                     .ok_or("请先从歌单中选择歌曲")?
                     .clone();
+                e.playing_queue = Some(collection);
+                self.stop();
                 let api = e.api.as_ref().ok_or("请先扫码登录")?;
                 let response = checked(
                     bounded(api.song_url(&Query::new().param("id", &id).param("br", "128000")))
@@ -503,9 +512,7 @@ impl Controller {
             }
             Action::Pause { paused } => self.with_player(|p| {
                 let p = p.as_mut().ok_or("请先选择歌曲")?;
-                p.ipc
-                    .request(json!(["set_property", "pause", paused]), 20)?;
-                p.view.state = if paused { "paused" } else { "playing" }.into();
+                p.pause(paused)?;
                 Ok(())
             })?,
             Action::Volume { volume } => {
@@ -514,9 +521,7 @@ impl Controller {
                     if volume > 100 {
                         return Err("音量超出范围".into());
                     }
-                    p.ipc
-                        .request(json!(["set_property", "volume", volume]), 21)?;
-                    p.view.volume = volume;
+                    p.volume(volume)?;
                     Ok(())
                 })?;
                 e.volume = Some(volume);
@@ -526,11 +531,13 @@ impl Controller {
         }
         let playback = self.with_player(|p| {
             if let Some(player) = p.as_mut() {
-                if let Err(error) = player.poll() {
-                    *p = None;
-                    return Err(error);
+                match player.snapshot() {
+                    Ok(view) => Ok(view),
+                    Err(error) => {
+                        *p = None;
+                        Err(error)
+                    }
                 }
-                Ok(player.view.clone())
             } else {
                 Ok(Playback {
                     volume: e.volume.unwrap_or(50),
@@ -561,6 +568,7 @@ impl Controller {
             total: e.total,
             queue: if e.fm { "fm" } else { "playlist" }.into(),
             playback,
+            playing_queue: e.playing_queue.clone(),
         })
     }
 }
@@ -627,167 +635,10 @@ fn permitted_stream(item: &Value) -> Result<String> {
     }
     media_url(item["url"].as_str().ok_or("当前账号无法播放此歌曲")?)
 }
-struct Player {
-    child: Child,
-    ipc: Ipc,
-    _dir: tempfile::TempDir,
-    view: Playback,
-    started: Instant,
-}
-impl Drop for Player {
-    fn drop(&mut self) {
-        let _ = self.child.kill();
-        let _ = self.child.wait();
-    }
-}
-impl Player {
-    fn start(url: &str, track: Track, volume: u8) -> Result<Self> {
-        // tempfile creates a private 0700 directory; no signed URL is written to disk/argv.
-        let dir = tempfile::Builder::new()
-            .prefix("horizon-player-")
-            .tempdir()
-            .map_err(|_| "无法创建播放器私有目录")?;
-        let socket = dir.path().join("mpv.sock");
-        let mut command = Command::new("mpv");
-        if cfg!(target_os = "linux") {
-            command.arg("--ao=pulse");
-        }
-        let child = command
-            .args([
-                "--no-config",
-                "--idle=yes",
-                "--no-video",
-                "--no-terminal",
-                "--force-media-title=HORIZON NetEase",
-            ])
-            .arg(format!("--volume={volume}"))
-            .arg(format!("--input-ipc-server={}", socket.display()))
-            .stdin(Stdio::null())
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .spawn()
-            .map_err(|_| "请安装 mpv 后重试")?;
-        // Own the process before any fallible IPC operation, so startup failure cannot leak it.
-        let mut child = ChildGuard(Some(child));
-        let started = Instant::now();
-        let stream = loop {
-            if let Ok(s) = UnixStream::connect(&socket) {
-                break s;
-            }
-            if started.elapsed() > Duration::from_secs(4)
-                || child
-                    .0
-                    .as_mut()
-                    .unwrap()
-                    .try_wait()
-                    .map_err(|_| "播放器状态不可用")?
-                    .is_some()
-            {
-                return Err("mpv 未能启动".into());
-            }
-            std::thread::sleep(Duration::from_millis(25));
-        };
-        let mut ipc = Ipc::new(stream)?;
-        ipc.request(json!(["loadfile", url, "replace"]), 1)?;
-        Ok(Self {
-            child: child.0.take().unwrap(),
-            ipc,
-            _dir: dir,
-            view: Playback {
-                state: "connecting".into(),
-                duration: track.duration,
-                track: Some(track),
-                volume,
-                seconds: 0.0,
-            },
-            started: Instant::now(),
-        })
-    }
-    fn poll(&mut self) -> Result<()> {
-        if self.view.state == "ended" {
-            return Ok(());
-        }
-        if self
-            .child
-            .try_wait()
-            .map_err(|_| "播放器状态不可用")?
-            .is_some()
-        {
-            return Err("mpv 意外退出，请重试".into());
-        }
-        if let Ok(v) = self.ipc.request(json!(["get_property", "time-pos"]), 10) {
-            self.view.seconds = v.as_f64().unwrap_or(self.view.seconds);
-        }
-        if let Ok(v) = self.ipc.request(json!(["get_property", "duration"]), 11) {
-            let duration = v.as_f64().unwrap_or(0.0);
-            let expected = self.view.track.as_ref().map_or(0.0, |t| t.duration);
-            if duration > 1.0 && (duration - expected).abs() > 5.0 {
-                return Err("音源时长不符，已停止播放".into());
-            }
-            if duration > 1.0 {
-                self.view.duration = duration;
-            }
-        }
-        if let Some(reason) = self.ipc.end_reason.as_deref() {
-            if complete_track(
-                reason,
-                self.view.seconds,
-                self.view.duration,
-                self.view.track.as_ref().map_or(0.0, |t| t.duration),
-            ) {
-                self.view.state = "ended".into();
-            } else {
-                return Err("播放中断，请重试或选择其他歌曲".into());
-            }
-        } else if self.view.seconds > 0.0 && self.view.state == "connecting" {
-            self.view.state = "playing".into();
-        } else if self.view.state == "connecting"
-            && self.started.elapsed() > Duration::from_secs(20)
-        {
-            return Err("播放连接超时，请重试".into());
-        }
-        Ok(())
-    }
-}
-struct ChildGuard(Option<Child>);
-impl Drop for ChildGuard {
-    fn drop(&mut self) {
-        if let Some(child) = self.0.as_mut() {
-            let _ = child.kill();
-            let _ = child.wait();
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test]
-    fn end_event_survives_a_property_becoming_unavailable_after_playback() {
-        let (stream, peer) = UnixStream::pair().unwrap();
-        let worker = std::thread::spawn(move || {
-            let mut reader = BufReader::new(peer.try_clone().unwrap());
-            let mut request = String::new();
-            reader.read_line(&mut request).unwrap();
-            let mut peer = peer;
-            writeln!(peer, "{}", json!({"event":"end-file","reason":"eof"})).unwrap();
-            writeln!(
-                peer,
-                "{}",
-                json!({"request_id":10,"error":"property unavailable"})
-            )
-            .unwrap();
-        });
-        let mut ipc = Ipc::new(stream).unwrap();
-        assert!(ipc
-            .request(json!(["get_property", "time-pos"]), 10)
-            .is_err());
-        assert_eq!(ipc.end_reason.as_deref(), Some("eof"));
-        worker.join().unwrap();
-        assert!(complete_track("eof", 172.0, 173.0, 173.0));
-        assert!(!complete_track("stop", 172.0, 173.0, 173.0));
-        assert!(!complete_track("eof", 30.0, 30.0, 173.0));
-    }
+    use serde_json::json;
     #[test]
     fn qr_key_supports_direct_and_wrapped_service_responses() {
         assert_eq!(
@@ -873,6 +724,7 @@ mod tests {
 #[cfg(test)]
 mod fm_tests {
     use super::*;
+    use serde_json::json;
     #[test]
     fn personal_fm_metadata_uses_duration_and_artists_without_exposing_provider_fields() {
         let songs = fm_tracks(&json!({"data":[{"id":123,"name":"Test","artists":[{"name":"Artist"}],"duration":180000,"url":"private"}]})).unwrap();

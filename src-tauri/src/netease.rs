@@ -8,11 +8,26 @@ pub enum Action {
     PollLogin {},
     CancelLogin {},
     Logout {},
-    Tracks { playlist: String, offset: u32 },
-    Fm { append: bool },
-    Play { id: String },
-    Pause { paused: bool },
-    Volume { volume: u8 },
+    Tracks {
+        playlist: String,
+        offset: u32,
+        #[serde(default)]
+        from_queue: bool,
+    },
+    Fm {
+        append: bool,
+    },
+    Play {
+        id: String,
+        #[serde(default)]
+        from_queue: bool,
+    },
+    Pause {
+        paused: bool,
+    },
+    Volume {
+        volume: u8,
+    },
     Stop {},
     Status {},
 }

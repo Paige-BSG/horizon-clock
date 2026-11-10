@@ -32,6 +32,7 @@ export async function start(page, loggedIn = true, longPlaylist = false) {
         total: 0,
         playback: idle(),
         queue: 'playlist',
+        playing_queue: null,
       };
       window.nativeCalls = [];
       window.__TAURI__ = {
@@ -46,11 +47,23 @@ export async function start(page, loggedIn = true, longPlaylist = false) {
               await new Promise((r) => {
                 window.finishRestore = r;
               });
+            if (a.type === 'status' && window.delayStatus)
+              await new Promise((resolve) => (window.finishStatus = resolve));
             if (a.type === 'tracks') {
-              view.tracks = a.offset ? view.tracks.concat(window.extraTracks || []) : tracks;
-              view.queue = 'playlist';
-              view.playlist = a.playlist;
-              view.total = tracks.length + (window.extraTracks?.length || 0);
+              const target = a.from_queue ? view.playing_queue : view;
+              const source = window.otherTracks?.[a.playlist] || tracks;
+              target.tracks = a.offset ? target.tracks.concat(window.extraTracks || []) : source;
+              target.queue = 'playlist';
+              target.playlist = a.playlist;
+              target.total = source.length + (window.extraTracks?.length || 0);
+              if (
+                a.from_queue &&
+                view.playlist === a.playlist &&
+                view.tracks.length < target.tracks.length
+              ) {
+                view.tracks = structuredClone(target.tracks);
+                view.total = target.total;
+              }
             }
             if (a.type === 'fm') {
               window.fmBatches = (window.fmBatches || 0) + 1;
@@ -60,13 +73,23 @@ export async function start(page, loggedIn = true, longPlaylist = false) {
                 artist: '推荐歌手',
                 duration: 180,
               }));
-              view.tracks = a.append ? view.tracks.concat(batch) : batch;
-              view.playlist = null;
-              view.queue = 'fm';
-              view.total = view.tracks.length;
+              const target = a.append ? view.playing_queue : view;
+              target.tracks = a.append ? target.tracks.concat(batch) : batch;
+              target.playlist = null;
+              target.queue = 'fm';
+              target.total = target.tracks.length;
             }
             if (a.type === 'play') {
-              const track = view.tracks.find((t) => t.id === a.id);
+              const target = a.from_queue ? view.playing_queue : view;
+              const track = target.tracks.find((t) => t.id === a.id);
+              if (!track) throw '请先从歌单中选择歌曲';
+              if (!a.from_queue)
+                view.playing_queue = structuredClone({
+                  playlist: view.playlist,
+                  tracks: view.tracks,
+                  total: view.total,
+                  queue: view.queue,
+                });
               view.playback = {
                 state: 'playing',
                 track,
@@ -103,6 +126,7 @@ export async function start(page, loggedIn = true, longPlaylist = false) {
               view.login = 'idle';
               view.playlists = [];
               view.tracks = [];
+              view.playing_queue = null;
               view.playback = idle();
             }
             if (a.type === 'status' && window.endTrack) {

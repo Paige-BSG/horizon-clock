@@ -51,7 +51,10 @@
       </symbol>
       <symbol id="icon-next" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" /></symbol>
       <symbol id="icon-library" viewBox="0 0 24 24">
-        <path d="M4 5h16M4 10h16M4 15h9M4 20h9M18 14v7l4-3.5Z" />
+        <path d="M4 5v14M9 5v14M14 5l6 14" />
+      </symbol>
+      <symbol id="icon-queue" viewBox="0 0 24 24">
+        <path d="M4 6h16M4 12h16M4 18h9m4-3 4 3-4 3Z" />
       </symbol>
       <symbol id="icon-back" viewBox="0 0 24 24"><path d="m9 5-7 7 7 7M2 12h20" /></symbol>
       <symbol id="icon-loop" viewBox="0 0 24 24">
@@ -158,12 +161,14 @@
                   >我的歌单</label
                 >
               </div>
+              <p id="music-current-list-heading" class="field-label" hidden>播放列表</p>
               <select id="netease-playlists" aria-label="网易云歌单">
                 <option value="">选择歌单</option>
               </select>
               <div id="netease-track-list">
                 <div id="netease-tracks" role="group" aria-label="歌单歌曲"></div>
                 <p id="netease-empty" class="settings-note">选择一个歌单</p>
+                <button type="button" id="netease-more" class="music-link" hidden>加载更多</button>
               </div>
             </div>
           </div>
@@ -173,7 +178,17 @@
             <progress id="music-progress" max="100" value="0" aria-label="歌曲进度"></progress>
             <span id="netease-progress">0:00 / 0:00</span>
           </div>
-          <div id="netease-transport">
+          <div id="netease-transport" role="group" aria-label="歌曲播放">
+            <button
+              type="button"
+              id="music-shuffle"
+              class="icon-button"
+              aria-label="随机播放"
+              aria-pressed="false"
+              title="开启随机播放"
+            >
+              <svg aria-hidden="true"><use href="#icon-shuffle" /></svg>
+            </button>
             <button
               type="button"
               id="netease-previous"
@@ -202,70 +217,86 @@
               title="下一首"
               disabled
             >
-              <svg><use href="#icon-next" /></svg>
+              <svg><use href="#icon-skip-next" /></svg>
             </button>
-          </div>
-          <div class="music-options">
             <button
               type="button"
-              id="music-mode"
-              class="music-link"
-              aria-label="播放模式：列表循环"
-              title="播放模式：列表循环，点击切换"
+              id="music-repeat"
+              class="icon-button"
+              aria-label="循环模式：列表循环"
+              aria-pressed="true"
+              title="列表循环，点击切换单曲循环"
             >
-              <svg aria-hidden="true"><use id="music-mode-icon" href="#icon-loop" /></svg
-              ><span id="music-mode-label">列表循环</span>
+              <svg aria-hidden="true"><use id="music-repeat-icon" href="#icon-loop" /></svg>
             </button>
-            <label class="music-volume" title="歌曲音量"
-              ><svg aria-hidden="true"><use href="#icon-volume" /></svg
-              ><input
-                id="music-volume"
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                value="50"
-                aria-label="歌曲音量"
-                disabled
-              /><span id="music-volume-value">50%</span></label
-            >
           </div>
-          <div class="music-navigation" role="group" aria-label="音乐浏览">
-            <div class="music-navigation-primary">
-              <button
-                type="button"
-                id="music-library-toggle"
-                class="music-link"
-                aria-expanded="false"
-                aria-controls="netease-library"
-              >
-                <svg aria-hidden="true"><use id="music-library-icon" href="#icon-library" /></svg
-                ><span id="music-library-label">歌单</span></button
-              ><button
-                type="button"
-                id="music-fm"
-                class="music-link"
-                aria-pressed="false"
-                title="播放网易云推荐"
-                hidden
-              >
-                随心听</button
-              ><button type="button" id="music-account-open" class="music-link" hidden>
-                登录网易云
-              </button>
+          <div class="music-secondary">
+            <div class="music-navigation" role="group" aria-label="音乐浏览">
+              <div class="music-navigation-primary">
+                <button
+                  type="button"
+                  id="music-library-toggle"
+                  class="music-link"
+                  aria-expanded="false"
+                  aria-controls="netease-library"
+                >
+                  <svg aria-hidden="true"><use id="music-library-icon" href="#icon-library" /></svg
+                  ><span id="music-library-label">我的歌单</span></button
+                ><button
+                  type="button"
+                  id="music-fm"
+                  class="music-link"
+                  aria-pressed="false"
+                  title="播放网易云推荐"
+                  hidden
+                >
+                  随心听</button
+                ><button type="button" id="music-account-open" class="music-link" hidden>
+                  登录网易云
+                </button>
+              </div>
             </div>
-            <div id="music-library-actions" class="music-library-actions" hidden>
+            <div class="music-utilities" role="group" aria-label="播放列表与音量">
               <button
                 type="button"
-                id="netease-shuffle"
-                class="music-link"
-                aria-label="随机播放歌单"
-                title="随机播放歌单"
+                id="music-queue-toggle"
+                class="icon-button"
+                aria-label="打开当前播放列表"
+                aria-controls="netease-library"
+                aria-expanded="false"
+                title="播放列表"
                 disabled
               >
-                <svg aria-hidden="true"><use href="#icon-shuffle" /></svg
-                ><span>随机播放</span></button
-              ><button type="button" id="netease-more" class="music-link" hidden>加载更多</button>
+                <svg aria-hidden="true"><use href="#icon-queue" /></svg>
+              </button>
+              <div class="music-volume-control">
+                <button
+                  type="button"
+                  id="music-volume-toggle"
+                  class="icon-button"
+                  aria-label="音量：50%"
+                  aria-controls="music-volume-panel"
+                  aria-expanded="false"
+                  title="音量：50%"
+                  disabled
+                >
+                  <svg aria-hidden="true"><use href="#icon-volume" /></svg>
+                </button>
+                <div id="music-volume-panel" hidden>
+                  <label class="music-volume"
+                    ><input
+                      id="music-volume"
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value="50"
+                      aria-label="歌曲音量"
+                      disabled
+                    /><span id="music-volume-value">50%</span></label
+                  >
+                </div>
+              </div>
             </div>
           </div>
         </div>

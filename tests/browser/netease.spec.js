@@ -37,6 +37,7 @@ test('native controls play, pause, resume, change volume and select adjacent son
   await expect(page.locator('#music-panel')).toHaveAttribute('data-wave-peak', '0');
   await page.getByRole('button', { name: '播放歌曲', exact: true }).click();
   await expect(page.locator('#music-status')).toHaveText('播放中');
+  await page.locator('#music-volume-toggle').click();
   await page.locator('#music-volume').fill('64');
   await page.locator('#music-volume').dispatchEvent('change');
   await expect(page.locator('#music-volume-value')).toHaveText('64%');

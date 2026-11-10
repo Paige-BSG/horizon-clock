@@ -132,6 +132,7 @@ test('waveform follows native samples, pauses flat and releases capture in libra
     .poll(() => page.locator('#music-panel').getAttribute('data-wave-peak'))
     .not.toBe('0');
   await expect(page.locator('#music-panel')).toHaveAttribute('data-audio-rms', '0.04');
+  await page.locator('#music-volume-toggle').click();
   await page.locator('#music-volume').fill('0');
   await page.locator('#music-volume').dispatchEvent('change');
   await expect(page.locator('#music-panel')).toHaveAttribute('data-wave-peak', '0');
@@ -171,7 +172,7 @@ test('an unavailable canvas leaves native playback controls functional', async (
   await expect(page.locator('#music-panel')).toHaveAttribute('data-renderer', 'none');
 });
 
-test('all player actions stay in the bottom console and the toolbar owns open and close', async ({
+test('playback stays grouped, list pagination stays with songs, and the toolbar owns open and close', async ({
   page,
 }) => {
   await start(page);
@@ -184,7 +185,9 @@ test('all player actions stay in the bottom console and the toolbar owns open an
   );
   for (const button of await page.locator('#music-panel button').all()) {
     expect(
-      await button.evaluate((e) => !!e.closest('.music-console') || !!e.closest('#netease-tracks'))
+      await button.evaluate(
+        (e) => !!e.closest('.music-console') || !!e.closest('#netease-track-list')
+      )
     ).toBe(true);
   }
   const player = await page.locator('.music-console').boundingBox();
@@ -206,7 +209,7 @@ test('all player actions stay in the bottom console and the toolbar owns open an
   ).toBe(1);
 });
 
-test('the complete bottom console fits compact libraries with shuffle and load-more visible', async ({
+test('the player groups fit compact libraries and load-more stays inside the list', async ({
   page,
 }) => {
   await start(page, true, true);
@@ -237,9 +240,10 @@ test('the complete bottom console fits compact libraries with shuffle and load-m
     for (const id of [
       'music-fm',
       'music-library-toggle',
-      'netease-shuffle',
-      'netease-more',
-      'music-mode',
+      'music-shuffle',
+      'music-repeat',
+      'music-queue-toggle',
+      'music-volume-toggle',
       'music-toggle',
     ]) {
       const action = page.locator(`#${id}`);
@@ -250,9 +254,55 @@ test('the complete bottom console fits compact libraries with shuffle and load-m
       expect(box.y + box.height, id).toBeLessThanOrEqual(console.y + console.height + 1);
       expect(box.height, id).toBeGreaterThanOrEqual(44);
     }
+    await expect(page.locator('#netease-more')).toBeAttached();
+    expect(
+      await page.locator('#netease-more').evaluate((e) => !!e.closest('#netease-track-list'))
+    ).toBe(true);
     await page.screenshot({
-      path: `/tmp/horizon-bottom-console-${width}.png`,
+      path: `/tmp/horizon-player-reference-${width}.png`,
       fullPage: width <= 740,
     });
   }
+});
+
+test('current list and volume open independently without interrupting playback', async ({
+  page,
+}) => {
+  await start(page);
+  await choose(page);
+  await page.locator('#netease-tracks button').first().click();
+  await page.keyboard.press('Escape');
+  await page.locator('#music-queue-toggle').click();
+  await expect(page.locator('#music-panel')).toHaveAttribute('data-view', 'queue');
+  await expect(page.locator('#netease-playlists')).toBeHidden();
+  await expect(page.locator('#music-current-list-heading')).toBeVisible();
+  await expect(page.locator('#netease-tracks button')).toHaveCount(2);
+  await page.locator('#music-library-toggle').click();
+  await expect(page.locator('#netease-playlists')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.locator('#music-volume-toggle').click();
+  await expect(page.locator('#music-volume')).toBeFocused();
+  await page.locator('#music-volume').fill('30');
+  await page.locator('#music-volume').dispatchEvent('change');
+  await expect(page.locator('#music-volume-toggle')).toHaveAttribute('aria-label', '音量：30%');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#music-volume-panel')).toBeHidden();
+  await expect(page.locator('#music-volume-toggle')).toBeFocused();
+  await expect(page.locator('#music-panel')).toBeVisible();
+  await expect(page.locator('#music-status')).toHaveText('播放中');
+  expect(
+    await page.evaluate(
+      () => window.nativeCalls.filter((c) => c.args?.action?.type === 'play').length
+    )
+  ).toBe(1);
+  const ids = await page
+    .locator('#netease-transport button')
+    .evaluateAll((buttons) => buttons.map((b) => b.id));
+  expect(ids).toEqual([
+    'music-shuffle',
+    'netease-previous',
+    'music-toggle',
+    'netease-next',
+    'music-repeat',
+  ]);
 });

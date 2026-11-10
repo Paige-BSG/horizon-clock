@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createMusicQueue, readMode, MUSIC_PREFERENCES_KEY } from '../lib/music-queue.js';
+import {
+  createMusicQueue,
+  readMode,
+  readPlaybackPreferences,
+  MUSIC_PREFERENCES_KEY,
+} from '../lib/music-queue.js';
 const songs = ['a', 'b', 'c', 'd'].map((id) => ({ id }));
 
 test('sequential stops at the end, list loops, and single repeat only repeats on natural EOF', () => {
@@ -62,5 +67,39 @@ test('only playback mode is restored; invalid or unavailable preferences default
       },
     }),
     'loop'
+  );
+});
+
+test('shuffle stops after one cycle without repeat and single repeat leaves manual Next available', () => {
+  const queue = createMusicQueue(() => 0);
+  queue.sync('list', songs);
+  queue.record('a');
+  for (const id of ['b', 'c', 'd']) {
+    assert.equal(queue.next(queue.previous(id, 'order') || 'a', 'shuffle', false, 'order'), id);
+    queue.record(id, 'next');
+  }
+  assert.equal(queue.hasNext('d', 'order'), false);
+  assert.equal(queue.next('d', 'shuffle', true, 'order'), null);
+  assert.equal(queue.next('d', 'shuffle', true, 'one'), 'd');
+  assert.notEqual(queue.next('d', 'shuffle', false, 'one'), 'd');
+  const single = createMusicQueue();
+  single.sync('one', [{ id: 'x' }]);
+  single.record('x');
+  assert.equal(single.next('x', 'shuffle', true, 'order'), null);
+});
+test('legacy modes migrate and independent repeat choices restore without playback intent', () => {
+  for (const mode of ['loop', 'one', 'order', 'shuffle']) {
+    assert.deepEqual(
+      readPlaybackPreferences({ getItem: () => JSON.stringify({ mode, playing: true }) }),
+      { shuffle: mode === 'shuffle', repeat: mode === 'shuffle' ? 'loop' : mode }
+    );
+  }
+  assert.deepEqual(
+    readPlaybackPreferences({ getItem: () => '{"mode":"shuffle","repeat":"one"}' }),
+    { shuffle: true, repeat: 'one' }
+  );
+  assert.deepEqual(
+    readPlaybackPreferences({ getItem: () => '{"mode":"shuffle","repeat":"bad"}' }),
+    { shuffle: true, repeat: 'loop' }
   );
 });

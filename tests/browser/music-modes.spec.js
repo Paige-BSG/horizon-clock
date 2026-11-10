@@ -14,9 +14,9 @@ test('mode is remembered without autoplay; single repeat keeps EOF on the same t
   await start(page);
   await choose(page);
   await page.locator('#netease-tracks button').first().click();
-  await expect(page.locator('#music-mode')).toHaveAttribute('aria-label', '播放模式：列表循环');
-  await page.locator('#music-mode').click();
-  await expect(page.locator('#music-mode')).toHaveAttribute('aria-label', '播放模式：单曲循环');
+  await expect(page.locator('#music-repeat')).toHaveAttribute('aria-label', '循环模式：列表循环');
+  await page.locator('#music-repeat').click();
+  await expect(page.locator('#music-repeat')).toHaveAttribute('aria-label', '循环模式：单曲循环');
   await eof(page);
   await expect.poll(async () => (await played(page)).length).toBe(2);
   expect(await played(page)).toEqual(['11', '11']);
@@ -24,24 +24,22 @@ test('mode is remembered without autoplay; single repeat keeps EOF on the same t
   await expect(page.locator('#music-title')).toHaveText('测试歌曲乙');
   await page.reload();
   await page.keyboard.press('m');
-  await expect(page.locator('#music-mode')).toHaveAttribute('aria-label', '播放模式：单曲循环');
+  await expect(page.locator('#music-repeat')).toHaveAttribute('aria-label', '循环模式：单曲循环');
   expect(await played(page)).toEqual([]);
 });
 test('list loop wraps, sequential ends, and empty playback never starts by switching modes', async ({
   page,
 }) => {
   await start(page);
-  await page.locator('#music-mode').click();
+  await page.locator('#music-repeat').click();
   expect(await played(page)).toEqual([]);
   await choose(page);
   await page.locator('#netease-tracks button').last().click();
-  // Single -> shuffle -> sequential.
-  await page.locator('#music-mode').click();
-  await page.locator('#music-mode').click();
+  await page.locator('#music-repeat').click();
   await eof(page);
   await expect(page.locator('#music-status')).toHaveText('已播完');
   expect(await played(page)).toEqual(['12']);
-  await page.locator('#music-mode').click();
+  await page.locator('#music-repeat').click();
   await page.locator('#music-toggle').click();
   await eof(page);
   await expect.poll(async () => (await played(page)).at(-1)).toBe('11');
@@ -57,25 +55,27 @@ test('shuffle includes unloaded pages and Previous returns to the song actually 
   );
   await page.locator('#music-library-toggle').click();
   await page.locator('#netease-playlists').selectOption('21');
-  await page.locator('#netease-shuffle').click();
+  await page.locator('#music-shuffle').click();
+  await page.locator('#netease-tracks button').first().click();
+  await page.locator('#netease-next').click();
   await expect(page.locator('#music-title')).toHaveText('末页歌曲');
   await expect(page.locator('#netease-tracks button')).toHaveCount(101);
   await page.locator('#netease-next').click();
   const ids = await played(page);
-  expect(ids[1]).not.toBe(ids[0]);
+  expect(ids[2]).not.toBe(ids[1]);
   await page.locator('#netease-previous').click();
   await expect(page.locator('#music-title')).toHaveText('末页歌曲');
   await page.locator('#netease-next').click();
-  expect((await played(page)).at(-1)).toBe(ids[1]);
+  expect((await played(page)).at(-1)).toBe(ids[2]);
 });
 test('personal recommendations continue with another batch and returning to a playlist restores the chosen mode', async ({
   page,
 }) => {
   await start(page);
-  await page.locator('#music-mode').click();
+  await page.locator('#music-repeat').click();
   await page.locator('#music-fm').click();
   await expect(page.locator('#music-title')).toHaveText('推荐歌曲 1-1');
-  await expect(page.locator('#music-mode')).toBeDisabled();
+  await expect(page.locator('#music-repeat')).toBeDisabled();
   await page.locator('#netease-next').click();
   await eof(page);
   await expect(page.locator('#music-title')).toHaveText('推荐歌曲 2-1');
@@ -83,8 +83,8 @@ test('personal recommendations continue with another batch and returning to a pl
   await page.locator('#netease-previous').click();
   await expect(page.locator('#music-title')).toHaveText('推荐歌曲 1-2');
   await choose(page);
-  await expect(page.locator('#music-mode')).toBeEnabled();
-  await expect(page.locator('#music-mode')).toHaveAttribute('aria-label', '播放模式：单曲循环');
+  await expect(page.locator('#music-repeat')).toBeEnabled();
+  await expect(page.locator('#music-repeat')).toHaveAttribute('aria-label', '循环模式：单曲循环');
 });
 test('recommendation errors are visible, do not replace the playing song, and never trigger a fallback', async ({
   page,
@@ -109,9 +109,8 @@ test('sequential playback loads the next playlist page before stopping at the tr
     () =>
       (window.extraTracks = [{ id: '999', name: '最后一页', artist: '测试歌手', duration: 180 }])
   );
-  await page.locator('#music-mode').click();
-  await page.locator('#music-mode').click();
-  await page.locator('#music-mode').click();
+  await page.locator('#music-repeat').click();
+  await page.locator('#music-repeat').click();
   await page.locator('#music-library-toggle').click();
   await page.locator('#netease-playlists').selectOption('21');
   await page.locator('#netease-tracks button').last().click();
@@ -120,4 +119,27 @@ test('sequential playback loads the next playlist page before stopping at the tr
   await eof(page);
   await expect(page.locator('#music-status')).toHaveText('已播完');
   expect((await played(page)).length).toBe(2);
+});
+
+test('shuffle and repeat have independent state, restore together, and never start playback', async ({
+  page,
+}) => {
+  await start(page);
+  await page.locator('#music-shuffle').click();
+  await page.locator('#music-repeat').click();
+  await expect(page.locator('#music-shuffle')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#music-repeat-icon')).toHaveAttribute('href', '#icon-one');
+  expect(await played(page)).toEqual([]);
+  await choose(page);
+  await page.locator('#netease-tracks button').first().click();
+  await eof(page);
+  await expect.poll(async () => (await played(page)).length).toBe(2);
+  expect(await played(page)).toEqual(['11', '11']);
+  await page.locator('#netease-next').click();
+  await expect(page.locator('#music-title')).toHaveText('测试歌曲乙');
+  await page.reload();
+  await page.keyboard.press('m');
+  await expect(page.locator('#music-repeat')).toHaveAttribute('aria-label', '循环模式：单曲循环');
+  await expect(page.locator('#music-shuffle')).toHaveAttribute('aria-pressed', 'true');
+  expect(await played(page)).toEqual([]);
 });

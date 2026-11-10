@@ -9,7 +9,7 @@ npm ci
 npm run dev
 ```
 
-Open `http://127.0.0.1:5173`. The first-run form allows offline use. The browser version cannot configure desktop autostart. Browser wake lock does not prove system sleep prevention.
+Open `http://127.0.0.1:5173`. The clock opens directly; weather uses system location by default and can be disabled. The browser version cannot configure desktop autostart. Browser wake lock does not prove system sleep prevention.
 
 ```sh
 npm run check
@@ -104,3 +104,9 @@ python3 scripts/soak-linux.py \
 ```
 
 Run the observer under the user's service manager to retain it after SSH disconnects. Each sample records process-tree RSS, interval CPU, clock-window inhibition, fullscreen and display power. RSS sums can include shared pages. The script exclusively creates its evidence file and does not change power settings or restart the app. A completed record proves observation duration; it does not prove visual clock updates, weather correctness, physical readability, or login startup. Keep those checks separate.
+
+## Native NetEase adapter
+
+The desktop command `netease` accepts only the tagged actions in `src-tauri/src/netease.rs`. The backend validates playlist/track IDs against the restored account library and never returns cookies, device identifiers or signed stream URLs. Linux playback requires external mpv and an unlocked Secret Service; macOS uses its keychain. No local HTTP server or provider web player is started. See [MUSIC.md](MUSIC.md) for scope and credential namespace.
+
+Run `node scripts/cargo.mjs test --locked --manifest-path src-tauri/Cargo.toml` and the browser suite. Browser NetEase tests deliberately mock the native command with fictitious account data; they prove UI behavior, not account permissions or audible playback. Real-account native tests must run in an isolated app instance and must not print API view models, QR data, playlist names or signed URLs. Never run logout during acceptance against the user's retained session unless explicitly requested.

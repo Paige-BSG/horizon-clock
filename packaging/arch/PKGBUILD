@@ -10,7 +10,7 @@ depends=(
   'libsoup3' 'wayland' 'webkit2gtk-4.1' 'xdg-utils'
   'gstreamer' 'gst-plugins-good' 'gst-libav' 'libpulse'
 )
-optdepends=('geoclue: System location for local weather')
+optdepends=('geoclue: System location for local weather' 'mpv: Native NetEase playback' 'gnome-keyring: Secret Service for NetEase login (or another compatible provider)')
 # Preserve the exact normal-build executable that is verified before publication.
 options=('!strip' '!debug')
 
@@ -20,7 +20,7 @@ package() {
   install -Dm644 "$startdir/icon.png" "$pkgdir/usr/share/icons/hicolor/256x256/apps/horizon-clock.png"
   install -Dm644 "$startdir/LICENSE" "$pkgdir/usr/share/licenses/horizon-clock/LICENSE"
   local name
-  for name in README.md THIRD_PARTY_NOTICES.md assets/OFL.txt assets/landscapes/CREDITS.md assets/landscapes/commons/CREDITS.md assets/landscapes/commons/CATALOG.json; do
+  for name in README.md THIRD_PARTY_NOTICES.md assets/licenses/netease-native.txt assets/OFL.txt assets/landscapes/CREDITS.md assets/landscapes/commons/CREDITS.md assets/landscapes/commons/CATALOG.json; do
     install -Dm644 "$startdir/$name" "$pkgdir/usr/share/doc/horizon-clock/$name"
   done
 }

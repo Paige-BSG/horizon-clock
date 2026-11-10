@@ -6,6 +6,10 @@
 
 安装包包含应用、离线字体、21 张风景、桌面启动图标和第三方声明。不需要安装 Node.js、Rust 或克隆源码。系统组件由 pacman 检查；安装时可能需要联网取得缺少的依赖。
 
+## 开发版网易云音乐
+
+当前源码已集成网易云音乐原生来源，使用本机 mpv 和系统钥匙串。下方已发布的 **alpha.2 安装包不包含此功能**；新版本尚未发布。源码构建的使用方法和范围见 [MUSIC.md](MUSIC.md)。Linux 需要可用的 `mpv`、PulseAudio 兼容输出和已解锁的 Secret Service；缺失时应用提示安装或解锁，不自动修改系统。
+
 ## 下载与安装
 
 1. 打开 [GitHub Releases](https://github.com/Paige-BSG/horizon-clock/releases/tag/v0.2.0-alpha.2)。

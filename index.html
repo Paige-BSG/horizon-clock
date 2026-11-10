@@ -111,9 +111,11 @@
         </div>
       </header>
 
-      <section id="music-panel" class="music-panel" aria-label="网络电台" hidden>
+      <section id="music-panel" class="music-panel" aria-label="音乐" hidden>
         <div class="music-heading">
-          <div class="music-eyebrow"><span id="music-index">01</span><i></i> RADIO PARADISE</div>
+          <div class="music-eyebrow">
+            <span id="music-index">01</span><i></i> <span id="music-provider">RADIO PARADISE</span>
+          </div>
           <button
             type="button"
             class="icon-button"
@@ -123,6 +125,10 @@
           >
             <svg><use href="#icon-close" /></svg>
           </button>
+        </div>
+        <div class="music-tabs" role="group" aria-label="音乐来源">
+          <button type="button" id="music-radio" aria-pressed="true">电台</button>
+          <button type="button" id="music-netease" aria-pressed="false">网易云</button>
         </div>
         <div class="music-title-line">
           <h1 id="music-title">舒缓</h1>
@@ -135,6 +141,32 @@
         </div>
         <p id="music-help" hidden></p>
         <div id="music-channels" class="music-channels" role="group" aria-label="电台频道"></div>
+        <div id="netease-library" hidden>
+          <div class="netease-account">
+            <span id="netease-account-status">未登录</span>
+            <button type="button" id="netease-connect">扫码登录</button>
+            <button type="button" id="netease-refresh" hidden>重试</button>
+            <button type="button" id="netease-logout" hidden>退出登录</button>
+          </div>
+          <div id="netease-login" hidden>
+            <img id="netease-qr" alt="网易云音乐登录二维码" width="180" height="180" />
+            <p id="netease-login-status" role="status">用手机网易云音乐扫码</p>
+            <button type="button" id="netease-cancel">取消</button>
+          </div>
+          <div id="netease-browser" hidden>
+            <label for="netease-playlists">歌单</label>
+            <select id="netease-playlists" aria-label="网易云歌单">
+              <option value="">选择歌单</option>
+            </select>
+            <div id="netease-tracks" role="group" aria-label="歌单歌曲"></div>
+            <button type="button" id="netease-more" hidden>加载更多</button>
+          </div>
+          <div id="netease-transport" hidden>
+            <button type="button" id="netease-previous" aria-label="上一首">上一首</button>
+            <span id="netease-progress">0:00 / 0:00</span>
+            <button type="button" id="netease-next" aria-label="下一首">下一首</button>
+          </div>
+        </div>
         <div class="music-console">
           <button
             type="button"

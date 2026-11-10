@@ -32,6 +32,7 @@
     "resources": [
       "../LICENSE",
       "../THIRD_PARTY_NOTICES.md",
+      "../assets/licenses/netease-native.txt",
       "../assets/OFL.txt",
       "../assets/landscapes/CREDITS.md",
       "../assets/landscapes/commons/CREDITS.md",

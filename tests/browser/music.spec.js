@@ -77,7 +77,7 @@ test('opening and choosing radio is offline until play, with no account or nativ
   await page.getByRole('button', { name: '静谧', exact: true }).click();
   expect(requests).toEqual([]);
   await expect(page.getByRole('group', { name: '电台频道' }).getByRole('button')).toHaveCount(3);
-  await expect(page.locator('#music-panel select')).toHaveCount(0);
+  await expect(page.locator('#netease-playlists')).toBeHidden();
   await expect(page.locator('#music-help')).toBeHidden();
   await expect(page.getByRole('button', { name: '播放电台', exact: true })).toBeEnabled();
   await page.getByRole('button', { name: '播放电台', exact: true }).click();

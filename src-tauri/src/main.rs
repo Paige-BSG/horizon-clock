@@ -6,6 +6,7 @@ use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_opener::OpenerExt;
 mod awake;
 mod location;
+mod netease;
 mod photo_source;
 mod radio_meter;
 #[cfg(target_os = "linux")]
@@ -151,6 +152,11 @@ fn main() {
     #[cfg(feature = "native-qa")]
     let builder = builder.plugin(tauri_plugin_wdio_webdriver::init());
     builder
+        .on_page_load(|webview, payload| {
+            if matches!(payload.event(), tauri::webview::PageLoadEvent::Started) {
+                webview.state::<netease::Controller>().invalidate();
+            }
+        })
         .on_permission_request(|webview, kind| {
             let url = webview.url().ok();
             location::permission(webview.label(), url.as_ref(), kind)
@@ -161,6 +167,7 @@ fn main() {
                 tauri::WindowEvent::CloseRequested { .. } | tauri::WindowEvent::Destroyed
             ) {
                 window.state::<radio_meter::RadioMeter>().cancel();
+                window.state::<netease::Controller>().close();
                 if let Ok(mut guard) = window.state::<AwakeState>().0.lock() {
                     *guard = None;
                 }
@@ -177,6 +184,7 @@ fn main() {
                 .build(),
         )
         .manage(AwakeState::default())
+        .manage(netease::Controller::default())
         .manage(radio_meter::RadioMeter::default())
         .invoke_handler(tauri::generate_handler![
             set_keep_awake,
@@ -188,7 +196,8 @@ fn main() {
             open_radio_source,
             check_radio_audio,
             set_radio_meter,
-            radio_audio_levels
+            radio_audio_levels,
+            netease::netease
         ])
         .setup(|app| {
             if let Some(window) = app.get_webview_window("main") {

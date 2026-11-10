@@ -55,13 +55,11 @@ npm ci
 npm run package:arch
 ```
 
-This rebuilds the normal executable with locked Rust dependencies, without the `native-qa` feature, then runs `makepkg` in a temporary directory. It produces `release/horizon-clock-0.2.0alpha2-1-x86_64.pkg.tar.zst` and its SHA256 file. It does not install packages, use sudo, modify the running application or publish anything. The package includes the desktop entry, icon and asset notices, and preserves the verified executable without extra stripping. Keep its version aligned with `package.json`, Cargo and Tauri configuration. A published release must identify its source commit and record package installation/runtime verification separately from prior source-build checks.
+This rebuilds the normal executable with locked Rust dependencies, without the `native-qa` feature, then runs `makepkg` in a temporary directory. It produces `release/horizon-clock-0.2.0alpha3-1-x86_64.pkg.tar.zst` and its SHA256 file. It does not install packages, use sudo, modify the running application or publish anything. The package includes the desktop entry, icon and asset notices, and preserves the verified executable without extra stripping. Keep its version aligned with `package.json`, Cargo and Tauri configuration. A published release must identify its source commit and record package installation/runtime verification separately from prior source-build checks.
 
-## Linux radio runtime
+## Linux music runtime
 
-Radio needs GStreamer's automatic audio output and MP3/AAC decoders in addition to the WebKitGTK build prerequisites. On Arch/Omarchy, the required packages are `gst-plugins-good` and `gst-libav`, matching the installed GStreamer version. Check with `gst-inspect-1.0 autoaudiosink`, `gst-inspect-1.0 mpg123audiodec` and `gst-inspect-1.0 avdec_aac`. Installing OS packages is a separate administrator action; the user-local installer does not do it.
-
-Opening the desktop radio bar runs a fixed, local `gst-inspect-1.0 autoaudiosink` check with a three-second limit. Playback stays disabled if it fails, so a missing audio-output plugin cannot take down the clock. Install the runtime components, then reopen the radio bar. The check makes no network request and never installs software.
+Native NetEase playback requires external `mpv`, PulseAudio-compatible output and an unlocked Secret Service, such as GNOME Keyring. Music is optional; the clock, backgrounds and weather remain usable without those music components. The app reports missing playback or credential-storage prerequisites and does not install packages. GStreamer radio playback is not part of the application. See [music](MUSIC.md) for account setup, playback scope and the native adapter checks below.
 
 ## Other development systems
 

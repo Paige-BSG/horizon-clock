@@ -6,7 +6,7 @@
 - [x] Offline local landscapes, rotation, manual selection and contrast control.
 - [x] Real device-local date/time and rollover handling.
 - [x] Optional city weather, bounded requests, per-city cache and explicit unavailable/stale states.
-- [x] First-run setup; scheduled night dimming and manual override until the next boundary.
+- [x] Direct clock startup; scheduled night dimming and manual override until the next boundary.
 - [x] Validated settings, prototype migration, settings backup/import.
 - [x] Tauri desktop application, native fullscreen, user-controlled autostart and lifetime-scoped awake requests.
 - [x] Source install/uninstall scripts, reproducible frontend build, committed lockfiles, tests and open-source notices.
@@ -19,7 +19,7 @@ These checkboxes describe implementation, not Omarchy physical-device qualificat
 - [x] Local photo import with per-photo framing, deduplication, persistence and participation controls.
 - [x] Independent day/night background sources, contrast and information brightness, with temporary in-settings previews.
 - [x] Versioned settings backups that accept v1 and v2; photos remain in the device library.
-- [x] 21 bundled landscapes, opt-in daily Commons scenery checks/cache and per-photo source/license details; browser verified, new Linux native behavior pending.
+- [x] 21 bundled landscapes, opt-in daily Commons scenery checks/cache and per-photo source/license details; browser and Omarchy runtime checks recorded separately.
 - [x] Direct background picker, import-to-display, quick brightness/pinning and automatic return to the clock; full controls remain available. Browser validation is recorded separately from the running device build.
 
 Implementation has browser coverage and native Omarchy picker/storage checks. Device observations and remaining acceptance gates are recorded in docs/VALIDATION.md.
@@ -41,9 +41,11 @@ Implementation has browser coverage and native Omarchy picker/storage checks. De
 - [ ] Test update from the previous published version without losing settings.
 - [ ] Publish release notes and the exact tested OS/device support matrix.
 
-## Later candidates
+## Music
 
-- [x] Optional account-free network radio, three official Radio Paradise streams, play/stop, channel selection, local volume preferences and bounded reconnection.
-- [x] Verify live radio decoding, direct channel switching and stop in the installed Omarchy build.
+- [x] Optional native NetEase account restore, own playlists, independent shuffle/repeat and personal recommendations; no autoplay or provider web player.
+- [x] Verify native playback, pause, next/previous and own-stream waveform on aw-omarchy; current player/menu layouts inspected in the normal installed app.
+
+## Later candidates
 
 More cities/search, localization and additional operating systems. These are candidates, not committed features or support promises. No account, subscription or cloud control plane is required for the initial product.

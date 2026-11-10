@@ -1,20 +1,30 @@
 import { test, expect } from '@playwright/test';
 import { normalizeSettings, SETTINGS_KEY } from '../../lib/settings.js';
 
-async function start(page, loggedIn = true) {
+async function start(page, loggedIn = true, longPlaylist = false) {
   await page.addInitScript(
-    ({ key, settings, loggedIn }) => {
+    ({ key, settings, loggedIn, longPlaylist }) => {
       localStorage.setItem(key, JSON.stringify(settings));
       const tracks = [
         { id: '11', name: '测试歌曲甲', artist: '测试歌手', duration: 173 },
         { id: '12', name: '测试歌曲乙', artist: '测试歌手', duration: 200 },
       ];
+      if (longPlaylist) {
+        const first = tracks[0];
+        tracks.push(
+          ...Array.from({ length: 98 }, (_, i) => ({
+            ...first,
+            id: String(100 + i),
+            name: `测试歌曲 ${i + 3}`,
+          }))
+        );
+      }
       const idle = () => ({ state: 'stopped', track: null, seconds: 0, duration: 0, volume: 50 });
       const view = {
         authenticated: loggedIn,
         login: loggedIn ? 'ready' : 'idle',
         qr: null,
-        playlists: loggedIn ? [{ id: '21', name: '测试歌单', count: 2 }] : [],
+        playlists: loggedIn ? [{ id: '21', name: '测试歌单', count: tracks.length }] : [],
         playlist: null,
         tracks: [],
         total: 0,
@@ -35,7 +45,7 @@ async function start(page, loggedIn = true) {
             if (a.type === 'tracks') {
               view.tracks = tracks;
               view.playlist = a.playlist;
-              view.total = 2;
+              view.total = tracks.length;
             }
             if (a.type === 'play') {
               const track = tracks.find((t) => t.id === a.id);
@@ -89,6 +99,7 @@ async function start(page, loggedIn = true) {
       key: SETTINGS_KEY,
       settings: normalizeSettings({ weatherEnabled: false, autoNight: false }),
       loggedIn,
+      longPlaylist,
     }
   );
   await page.goto('/');
@@ -208,4 +219,34 @@ test('web preview clearly limits native login', async ({ page }) => {
   await expect(page.locator('#netease-account-status')).toHaveText('桌面版可用');
   await expect(page.locator('#netease-connect')).toBeHidden();
   await expect(page.locator('#music-toggle')).toBeDisabled();
+});
+
+test('readable text keeps a long library scrollable and native playback controls visible', async ({
+  page,
+}) => {
+  await start(page, true, true);
+  await page.locator('#netease-playlists').selectOption('21');
+  await expect(page.locator('#netease-tracks button')).toHaveCount(100);
+  await page.locator('#netease-tracks button').first().click();
+  for (const [width, height] of [
+    [1408, 792],
+    [1280, 720],
+    [960, 540],
+  ]) {
+    await page.setViewportSize({ width, height });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.scrollHeight))
+      .toBe(height);
+    await expect(page.locator('#music-toggle')).toBeInViewport({ ratio: 0.99 });
+    const art = await page.locator('.music-art').boundingBox();
+    expect(art.height).toBeGreaterThanOrEqual(47);
+    expect(
+      await page
+        .locator('#netease-tracks button small')
+        .first()
+        .evaluate((e) => parseFloat(getComputedStyle(e).fontSize))
+    ).toBeGreaterThanOrEqual(13);
+    await page.screenshot({ path: `/tmp/horizon-type-library-${width}.png` });
+  }
 });

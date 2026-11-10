@@ -48,6 +48,18 @@ async function fit(page, width, height, music = false) {
   const description = await page.locator('.weather-description').boundingBox();
   expect(location.y).toBeGreaterThanOrEqual(description.y);
   expect(location.y + location.height).toBeLessThanOrEqual(description.y + description.height + 1);
+  for (const selector of [
+    '.timeline-labels',
+    '.date-secondary',
+    '.weekday',
+    '#city-label',
+    '#weather-status',
+  ]) {
+    const size = await page
+      .locator(selector)
+      .evaluate((element) => parseFloat(getComputedStyle(element).fontSize));
+    expect(size, `${selector} must remain readable at ${width}px`).toBeGreaterThanOrEqual(12);
+  }
 }
 
 test('unlabeled clock keeps date and weather, with location beside weather details', async ({

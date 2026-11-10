@@ -14,12 +14,16 @@
   color-scheme: dark;
   --bg: #080d10;
   --text: #ecf6f5;
-  --muted: #7e969c;
-  --subtle: #4f646c;
+  --muted: #a1b3b8;
+  --subtle: #82999f;
   --line: #26383e;
   --accent: #7de4d3;
   --accent-rgb: 125, 228, 211;
-  --font: Arial, 'PingFang SC', 'Microsoft Yahei', sans-serif;
+  --font: 'Noto Sans', 'Noto Sans CJK SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: PlexMono, 'Noto Sans Mono CJK SC', monospace;
+  --type-caption: 12px;
+  --type-small: 14px;
+  --type-body: 16px;
 }
 * {
   box-sizing: border-box;
@@ -33,6 +37,9 @@ body {
 body {
   color: var(--text);
   font-family: var(--font);
+  font-size: var(--type-body);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
   transition:
     color 0.35s,
     background 0.35s;
@@ -171,7 +178,7 @@ svg {
   background: var(--bg);
 }
 .brand-description {
-  font-size: 11px;
+  font-size: var(--type-small);
   letter-spacing: 3px;
   color: var(--muted);
   margin-left: 8px;
@@ -184,7 +191,7 @@ svg {
   gap: 28px;
 }
 .live-label {
-  font-size: 11px;
+  font-size: var(--type-small);
   letter-spacing: 3px;
   color: var(--muted);
   display: flex;
@@ -278,7 +285,7 @@ svg {
   align-items: center;
   color: #a8bab7;
   font:
-    9px PlexMono,
+    var(--type-caption) PlexMono,
     monospace;
   letter-spacing: 2px;
 }
@@ -297,20 +304,15 @@ svg {
   margin-top: 18px;
 }
 #music-title {
-  font:
-    300 clamp(30px, calc(var(--app-vw, 1vw) * 3), 48px)/1.2 'Songti SC',
-    'Noto Serif CJK SC',
-    serif;
+  font: 500 clamp(28px, calc(var(--app-vw, 1vw) * 2.8), 44px)/1.3 var(--font);
   color: var(--text);
-  letter-spacing: 5px;
+  letter-spacing: 0.02em;
   margin: 0;
 }
 #music-subtitle {
-  color: #a8bdb7;
-  font:
-    300 clamp(14px, calc(var(--app-vw, 1vw) * 1.3), 20px) Plex,
-    sans-serif;
-  letter-spacing: 1px;
+  color: #b2c5bf;
+  font: 400 clamp(16px, calc(var(--app-vw, 1vw) * 1.3), 22px)/1.5 var(--font);
+  letter-spacing: 0.02em;
 }
 .music-art {
   position: relative;
@@ -328,7 +330,7 @@ svg {
   display: flex;
   gap: 8px;
   align-items: center;
-  font-size: 10px;
+  font-size: var(--type-caption);
   letter-spacing: 1px;
   color: #9ab2ae;
   min-height: 20px;
@@ -344,7 +346,7 @@ svg {
   box-shadow: 0 0 10px var(--radio-accent);
 }
 #music-analysis {
-  font-size: 9px;
+  font-size: var(--type-caption);
   letter-spacing: 0;
   margin-left: auto;
   color: #ad9c88;
@@ -352,7 +354,7 @@ svg {
 #music-help {
   margin: 6px 0 0;
   color: #d7b6a2;
-  font-size: 11px;
+  font-size: var(--type-small);
   line-height: 1.6;
 }
 .music-channels {
@@ -372,7 +374,7 @@ svg {
   border: 1px solid transparent;
   border-radius: 6px;
   color: #9db3ae;
-  font: 13px var(--font);
+  font: var(--type-body) var(--font);
   letter-spacing: 2px;
   white-space: nowrap;
   padding: 10px 8px;
@@ -384,7 +386,7 @@ svg {
 .music-channels .channel-number {
   color: #7b9590;
   font:
-    8px PlexMono,
+    var(--type-caption) PlexMono,
     monospace;
   letter-spacing: 0;
 }
@@ -440,7 +442,7 @@ svg {
   gap: 12px;
   color: #98b1aa;
   font:
-    10px PlexMono,
+    var(--type-caption) PlexMono,
     monospace;
   min-height: 44px;
 }
@@ -519,7 +521,7 @@ body.music-visible .seconds-block {
   margin-top: 8px;
 }
 body.music-visible .seconds-caption {
-  font-size: 7px;
+  font-size: var(--type-caption);
   letter-spacing: 1px;
   margin-top: 5px;
 }
@@ -549,14 +551,14 @@ body.music-visible .date-line > span:first-child {
   font-size: clamp(24px, calc(var(--app-vw, 1vw) * 2.5), 38px);
 }
 body.music-visible .weekday {
-  font-size: 14px;
+  font-size: var(--type-body);
   letter-spacing: 2px;
 }
 body.music-visible .date-secondary {
   gap: 8px;
   flex-wrap: wrap;
   margin-top: 12px;
-  font-size: 9px;
+  font-size: var(--type-caption);
   letter-spacing: 0;
 }
 body.music-visible .weather-panel {
@@ -575,19 +577,19 @@ body.music-visible .temperature {
   font-size: clamp(38px, calc(var(--app-vw, 1vw) * 4), 60px);
 }
 body.music-visible .weather-description {
-  font-size: 12px;
+  font-size: var(--type-small);
   letter-spacing: 0;
   gap: 7px;
   margin-left: 0;
 }
 body.music-visible .high-low {
-  font-size: 10px;
+  font-size: var(--type-caption);
 }
 body.music-visible .weather-details {
   flex-wrap: wrap;
   gap: 8px 14px;
   margin-top: 14px;
-  font-size: 9px;
+  font-size: var(--type-caption);
 }
 body.music-visible .weather-details > span {
   gap: 4px;
@@ -667,7 +669,7 @@ body.music-visible .landscape-backdrop {
     font-size: 24px;
   }
   body.music-visible .weekday {
-    font-size: 12px;
+    font-size: var(--type-small);
   }
   body.music-visible .weather-art {
     width: 30px;
@@ -680,11 +682,11 @@ body.music-visible .landscape-backdrop {
     gap: 6px;
   }
   body.music-visible .weather-description {
-    font-size: 10px;
+    font-size: var(--type-caption);
   }
   body.music-visible .date-secondary {
     margin-top: 8px;
-    font-size: 8px;
+    font-size: var(--type-caption);
   }
   body.music-visible .weather-details {
     display: none;
@@ -719,7 +721,7 @@ body.music-visible .landscape-backdrop {
   .masthead .brand {
     gap: 9px;
     letter-spacing: 2px;
-    font-size: 13px;
+    font-size: var(--type-body);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -799,7 +801,7 @@ body.music-visible .landscape-backdrop {
 .seconds-caption {
   font-family: PlexMono, monospace;
   color: var(--subtle);
-  font-size: 9px;
+  font-size: var(--type-caption);
   letter-spacing: 1.5px;
   margin-top: 12px;
 }
@@ -862,12 +864,12 @@ body.music-visible .landscape-backdrop {
   justify-content: space-between;
   color: var(--subtle);
   font-family: PlexMono, monospace;
-  font-size: 9px;
+  font-size: var(--type-caption);
   letter-spacing: 1px;
   margin-top: 13px;
 }
 .day-caption {
-  font-size: 8px;
+  font-size: var(--type-caption);
   letter-spacing: 3px;
 }
 .information {
@@ -891,9 +893,9 @@ body.music-visible .landscape-backdrop {
   white-space: nowrap;
 }
 .date-line > span:first-child {
-  font-family: Plex, var(--font);
+  font-family: var(--font);
   font-size: clamp(30px, calc(var(--app-vw, 1vw) * 3.2), 72px);
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: 1px;
 }
 .weekday {
@@ -907,10 +909,11 @@ body.music-visible .landscape-backdrop {
   align-items: center;
   gap: 16px;
   margin-top: 20px;
-  font-size: 12px;
-  letter-spacing: 2px;
+  font-size: var(--type-small);
+  letter-spacing: 0.04em;
   color: var(--muted);
-  font-family: PlexMono, var(--font);
+  font-family: var(--font);
+  font-variant-numeric: tabular-nums;
 }
 .small-divider {
   height: 3px;
@@ -931,7 +934,7 @@ body.music-visible .landscape-backdrop {
   gap: 6px;
   font-family: var(--font);
   letter-spacing: 1px;
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 .location svg {
@@ -939,7 +942,7 @@ body.music-visible .landscape-backdrop {
   width: 12px;
 }
 .demo-badge {
-  font-size: 9px;
+  font-size: var(--type-caption);
   letter-spacing: 1px;
   color: var(--subtle);
   border: 0;
@@ -992,7 +995,7 @@ body.music-visible .landscape-backdrop {
 }
 .high-low {
   font-family: PlexMono, monospace;
-  font-size: 13px;
+  font-size: var(--type-body);
   letter-spacing: 0;
   color: var(--muted);
 }
@@ -1005,7 +1008,7 @@ body.music-visible .landscape-backdrop {
   align-items: center;
   gap: 30px;
   margin-top: 21px;
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
   letter-spacing: 1px;
 }
@@ -1026,7 +1029,7 @@ body.music-visible .landscape-backdrop {
   margin-left: 4px;
 }
 .weather-details b span {
-  font-size: 10px;
+  font-size: var(--type-caption);
   letter-spacing: 0;
 }
 
@@ -1086,7 +1089,7 @@ dialog::backdrop {
 }
 .eyebrow {
   font:
-    9px PlexMono,
+    var(--type-caption) PlexMono,
     monospace;
   letter-spacing: 3px;
   color: var(--accent);
@@ -1107,7 +1110,7 @@ h1 {
 }
 .field-label {
   display: block;
-  font-size: 13px;
+  font-size: var(--type-body);
   margin-bottom: 13px;
 }
 .theme-options {
@@ -1122,7 +1125,7 @@ h1 {
   justify-content: center;
   border: 1px solid var(--line);
   padding: 13px 5px;
-  font-size: 12px;
+  font-size: var(--type-small);
   border-radius: 6px;
   background: transparent;
   color: var(--muted);
@@ -1165,11 +1168,11 @@ h1 {
   margin-top: 10px;
 }
 .setting-row label {
-  font-size: 13px;
+  font-size: var(--type-body);
 }
 .setting-row p,
 .settings-note {
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
   line-height: 1.8;
   margin: 7px 0 0;
@@ -1208,7 +1211,7 @@ h1 {
   margin-top: 23px;
 }
 .field-label > span {
-  font-size: 10px;
+  font-size: var(--type-caption);
   color: var(--subtle);
   margin-left: 7px;
 }
@@ -1219,7 +1222,7 @@ select {
   color: var(--text);
   padding: 11px 13px;
   border-radius: 5px;
-  font-size: 13px;
+  font-size: var(--type-body);
 }
 .dialog-footer {
   display: flex;
@@ -1229,12 +1232,12 @@ select {
   margin-top: 25px;
 }
 .dialog-footer > span {
-  font-size: 10px;
+  font-size: var(--type-caption);
   color: var(--muted);
 }
 kbd {
   font:
-    10px PlexMono,
+    var(--type-caption) PlexMono,
     monospace;
   padding: 2px 4px;
   border: 1px solid var(--line);
@@ -1247,7 +1250,7 @@ kbd {
   background: var(--accent);
   color: #122127;
   padding: 13px 18px;
-  font-size: 12px;
+  font-size: var(--type-small);
 }
 .done-button span {
   margin-left: 22px;
@@ -1263,7 +1266,7 @@ kbd {
   border-radius: 8px;
   background: #152127;
   color: var(--text);
-  font-size: 12px;
+  font-size: var(--type-small);
   opacity: 0;
   pointer-events: none;
   transition: 0.2s;
@@ -1319,13 +1322,13 @@ kbd {
     font-size: 16px;
   }
   .weather-details b span {
-    font-size: 14px;
+    font-size: var(--type-body);
   }
   .location {
     font-size: 16px;
   }
   .demo-badge {
-    font-size: 12px;
+    font-size: var(--type-small);
   }
 }
 @media (max-width: 900px) {
@@ -1333,14 +1336,14 @@ kbd {
     padding: 28px calc(var(--app-vw, 1vw) * 5) 0;
   }
   .brand {
-    font-size: 14px;
+    font-size: var(--type-body);
     letter-spacing: 3px;
   }
   .brand-description {
     display: none;
   }
   .live-label {
-    font-size: 9px;
+    font-size: var(--type-caption);
     letter-spacing: 1px;
   }
   .header-right {
@@ -1365,7 +1368,7 @@ kbd {
     margin-top: calc(var(--app-vw, 1vw) * 7);
   }
   .seconds-caption {
-    font-size: 7px;
+    font-size: var(--type-caption);
     letter-spacing: 0.6px;
     margin-top: 8px;
   }
@@ -1399,7 +1402,7 @@ kbd {
     letter-spacing: 1px;
   }
   .date-secondary {
-    font-size: 10px;
+    font-size: var(--type-caption);
     gap: 10px;
     letter-spacing: 0;
   }
@@ -1414,17 +1417,17 @@ kbd {
     font-size: calc(var(--app-vw, 1vw) * 7);
   }
   .weather-description {
-    font-size: 12px;
+    font-size: var(--type-small);
     gap: 8px;
     margin-left: 0;
     letter-spacing: 0;
   }
   .high-low {
-    font-size: 10px;
+    font-size: var(--type-caption);
   }
   .weather-details {
     gap: 14px;
-    font-size: 9px;
+    font-size: var(--type-caption);
     letter-spacing: 0;
     flex-wrap: wrap;
   }
@@ -1436,20 +1439,20 @@ kbd {
   }
 
   .location {
-    font-size: 10px;
+    font-size: var(--type-caption);
     gap: 3px;
   }
   .demo-badge {
-    font-size: 8px;
+    font-size: var(--type-caption);
     margin-left: 2px;
     padding: 2px 3px;
   }
 
   .timeline-labels {
-    font-size: 8px;
+    font-size: var(--type-caption);
   }
   .day-caption {
-    font-size: 7px;
+    font-size: var(--type-caption);
     letter-spacing: 2px;
   }
 }
@@ -1482,7 +1485,7 @@ kbd {
     letter-spacing: -1px;
   }
   .seconds-caption {
-    font-size: 5px;
+    font-size: var(--type-caption);
     letter-spacing: 0.3px;
   }
   .seconds-block {
@@ -1511,7 +1514,7 @@ kbd {
   }
   .date-secondary {
     margin-top: 13px;
-    font-size: 11px;
+    font-size: var(--type-small);
   }
   .weather-panel {
     padding: 26px 0 0;
@@ -1533,7 +1536,7 @@ kbd {
     font-size: 52px;
   }
   .weather-description {
-    font-size: 12px;
+    font-size: var(--type-small);
     gap: 8px;
   }
   .weather-main {
@@ -1544,21 +1547,21 @@ kbd {
     align-items: flex-start;
     gap: 12px;
     margin: 0;
-    font-size: 10px;
+    font-size: var(--type-caption);
   }
   .weather-details b span {
-    font-size: 9px;
+    font-size: var(--type-caption);
   }
   .weather-details > span {
     gap: 4px;
   }
 
   .location {
-    font-size: 11px;
+    font-size: var(--type-small);
   }
 
   .dialog-footer > span {
-    font-size: 9px;
+    font-size: var(--type-caption);
   }
   dialog {
     padding: 24px;
@@ -1567,7 +1570,7 @@ kbd {
     font-size: 18px;
   }
   .theme-option {
-    font-size: 11px;
+    font-size: var(--type-small);
     gap: 6px;
   }
   .day-caption {
@@ -1636,7 +1639,7 @@ kbd {
     margin-left: auto;
   }
   .date-secondary {
-    font-size: 14px;
+    font-size: var(--type-body);
     margin-top: 20px;
     gap: 20px;
   }
@@ -1670,7 +1673,7 @@ kbd {
     font-size: 16px;
   }
   .weather-details {
-    font-size: 13px;
+    font-size: var(--type-body);
     flex-direction: column;
     gap: 18px;
     margin: 0;
@@ -1681,11 +1684,11 @@ kbd {
     height: 16px;
   }
   .weather-details b span {
-    font-size: 12px;
+    font-size: var(--type-small);
   }
 
   .location {
-    font-size: 13px;
+    font-size: var(--type-body);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1715,7 +1718,7 @@ kbd {
   border-radius: 4px;
   background: transparent;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--type-small);
   letter-spacing: 2px;
 }
 .profile-switch button.active,
@@ -1728,11 +1731,11 @@ kbd {
 }
 .collection-switch button {
   padding: 8px;
-  font-size: 11px;
+  font-size: var(--type-small);
   letter-spacing: 1px;
 }
 .profile-note {
-  font-size: 10px;
+  font-size: var(--type-caption);
 }
 .album-heading {
   display: flex;
@@ -1742,7 +1745,7 @@ kbd {
   margin: 17px 0;
 }
 #photo-status {
-  font-size: 10px;
+  font-size: var(--type-caption);
   color: var(--muted);
   line-height: 1.7;
 }
@@ -1752,10 +1755,10 @@ kbd {
   text-align: center;
   line-height: 2;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--type-small);
 }
 .photo-empty span {
-  font-size: 10px;
+  font-size: var(--type-caption);
   color: var(--subtle);
 }
 .photo-list {
@@ -1800,7 +1803,7 @@ kbd {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 9px;
+  font-size: var(--type-caption);
 }
 .photo-actions {
   display: flex;
@@ -1808,7 +1811,7 @@ kbd {
   align-items: center;
   margin-top: 8px;
   gap: 6px;
-  font-size: 10px;
+  font-size: var(--type-caption);
   color: var(--muted);
 }
 .photo-actions label {
@@ -1825,14 +1828,14 @@ kbd {
   padding: 5px 0 5px 5px;
   background: transparent;
   border: 0;
-  font-size: 10px;
+  font-size: var(--type-caption);
   color: var(--muted);
 }
 .photo-actions button:hover {
   color: var(--accent);
 }
 #photo-position .range-label {
-  font-size: 10px;
+  font-size: var(--type-caption);
   color: var(--muted);
   margin-top: 13px;
 }
@@ -1956,7 +1959,7 @@ body.night .landscape-backdrop {
   border: 0;
   padding: 0 2px 14px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--type-small);
   letter-spacing: 2px;
 }
 .settings-tabs button[aria-selected='true'] {
@@ -1986,7 +1989,7 @@ body.night .landscape-backdrop {
   background: transparent;
   border: 1px solid transparent;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--type-small);
   letter-spacing: 3px;
 }
 .background-option.active {
@@ -2029,7 +2032,7 @@ body.night .landscape-backdrop {
   position: absolute;
   left: 10px;
   bottom: 10px;
-  font-size: 11px;
+  font-size: var(--type-small);
   letter-spacing: 1px;
 }
 .scene-option > svg {
@@ -2064,7 +2067,7 @@ body.night .landscape-backdrop {
 }
 .range-label output {
   font:
-    12px PlexMono,
+    var(--type-small) PlexMono,
     monospace;
   color: var(--accent);
 }
@@ -2079,12 +2082,12 @@ body.night .landscape-backdrop {
 .range-captions {
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
+  font-size: var(--type-caption);
   color: var(--muted);
 }
 .landscape-note {
   padding-top: 6px;
-  font-size: 10px;
+  font-size: var(--type-caption);
 }
 select:disabled {
   opacity: 0.4;
@@ -2105,7 +2108,7 @@ select:disabled {
   .scene-option > span {
     left: 7px;
     bottom: 8px;
-    font-size: 10px;
+    font-size: var(--type-caption);
   }
   .settings-tabs {
     margin-top: 22px;
@@ -2146,7 +2149,7 @@ body.night .landscape-backdrop {
   border: 1px solid var(--line);
   border-radius: 5px;
   padding: 10px 13px;
-  font-size: 11px;
+  font-size: var(--type-small);
   cursor: pointer;
 }
 .secondary-button:hover {
@@ -2166,7 +2169,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 input[type='time'] {
@@ -2178,7 +2181,7 @@ input[type='time'] {
   border-radius: 5px;
   color: var(--text);
   font:
-    13px PlexMono,
+    var(--type-body) PlexMono,
     monospace;
 }
 .backup-actions {
@@ -2192,7 +2195,7 @@ input[type='time'] {
   gap: 15px;
   margin: 25px 0;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--type-small);
   line-height: 1.8;
 }
 .weather-settings-status button {
@@ -2205,11 +2208,11 @@ input[type='time'] {
   align-items: center;
   flex-wrap: wrap;
   gap: 15px;
-  font-size: 13px;
+  font-size: var(--type-body);
 }
 .about-app b {
   font:
-    10px PlexMono,
+    var(--type-caption) PlexMono,
     monospace;
   color: var(--muted);
   padding-left: 8px;
@@ -2227,7 +2230,7 @@ input[type='time'] {
   }
   .demo-badge {
     letter-spacing: 0;
-    font-size: 8px;
+    font-size: var(--type-caption);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2256,7 +2259,7 @@ input[type='time'] {
   border-radius: 7px;
   background: #142a2bcc;
   color: var(--accent);
-  font-size: 12px;
+  font-size: var(--type-small);
   white-space: nowrap;
 }
 .background-open svg {
@@ -2312,7 +2315,7 @@ body.immersive {
   gap: 8px;
 }
 .picker-heading .eyebrow {
-  font-size: 9px;
+  font-size: var(--type-caption);
 }
 .picker-heading .icon-button {
   align-self: flex-start;
@@ -2320,7 +2323,7 @@ body.immersive {
 }
 .picker-context {
   margin: 15px 0 22px;
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
   line-height: 1.7;
 }
@@ -2335,15 +2338,15 @@ body.immersive {
 }
 .picker-section-heading {
   margin-bottom: 12px;
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--text);
 }
 .picker-section-heading > span:last-child:not(:first-child) {
-  font-size: 10px;
+  font-size: var(--type-caption);
   color: var(--muted);
 }
 .picker-section-heading small {
-  font-size: 10px;
+  font-size: var(--type-caption);
   color: var(--muted);
   padding-left: 6px;
 }
@@ -2377,7 +2380,7 @@ body.immersive {
   position: absolute;
   inset: auto 0 0;
   padding: 24px 10px 9px;
-  font-size: 11px;
+  font-size: var(--type-small);
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -2414,7 +2417,7 @@ body.immersive {
   border: 1px dashed var(--line);
   border-radius: 8px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--type-small);
   line-height: 1.9;
 }
 .quick-adjustments {
@@ -2426,20 +2429,20 @@ body.immersive {
   padding-top: 21px;
 }
 .quick-brightness .range-label {
-  font-size: 12px;
+  font-size: var(--type-small);
   margin-bottom: 16px;
 }
 .quick-brightness output {
   font-family: PlexMono, monospace;
   color: var(--accent);
-  font-size: 11px;
+  font-size: var(--type-small);
 }
 .quick-rotation {
-  font-size: 12px;
+  font-size: var(--type-small);
 }
 .quick-rotation p {
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-caption);
   margin: 9px 0 0;
   line-height: 1.7;
 }
@@ -2452,7 +2455,7 @@ body.immersive {
   padding-top: 18px;
 }
 .picker-footer > span {
-  font-size: 10px;
+  font-size: var(--type-caption);
   line-height: 1.8;
   color: var(--muted);
 }
@@ -2461,7 +2464,7 @@ body.immersive {
   padding: 12px 0 12px 10px;
   background: transparent;
   color: var(--accent);
-  font-size: 11px;
+  font-size: var(--type-small);
   white-space: nowrap;
 }
 @media (max-width: 600px) {
@@ -2495,7 +2498,7 @@ body.immersive {
 /* Online gallery and per-photo attribution. */
 
 #scene-credit {
-  font-size: 9px;
+  font-size: var(--type-caption);
   letter-spacing: 0.2px;
   line-height: 1.5;
   color: var(--muted);
@@ -2508,7 +2511,7 @@ body.immersive {
   font-size: 23px;
 }
 #photo-source-dialog p {
-  font-size: 13px;
+  font-size: var(--type-body);
   line-height: 1.9;
   overflow-wrap: anywhere;
 }
@@ -2520,7 +2523,7 @@ body.immersive {
 }
 .source-links a {
   color: var(--accent);
-  font-size: 12px;
+  font-size: var(--type-small);
   padding: 12px 0;
 }
 .online-gallery {
@@ -2536,13 +2539,13 @@ body.immersive {
   background: #162d2f66;
 }
 .online-gallery strong {
-  font-size: 12px;
+  font-size: var(--type-small);
   font-weight: 500;
 }
 .online-gallery p {
   margin: 6px 0 0;
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-caption);
   line-height: 1.7;
   max-width: 390px;
 }
@@ -2557,7 +2560,7 @@ body.immersive {
   border: 0;
   background: transparent;
   color: var(--accent);
-  font-size: 10px;
+  font-size: var(--type-caption);
   min-height: 28px;
 }
 @media (max-width: 600px) {
@@ -2567,11 +2570,11 @@ body.immersive {
     margin-bottom: 14px;
   }
   .online-gallery p {
-    font-size: 9px;
+    font-size: var(--type-caption);
   }
   .online-gallery .secondary-button {
     padding: 8px;
-    font-size: 11px;
+    font-size: var(--type-small);
   }
   .background-picker .picker-context {
     margin-bottom: 12px;
@@ -2611,7 +2614,7 @@ body.immersive {
   cursor: pointer;
 }
 .music-tabs button {
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 .music-tabs button[aria-pressed='true'] {
@@ -2619,7 +2622,7 @@ body.immersive {
   border-color: #c4e5d780;
 }
 #netease-library {
-  font-size: 12px;
+  font-size: var(--type-small);
   margin-top: 12px;
   min-width: 0;
 }
@@ -2689,7 +2692,7 @@ body.immersive {
 }
 #netease-tracks button small {
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-caption);
   margin: 3px 0 0 22px;
 }
 #netease-tracks button[aria-pressed='true'] {
@@ -2705,8 +2708,8 @@ body.immersive {
   align-items: center;
   justify-content: space-between;
   margin-top: 10px;
-  font-family: var(--mono);
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: var(--type-small);
 }
 .music-panel[data-source='netease'] .music-art {
   height: 90px;
@@ -2767,7 +2770,7 @@ body.immersive {
   background: #ffffff04;
   color: var(--text);
   text-align: left;
-  font: 13px/1.5 var(--font);
+  font: var(--type-body)/1.5 var(--font);
 }
 #image-source[hidden] {
   display: none;
@@ -2776,14 +2779,14 @@ body.immersive {
   cursor: default;
 }
 #image-source #scene-credit {
-  font-size: 11px;
+  font-size: var(--type-small);
   white-space: normal;
 }
 #scene-caption {
   white-space: normal;
 }
 #music-source {
-  font-size: 12px;
+  font-size: var(--type-small);
   padding: 8px 0;
 }
 
@@ -2794,24 +2797,24 @@ body.immersive {
 .weather-description .location {
   gap: 3px 7px;
   letter-spacing: 0;
-  font-size: 12px;
+  font-size: var(--type-small);
 }
 .weather-description .location svg {
   flex-shrink: 0;
 }
 .weather-description .demo-badge {
-  font-size: 10px;
+  font-size: var(--type-caption);
   white-space: normal;
 }
 #weather-description {
   overflow-wrap: anywhere;
 }
 body.music-visible .weather-description .location {
-  font-size: 10px;
+  font-size: var(--type-caption);
   gap: 3px 5px;
 }
 body.music-visible .weather-description .demo-badge {
-  font-size: 9px;
+  font-size: var(--type-caption);
 }
 @media (max-width: 540px) {
   body:not(.music-visible) .weather-content {
@@ -2830,9 +2833,164 @@ body.music-visible .weather-description .demo-badge {
     flex: 1;
   }
   body.music-visible .weather-description .location {
-    font-size: 9px;
+    font-size: var(--type-caption);
   }
   body.music-visible .weather-description .demo-badge {
-    font-size: 8px;
+    font-size: var(--type-caption);
   }
+}
+
+.timeline-labels {
+  font-size: var(--type-caption);
+  letter-spacing: 0.05em;
+}
+.day-caption {
+  font-size: var(--type-caption);
+  letter-spacing: 0.06em;
+}
+.date-secondary {
+  font-family: var(--font);
+  font-size: var(--type-small);
+  line-height: 1.65;
+  letter-spacing: 0.035em;
+  flex-wrap: wrap;
+}
+.high-low {
+  font-family: var(--font);
+  font-size: var(--type-small);
+  font-variant-numeric: tabular-nums;
+}
+.weather-details {
+  font-size: var(--type-small);
+  line-height: 1.6;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  letter-spacing: 0;
+}
+.weather-details b {
+  font-family: var(--font);
+  font-variant-numeric: tabular-nums;
+}
+.weather-description .location {
+  font-size: var(--type-small);
+}
+.weather-description .demo-badge {
+  font-size: var(--type-caption);
+  color: var(--muted);
+  letter-spacing: 0;
+}
+.music-state,
+#music-help {
+  font-size: var(--type-small);
+  letter-spacing: 0.02em;
+}
+.music-eyebrow {
+  font-size: var(--type-caption);
+  letter-spacing: 0.12em;
+}
+.music-channels button {
+  letter-spacing: 0.04em;
+}
+#netease-tracks button {
+  line-height: 1.5;
+}
+#netease-tracks button small {
+  font-size: var(--type-small);
+  margin-left: 0;
+}
+.settings-note,
+.setting-row p {
+  font-size: var(--type-small);
+  line-height: 1.7;
+}
+body.music-visible .date-secondary,
+body.music-visible .high-low,
+body.music-visible .weather-details,
+body.music-visible .weather-description .location {
+  font-size: var(--type-small);
+}
+body.music-visible .weather-description {
+  font-size: var(--type-body);
+  line-height: 1.45;
+}
+body.music-visible .weather-description .demo-badge {
+  font-size: var(--type-caption);
+}
+@media (max-width: 900px) {
+  :root {
+    --type-body: 15px;
+    --type-small: 13px;
+  }
+}
+@media (max-width: 740px) {
+  body.music-visible .weather-description {
+    font-size: var(--type-small);
+  }
+  body.music-visible .date-secondary,
+  body.music-visible .high-low,
+  body.music-visible .weather-description .location {
+    font-size: var(--type-caption);
+  }
+}
+@media (min-width: 1600px) {
+  body:not(.music-visible) .date-secondary,
+  body:not(.music-visible) .high-low,
+  body:not(.music-visible) .weather-details {
+    font-size: 18px;
+  }
+  body:not(.music-visible) .weather-description .location {
+    font-size: 16px;
+  }
+  body:not(.music-visible) .weather-description .demo-badge {
+    font-size: 14px;
+  }
+  .timeline-labels {
+    font-size: 14px;
+  }
+}
+@media (max-width: 540px) {
+  body.music-visible .information {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  body.music-visible .date-line {
+    align-items: baseline;
+  }
+  body.music-visible .weekday {
+    font-size: var(--type-body);
+    margin-left: auto;
+  }
+  body.music-visible .date-secondary {
+    font-size: var(--type-small);
+  }
+  body.music-visible .weather-art {
+    width: 40px;
+    height: 40px;
+  }
+  body.music-visible .temperature {
+    font-size: 48px;
+  }
+  body.music-visible .high-low,
+  body.music-visible .weather-description .location {
+    font-size: var(--type-small);
+  }
+}
+.music-panel[data-source='netease'] .music-heading,
+.music-panel[data-source='netease'] .music-tabs,
+.music-panel[data-source='netease'] .music-title-line,
+.music-panel[data-source='netease'] .music-state,
+.music-panel[data-source='netease'] .music-console {
+  flex-shrink: 0;
+}
+.music-panel[data-source='netease'] .music-art {
+  min-height: 48px;
+}
+#netease-library {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+#netease-tracks {
+  max-height: clamp(84px, calc(var(--app-vh, 1vh) * 14), 150px);
 }

@@ -13,7 +13,7 @@ test('bottom details are available only in settings and keep their controls', as
   await start(page);
   await expect(page.locator('main > footer')).toHaveCount(0);
   await expect(page.locator('.music-footer')).toHaveCount(0);
-  for (const id of ['wake-status', 'image-source', 'music-source', 'music-motion']) {
+  for (const id of ['wake-status', 'image-source', 'netease-account', 'music-motion']) {
     await expect(page.locator(`#${id}`)).toBeHidden();
     await expect(page.locator(`#settings-dialog #${id}`)).toHaveCount(1);
   }
@@ -37,16 +37,13 @@ test('bottom details are available only in settings and keep their controls', as
   await expect(page.locator('#photo-source-link')).toHaveAttribute('href', /unsplash.com/);
   await page.locator('#photo-source-close').click();
   await page.getByRole('tab', { name: '应用', exact: true }).click();
-  await expect(page.locator('#music-source')).toBeVisible();
-  await expect(page.locator('#music-source')).toHaveAttribute(
-    'href',
-    'https://radioparadise.com/listen/stream-links'
-  );
+  await expect(page.locator('#netease-account')).toBeVisible();
+  await expect(page.locator('#music-source')).toHaveCount(0);
   await page.getByRole('button', { name: '完成设置', exact: true }).click();
   await page.keyboard.press('m');
   await expect(page.locator('#music-panel')).toBeVisible();
   await expect(page.locator('#music-motion')).toBeHidden();
-  await expect(page.locator('#music-source')).toBeHidden();
+  await expect(page.locator('#netease-account')).toBeHidden();
   await expect(page.locator('#music-panel')).toHaveAttribute('data-wave-peak', '0');
   await page.screenshot({ path: '/tmp/horizon-clean-player.png' });
 });

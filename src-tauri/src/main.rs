@@ -6,9 +6,9 @@ use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_opener::OpenerExt;
 mod awake;
 mod location;
+mod music_meter;
 mod netease;
 mod photo_source;
-mod radio_meter;
 #[cfg(target_os = "linux")]
 mod wayland;
 
@@ -87,62 +87,15 @@ fn open_photo_source(app: tauri::AppHandle, url: String) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn open_radio_source(app: tauri::AppHandle) -> Result<(), String> {
-    app.opener()
-        .open_url(
-            "https://radioparadise.com/listen/stream-links",
-            None::<&str>,
-        )
-        .map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-async fn check_radio_audio() -> Result<(), String> {
-    #[cfg(target_os = "linux")]
-    {
-        tauri::async_runtime::spawn_blocking(|| {
-            use std::process::{Command, Stdio};
-            use std::time::{Duration, Instant};
-            let mut child = Command::new("gst-inspect-1.0")
-                .arg("autoaudiosink")
-                .stdin(Stdio::null())
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .spawn()
-                .map_err(|_| "本机缺少音频检查组件。".to_string())?;
-            let started = Instant::now();
-            loop {
-                match child.try_wait() {
-                    Ok(Some(status)) if status.success() => return Ok(()),
-                    Ok(Some(_)) => return Err("本机缺少音频播放组件。".to_string()),
-                    Ok(None) if started.elapsed() < Duration::from_secs(3) => {
-                        std::thread::sleep(Duration::from_millis(25));
-                    }
-                    _ => {
-                        let _ = child.kill();
-                        let _ = child.wait();
-                        return Err("本机音频组件暂不可用。".to_string());
-                    }
-                }
-            }
-        })
-        .await
-        .map_err(|_| "音频检查已中断。".to_string())?
-    }
-    #[cfg(not(target_os = "linux"))]
-    Ok(())
-}
-
-#[tauri::command]
-async fn set_radio_meter(enabled: bool, app: tauri::AppHandle) -> Result<(), String> {
+async fn set_music_meter(enabled: bool, app: tauri::AppHandle) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || {
-        app.state::<radio_meter::RadioMeter>().set(enabled)
+        app.state::<music_meter::MusicMeter>().set(enabled)
     })
     .await
     .map_err(|_| "节奏分析已中断。".to_string())?
 }
 #[tauri::command]
-fn radio_audio_levels(meter: tauri::State<'_, radio_meter::RadioMeter>) -> Vec<f32> {
+fn music_audio_levels(meter: tauri::State<'_, music_meter::MusicMeter>) -> Vec<f32> {
     meter.read()
 }
 
@@ -166,7 +119,7 @@ fn main() {
                 event,
                 tauri::WindowEvent::CloseRequested { .. } | tauri::WindowEvent::Destroyed
             ) {
-                window.state::<radio_meter::RadioMeter>().cancel();
+                window.state::<music_meter::MusicMeter>().cancel();
                 window.state::<netease::Controller>().close();
                 if let Ok(mut guard) = window.state::<AwakeState>().0.lock() {
                     *guard = None;
@@ -185,7 +138,7 @@ fn main() {
         )
         .manage(AwakeState::default())
         .manage(netease::Controller::default())
-        .manage(radio_meter::RadioMeter::default())
+        .manage(music_meter::MusicMeter::default())
         .invoke_handler(tauri::generate_handler![
             set_keep_awake,
             set_autostart,
@@ -193,10 +146,8 @@ fn main() {
             set_fullscreen,
             get_fullscreen,
             open_photo_source,
-            open_radio_source,
-            check_radio_audio,
-            set_radio_meter,
-            radio_audio_levels,
+            set_music_meter,
+            music_audio_levels,
             netease::netease
         ])
         .setup(|app| {

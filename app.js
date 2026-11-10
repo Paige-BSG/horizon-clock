@@ -19,7 +19,7 @@ let nativeAwake = false;
 let toastTimer;
 let idleTimer;
 const dialog = $('settings-dialog');
-const music = initializeMusic({ toast, resetIdle });
+const music = initializeMusic({ toast, resetIdle, openAccount: () => openSettings('system') });
 const backgrounds = createBackgrounds({
   getSettings: () => preferences,
   save,
@@ -67,6 +67,7 @@ function selectSettingsTab(tab) {
     $(`${name}-panel`).hidden = !selected;
   });
   backgrounds.renderControls();
+  if (tab === 'system') music.ensureReady();
 }
 const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 const pad = (value) => String(value).padStart(2, '0');
@@ -277,6 +278,7 @@ document.addEventListener('keydown', (event) => {
   if (document.querySelector('dialog[open]') || event.metaKey || event.ctrlKey || event.altKey)
     return;
   if (event.key === 'Escape' && music.isOpen()) {
+    if (music.closeLibrary()) return;
     music.toggle(false);
     return;
   }

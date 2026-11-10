@@ -15,7 +15,6 @@ export default async function neteaseSmoke() {
   }
   const api = (action) => window.__TAURI__.core.invoke('netease', { action });
   if ($('music-panel').hidden) $('music-open').click();
-  $('music-netease').click();
   check(
     'restored saved session in HORIZON',
     await until(() => $('netease-account-status').textContent === '已登录')
@@ -28,6 +27,8 @@ export default async function neteaseSmoke() {
   );
   const list = library.playlists.find((p) => p.count > 0);
   if (!list) throw new Error('No populated account playlist for acceptance');
+  $('music-library-toggle').click();
+  await until(() => !$('netease-library').hidden);
   $('netease-playlists').value = list.id;
   $('netease-playlists').dispatchEvent(new Event('change'));
   check('own playlist loads', await until(() => $('netease-tracks').children.length > 0), {
@@ -51,6 +52,7 @@ export default async function neteaseSmoke() {
     'native track starts',
     await until(() => $('music-panel').dataset.state === 'playing', 20000)
   );
+  $('music-library-toggle').click();
   if ($('music-motion').getAttribute('aria-pressed') === 'true') {
     $('settings-open').click();
     $('display-tab').click();
@@ -95,24 +97,22 @@ export default async function neteaseSmoke() {
     (await api({ type: 'status' })).playback.state === 'playing'
   );
   $('music-open').click();
-  $('music-radio').click();
+  $('music-library-toggle').click();
   check(
-    'source switch waits for native stop',
+    'library preserves playback with fixed transport',
+    (await api({ type: 'status' })).playback.state === 'playing' &&
+      !$('netease-library').hidden &&
+      $('music-toggle').getBoundingClientRect().bottom <= innerHeight
+  );
+  $('music-library-toggle').click();
+  $('music-toggle').click();
+  check(
+    'final pause is flat',
     await until(
-      () => $('music-radio').getAttribute('aria-pressed') === 'true' && !$('music-radio').disabled
+      () =>
+        $('music-panel').dataset.state === 'paused' &&
+        Number($('music-panel').dataset.wavePeak) === 0
     )
-  );
-  check(
-    'native source stopped, radio not auto-started',
-    (await api({ type: 'status' })).playback.state === 'stopped' &&
-      !document.getElementById('radio-stream')
-  );
-  $('music-netease').click();
-  check(
-    'return restores account without autoplay',
-    (await until(
-      () => $('netease-account-status').textContent === '已登录' && !$('music-netease').disabled
-    )) && (await api({ type: 'status' })).playback.state === 'stopped'
   );
   check(
     'clock remains visible and live',

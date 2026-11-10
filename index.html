@@ -50,6 +50,8 @@
         <path d="m3 17 5-5 4 4 4-6 5 7" />
       </symbol>
       <symbol id="icon-next" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" /></symbol>
+      <symbol id="icon-previous" viewBox="0 0 24 24"><path d="M6 5v14M19 5 8 12l11 7Z" /></symbol>
+      <symbol id="icon-next" viewBox="0 0 24 24"><path d="M18 5v14M5 5l11 7-11 7Z" /></symbol>
       <symbol id="icon-music" viewBox="0 0 24 24">
         <path d="M9 18V5l12-2v13M9 9l12-2" />
         <ellipse cx="6" cy="18" rx="3" ry="3" />
@@ -89,8 +91,8 @@
             <button
               class="icon-button"
               id="music-open"
-              aria-label="网络电台"
-              title="网络电台 · M"
+              aria-label="网易云音乐"
+              title="网易云音乐 · M"
               aria-expanded="false"
               aria-controls="music-panel"
             >
@@ -111,73 +113,98 @@
         </div>
       </header>
 
-      <section id="music-panel" class="music-panel" aria-label="音乐" hidden>
+      <section id="music-panel" class="music-panel" aria-label="网易云音乐" hidden>
         <div class="music-heading">
-          <div class="music-eyebrow">
-            <span id="music-index">01</span><i></i> <span id="music-provider">RADIO PARADISE</span>
+          <span class="music-provider">网易云音乐</span>
+          <div class="music-heading-actions">
+            <button
+              type="button"
+              id="music-library-toggle"
+              class="secondary-button"
+              aria-expanded="false"
+              aria-controls="netease-library"
+            >
+              歌单
+            </button>
+            <button
+              type="button"
+              class="icon-button"
+              id="music-close"
+              aria-label="收起音乐控制"
+              title="收起播放器 · Esc"
+            >
+              <svg><use href="#icon-close" /></svg>
+            </button>
           </div>
-          <button
-            type="button"
-            class="icon-button"
-            id="music-close"
-            aria-label="收起音乐控制"
-            title="收起播放器 · Esc"
-          >
-            <svg><use href="#icon-close" /></svg>
+        </div>
+        <p id="music-help" role="alert" hidden></p>
+        <div id="music-now-playing" class="music-now-playing">
+          <div class="music-title-line">
+            <h1 id="music-title">还未选曲</h1>
+            <span id="music-subtitle">从歌单开始播放</span>
+            <div class="music-state">
+              <i aria-hidden="true"></i><span id="music-status" role="status">未播放</span>
+            </div>
+          </div>
+          <div class="music-art" aria-hidden="true"><canvas id="music-canvas"></canvas></div>
+          <span id="music-analysis" hidden>声纹暂不可用</span>
+          <button type="button" id="music-account-open" class="secondary-button" hidden>
+            登录网易云
           </button>
         </div>
-        <div class="music-tabs" role="group" aria-label="音乐来源">
-          <button type="button" id="music-radio" aria-pressed="true">电台</button>
-          <button type="button" id="music-netease" aria-pressed="false">网易云</button>
-        </div>
-        <div class="music-title-line">
-          <h1 id="music-title">舒缓</h1>
-          <span id="music-subtitle">Mellow Mix</span>
-        </div>
-        <div class="music-art" aria-hidden="true"><canvas id="music-canvas"></canvas></div>
-        <div class="music-state">
-          <i aria-hidden="true"></i><span id="music-status" role="status">未播放</span
-          ><span id="music-analysis" hidden>节奏分析暂不可用</span>
-        </div>
-        <p id="music-help" hidden></p>
-        <div id="music-channels" class="music-channels" role="group" aria-label="电台频道"></div>
         <div id="netease-library" hidden>
-          <div class="netease-account">
-            <span id="netease-account-status">未登录</span>
-            <button type="button" id="netease-connect">扫码登录</button>
-            <button type="button" id="netease-refresh" hidden>重试</button>
-            <button type="button" id="netease-logout" hidden>退出登录</button>
-          </div>
-          <div id="netease-login" hidden>
-            <img id="netease-qr" alt="网易云音乐登录二维码" width="180" height="180" />
-            <p id="netease-login-status" role="status">用手机网易云音乐扫码</p>
-            <button type="button" id="netease-cancel">取消</button>
-          </div>
           <div id="netease-browser" hidden>
-            <label for="netease-playlists">歌单</label>
+            <label class="field-label" for="netease-playlists">我的歌单</label>
             <select id="netease-playlists" aria-label="网易云歌单">
               <option value="">选择歌单</option>
             </select>
-            <div id="netease-tracks" role="group" aria-label="歌单歌曲"></div>
-            <button type="button" id="netease-more" hidden>加载更多</button>
-          </div>
-          <div id="netease-transport" hidden>
-            <button type="button" id="netease-previous" aria-label="上一首">上一首</button>
-            <span id="netease-progress">0:00 / 0:00</span>
-            <button type="button" id="netease-next" aria-label="下一首">下一首</button>
+            <div id="netease-track-list">
+              <div id="netease-tracks" role="group" aria-label="歌单歌曲"></div>
+              <p id="netease-empty" class="settings-note">选择一个歌单</p>
+              <button type="button" id="netease-more" class="secondary-button" hidden>
+                加载更多
+              </button>
+            </div>
           </div>
         </div>
         <div class="music-console">
-          <button
-            type="button"
-            class="music-play"
-            id="music-toggle"
-            aria-label="播放电台"
-            title="播放电台"
-          >
-            <svg><use id="music-toggle-icon" href="#icon-play" /></svg>
-          </button>
-          <label class="music-volume" title="电台音量"
+          <div id="netease-progress-group" hidden>
+            <progress id="music-progress" max="100" value="0" aria-label="歌曲进度"></progress>
+            <span id="netease-progress">0:00 / 0:00</span>
+          </div>
+          <div id="netease-transport">
+            <button
+              type="button"
+              id="netease-previous"
+              class="icon-button"
+              aria-label="上一首"
+              title="上一首"
+              disabled
+            >
+              <svg><use href="#icon-previous" /></svg>
+            </button>
+            <button
+              type="button"
+              class="music-play"
+              id="music-toggle"
+              aria-label="播放歌曲"
+              title="播放歌曲"
+              disabled
+            >
+              <svg><use id="music-toggle-icon" href="#icon-play" /></svg>
+            </button>
+            <button
+              type="button"
+              id="netease-next"
+              class="icon-button"
+              aria-label="下一首"
+              title="下一首"
+              disabled
+            >
+              <svg><use href="#icon-next" /></svg>
+            </button>
+          </div>
+          <label class="music-volume" title="歌曲音量"
             ><svg aria-hidden="true"><use href="#icon-volume" /></svg
             ><input
               id="music-volume"
@@ -185,9 +212,10 @@
               min="0"
               max="100"
               step="1"
-              value="30"
-              aria-label="电台音量"
-            /><span id="music-volume-value">30%</span></label
+              value="50"
+              aria-label="歌曲音量"
+              disabled
+            /><span id="music-volume-value">50%</span></label
           >
         </div>
       </section>
@@ -665,15 +693,26 @@
           </p>
         </div>
         <div id="system-panel" role="tabpanel" aria-labelledby="system-tab" hidden>
-          <div class="setting-row">
-            <span>电台来源</span>
-            <a
-              id="music-source"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Radio Paradise 官方来源"
-              >Radio Paradise ↗</a
-            >
+          <div id="netease-account" class="settings-group">
+            <span class="field-label">网易云音乐</span>
+            <div class="netease-account">
+              <span id="netease-account-status" role="status">尚未连接</span>
+              <button type="button" id="netease-connect" class="secondary-button" hidden>
+                扫码登录
+              </button>
+              <button type="button" id="netease-refresh" class="secondary-button" hidden>
+                重试
+              </button>
+              <button type="button" id="netease-logout" class="secondary-button" hidden>
+                退出登录
+              </button>
+            </div>
+            <p id="netease-account-help" class="settings-note" role="status" hidden></p>
+            <div id="netease-login" hidden>
+              <img id="netease-qr" alt="网易云音乐登录二维码" width="180" height="180" />
+              <p id="netease-login-status" role="status">用手机网易云音乐扫码</p>
+              <button type="button" id="netease-cancel" class="secondary-button">取消</button>
+            </div>
           </div>
           <div class="setting-row">
             <div>

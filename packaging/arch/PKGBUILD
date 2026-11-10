@@ -1,14 +1,14 @@
 pkgname=horizon-clock
 pkgver=0.2.0alpha2
 pkgrel=1
-pkgdesc='Ambient wall clock with landscapes, weather and optional network radio'
+pkgdesc='Ambient wall clock with landscapes, weather and native NetEase music'
 arch=('x86_64')
 url='https://github.com/Paige-BSG/horizon-clock'
 license=('MIT')
 depends=(
   'cairo' 'dbus' 'gcc-libs' 'gdk-pixbuf2' 'glib2' 'glibc' 'gtk3'
   'libsoup3' 'wayland' 'webkit2gtk-4.1' 'xdg-utils'
-  'gstreamer' 'gst-plugins-good' 'gst-libav' 'libpulse'
+  'libpulse'
 )
 optdepends=('geoclue: System location for local weather' 'mpv: Native NetEase playback' 'gnome-keyring: Secret Service for NetEase login (or another compatible provider)')
 # Preserve the exact normal-build executable that is verified before publication.

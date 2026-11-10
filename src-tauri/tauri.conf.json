@@ -24,7 +24,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' asset: http://asset.localhost blob: data:; font-src 'self'; connect-src 'self' ipc: http://ipc.localhost https://api.open-meteo.com https://api.github.com https://commons.wikimedia.org https://thumb.wikimedia.org https://upload.wikimedia.org; media-src https://*.radioparadise.com; object-src 'none'; base-uri 'self'; form-action 'self'"
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' asset: http://asset.localhost blob: data:; font-src 'self'; connect-src 'self' ipc: http://ipc.localhost https://api.open-meteo.com https://api.github.com https://commons.wikimedia.org https://thumb.wikimedia.org https://upload.wikimedia.org; media-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
     }
   },
   "bundle": {

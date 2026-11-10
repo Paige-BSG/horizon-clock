@@ -63,7 +63,7 @@ mod linux {
     type SharedLevels = Arc<Mutex<Option<(Instant, Vec<f32>)>>>;
 
     #[derive(Default)]
-    pub struct RadioMeter(Mutex<Option<Capture>>);
+    pub struct MusicMeter(Mutex<Option<Capture>>);
     struct Capture {
         cancelled: Arc<AtomicBool>,
         child: Arc<Mutex<Option<Child>>>,
@@ -272,7 +272,7 @@ mod linux {
             }
         }
     }
-    impl RadioMeter {
+    impl MusicMeter {
         pub fn set(&self, enabled: bool) -> Result<(), String> {
             let mut guard = self
                 .0
@@ -357,14 +357,14 @@ mod linux {
     }
 }
 #[cfg(target_os = "linux")]
-pub use linux::RadioMeter;
+pub use linux::MusicMeter;
 #[cfg(not(target_os = "linux"))]
 #[derive(Default)]
-pub struct RadioMeter {
+pub struct MusicMeter {
     _private: (),
 }
 #[cfg(not(target_os = "linux"))]
-impl RadioMeter {
+impl MusicMeter {
     pub fn set(&self, enabled: bool) -> Result<(), String> {
         if enabled {
             Err("此平台暂不支持系统节奏分析。".into())

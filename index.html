@@ -190,25 +190,6 @@
             /><span id="music-volume-value">30%</span></label
           >
         </div>
-        <div class="music-footer">
-          <a
-            id="music-source"
-            aria-label="Radio Paradise 官方来源"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="查看电台官方来源"
-            >Radio Paradise ↗</a
-          ><button
-            type="button"
-            class="music-motion"
-            id="music-motion"
-            aria-label="暂停声纹动效"
-            aria-pressed="false"
-            title="暂停声纹动效"
-          >
-            <svg><use href="#icon-pause" /></svg><span>声纹动效</span>
-          </button>
-        </div>
       </section>
       <div class="clock-information">
         <section class="time-section" aria-label="当前时间">
@@ -300,24 +281,6 @@
           </section>
         </div>
       </div>
-      <footer class="footer">
-        <span class="display-status"><i></i><span id="wake-status">常亮待开启</span></span
-        ><button
-          type="button"
-          class="footer-center"
-          id="image-source"
-          aria-label="查看背景作者与授权"
-        >
-          <span id="scene-caption"></span><small id="scene-credit" hidden></small></button
-        ><button
-          class="night-button"
-          id="night-toggle"
-          aria-label="切换夜间显示"
-          aria-pressed="false"
-        >
-          <svg><use href="#icon-moon" /></svg><span>夜间显示</span>
-        </button>
-      </footer>
     </main>
 
     <dialog id="background-picker" class="background-picker" aria-labelledby="picker-title">
@@ -496,6 +459,9 @@
             <div>
               <label for="keep-awake">屏幕常亮</label>
               <p id="wake-help">请求浏览器保持屏幕唤醒。</p>
+              <p class="display-status" role="status">
+                <i aria-hidden="true"></i><span id="wake-status">常亮待开启</span>
+              </p>
             </div>
             <input id="keep-awake" class="switch" type="checkbox" />
           </div>
@@ -515,6 +481,18 @@
           <div class="schedule-fields" id="night-schedule">
             <label>夜间开始<input id="night-start" type="time" value="22:00" required /></label
             ><label>早晨恢复<input id="night-end" type="time" value="07:00" required /></label>
+          </div>
+          <div class="setting-row">
+            <span>声纹动效</span>
+            <button
+              type="button"
+              class="secondary-button music-motion"
+              id="music-motion"
+              aria-label="暂停声纹动效"
+              aria-pressed="false"
+            >
+              <svg aria-hidden="true"><use href="#icon-pause" /></svg><span>暂停</span>
+            </button>
           </div>
         </div>
         <div id="background-panel" role="tabpanel" aria-labelledby="background-tab" hidden>
@@ -538,6 +516,14 @@
               <svg><use href="#icon-next" /></svg>
             </button>
           </div>
+          <button
+            type="button"
+            class="background-source"
+            id="image-source"
+            aria-label="查看背景作者与授权"
+          >
+            <span id="scene-caption"></span><small id="scene-credit" hidden></small>
+          </button>
           <div class="profile-switch" role="group" aria-label="编辑显示时段">
             <button type="button" data-period="day" class="active" aria-pressed="true">白天</button>
             <button type="button" data-period="night" aria-pressed="false">夜间</button>
@@ -687,6 +673,16 @@
           </p>
         </div>
         <div id="system-panel" role="tabpanel" aria-labelledby="system-tab" hidden>
+          <div class="setting-row">
+            <span>电台来源</span>
+            <a
+              id="music-source"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Radio Paradise 官方来源"
+              >Radio Paradise ↗</a
+            >
+          </div>
           <div class="setting-row">
             <div>
               <label for="autostart">登录后自动启动</label>

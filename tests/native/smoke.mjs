@@ -49,8 +49,10 @@ export default async function nativeSmoke() {
     { height: innerHeight, content: document.documentElement.scrollHeight, scale: devicePixelRatio }
   );
   const before = Number(document.body.style.getPropertyValue('--display-brightness'));
-  const wasNight = $('night-toggle').getAttribute('aria-pressed') === 'true';
-  $('night-toggle').click();
+  $('settings-open').click();
+  $('display-tab').click();
+  const wasNight = $('night-mode').checked;
+  $('night-mode').click();
   await pause(1800);
   check(
     'night toggle follows current local period',
@@ -59,9 +61,8 @@ export default async function nativeSmoke() {
       : Number(document.body.style.getPropertyValue('--display-brightness')) < before,
     { before, after: document.body.style.getPropertyValue('--display-brightness') }
   );
-  $('night-toggle').click();
+  $('night-mode').click();
   await pause(300);
-  $('settings-open').click();
   $('system-tab').click();
   const baseline = $('autostart').checked;
   $('autostart').click();

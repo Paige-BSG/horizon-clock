@@ -88,12 +88,12 @@ test('automatic night fade and manual override remain coherent', async ({ page }
   expect(brightness).toBeGreaterThan(0.7);
   expect(brightness).toBeLessThan(0.72);
   await page.keyboard.press('n');
-  await expect(page.locator('#night-toggle')).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('#night-mode')).not.toBeChecked();
   await page.keyboard.press('n');
-  await expect(page.locator('#night-toggle')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#night-mode')).toBeChecked();
   await page.clock.setSystemTime(new Date('2026-11-10T08:00:00+09:00'));
   await page.clock.runFor(1000);
-  await expect(page.locator('#night-toggle')).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('#night-mode')).not.toBeChecked();
 });
 
 test('backup restores visual preferences without enabling network or power controls', async ({

@@ -183,8 +183,7 @@ function resetIdle() {
     if (
       !document.querySelector('dialog[open]') &&
       !document.querySelector('.toolbar :focus-visible') &&
-      !document.querySelector('#music-panel :focus-visible') &&
-      !$('night-toggle').matches(':focus-visible')
+      !document.querySelector('#music-panel :focus-visible')
     )
       document.body.classList.add('immersive');
   }, 8000);
@@ -257,7 +256,6 @@ $('city').addEventListener('change', (event) => {
   refreshWeather(true);
 });
 $('night-mode').addEventListener('change', toggleNight);
-$('night-toggle').addEventListener('click', toggleNight);
 $('keep-awake').addEventListener('change', async (event) => {
   preferences.awake = event.target.checked;
   save();

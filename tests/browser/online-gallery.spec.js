@@ -69,6 +69,17 @@ async function open(page) {
   await page.getByRole('tab', { name: '背景', exact: true }).click();
   await page.locator('#background-open').click();
 }
+async function openAttribution(page) {
+  if (await page.locator('#background-picker').isVisible())
+    await page.locator('#picker-close').click();
+  if (!(await page.locator('#settings-dialog').isVisible())) {
+    await page.mouse.move(0, 0);
+    await page.mouse.move(1, 1);
+    await page.locator('#settings-open').click();
+  }
+  await page.getByRole('tab', { name: '背景', exact: true }).click();
+  await page.locator('#image-source').click();
+}
 async function enable(page) {
   await open(page);
   await page.locator('#online-gallery-toggle').click();
@@ -85,7 +96,7 @@ test('21 bundled landscapes work offline, show matching credits and make no back
   await page.getByRole('button', { name: '使用阳朔峰林', exact: true }).click();
   await expect(page.locator('.landscape-layer.visible')).toHaveAttribute('src', /54739240.jpg/);
   await expect(page.locator('#scene-credit')).toContainText('Chensiyuan');
-  await page.locator('#image-source').click();
+  await openAttribution(page);
   await expect(page.locator('#photo-source-license')).toContainText('CC BY-SA 4.0');
   await expect(page.locator('#photo-source-link')).toHaveAttribute(
     'href',
@@ -255,7 +266,7 @@ test('a failed scenic replacement retains the displayed image attribution', asyn
   await page.getByRole('button', { name: '使用阳朔峰林', exact: true }).click();
   await expect(page.locator('#toast')).toContainText('保留当前显示');
   await expect(page.locator('#scene-credit')).toContainText('Luca Bravo');
-  await page.locator('#image-source').click();
+  await openAttribution(page);
   await expect(page.locator('#photo-source-link')).toHaveAttribute('href', /unsplash.com/);
 });
 

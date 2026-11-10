@@ -452,13 +452,7 @@ svg {
 #music-open.music-active {
   color: var(--accent);
 }
-.music-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  font-size: 9px;
-}
+
 #music-source {
   color: #91aaa2;
   text-decoration: none;
@@ -468,14 +462,9 @@ svg {
   color: var(--text);
 }
 .music-motion {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 0;
-  border: 0;
-  background: transparent;
-  color: #91aaa2;
-  font: 9px var(--font);
 }
 .music-motion svg {
   width: 12px;
@@ -484,13 +473,12 @@ svg {
 body.music-visible .clock-shell {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
   column-gap: clamp(28px, calc(var(--app-vw, 1vw) * 4), 64px);
   height: calc(var(--app-vh, 1svh) * 100);
   min-height: 0;
 }
-body.music-visible .masthead,
-body.music-visible .footer {
+body.music-visible .masthead {
   grid-column: 1 / -1;
 }
 body.music-visible .music-panel {
@@ -644,7 +632,7 @@ body.music-visible .landscape-backdrop {
     min-height: calc(var(--app-vh, 1svh) * 100);
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto 1fr auto;
+    grid-template-rows: auto auto 1fr;
     padding-top: 20px;
     column-gap: 0;
   }
@@ -1077,18 +1065,7 @@ body.music-visible .landscape-backdrop {
   font-size: 10px;
   letter-spacing: 0;
 }
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1px solid var(--line);
-  min-height: 65px;
-  margin-top: auto;
-  font-size: 10px;
-  letter-spacing: 1px;
-  color: var(--subtle);
-  gap: 15px;
-}
+
 .display-status {
   display: flex;
   align-items: center;
@@ -1104,41 +1081,15 @@ body.music-visible .landscape-backdrop {
   background: var(--accent);
   box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.3);
 }
-.footer-center {
-  font-family: PlexMono, monospace;
-  font-size: 9px;
-  letter-spacing: 3px;
-  opacity: 0.7;
-}
-.night-button {
-  display: flex;
-  gap: 9px;
-  align-items: center;
-  font-size: 10px;
-  letter-spacing: 1px;
-  border: 0;
-  padding: 10px 0 10px 12px;
-  background: none;
-  color: var(--muted);
-}
-.night-button svg {
-  width: 13px;
-  height: 13px;
-}
-.night-button:hover {
-  color: var(--accent);
-}
+
 body.night .clock-shell {
   filter: brightness(0.42);
 }
 body.night .ambient {
   opacity: 0.25;
 }
-body.night .night-button {
-  color: var(--accent);
-}
-body.immersive .toolbar,
-body.immersive .night-button {
+
+body.immersive .toolbar {
   opacity: 0;
   pointer-events: none;
 }
@@ -1146,8 +1097,7 @@ body.immersive .brand,
 body.immersive .live-label {
   opacity: 0.6;
 }
-.toolbar,
-.night-button {
+.toolbar {
   transition: opacity 0.4s;
 }
 dialog {
@@ -1382,9 +1332,6 @@ kbd {
   .weather-content {
     padding-top: 12px;
   }
-  .footer {
-    min-height: 45px;
-  }
 }
 @media (min-width: 1900px) {
   .section-label {
@@ -1422,16 +1369,6 @@ kbd {
     font-size: 16px;
   }
   .demo-badge {
-    font-size: 12px;
-  }
-  .footer {
-    min-height: 85px;
-    font-size: 13px;
-  }
-  .night-button {
-    font-size: 13px;
-  }
-  .footer-center {
     font-size: 12px;
   }
 }
@@ -1562,13 +1499,7 @@ kbd {
     margin-left: 2px;
     padding: 2px 3px;
   }
-  .footer-center {
-    font-size: 7px;
-    letter-spacing: 1.3px;
-  }
-  .footer {
-    min-height: 58px;
-  }
+
   .timeline-labels {
     font-size: 8px;
   }
@@ -1678,9 +1609,7 @@ kbd {
   .weather-details > span {
     gap: 4px;
   }
-  .footer-center {
-    display: none;
-  }
+
   .label-cn {
     display: inline;
     font-size: 9px;
@@ -1691,9 +1620,7 @@ kbd {
   .location {
     font-size: 11px;
   }
-  .footer {
-    min-height: 57px;
-  }
+
   .dialog-footer > span {
     font-size: 9px;
   }
@@ -1745,9 +1672,7 @@ kbd {
   .weather-content {
     padding-top: 14px;
   }
-  .footer {
-    min-height: 48px;
-  }
+
   .date-secondary,
   .weather-details {
     margin-top: 16px;
@@ -1913,13 +1838,7 @@ kbd {
 .photo-card {
   min-width: 0;
 }
-.footer-center {
-  min-width: 0;
-  max-width: 55%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+
 .photo-select {
   display: block;
   position: relative;
@@ -2645,23 +2564,8 @@ body.immersive {
     gap: 3px;
   }
 }
-
 /* Online gallery and per-photo attribution. */
-#image-source {
-  border: 0;
-  background: transparent;
-  color: inherit;
-  padding: 8px 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  max-width: 55%;
-  font-family: inherit;
-}
-#image-source:disabled {
-  cursor: default;
-}
+
 #scene-credit {
   font-size: 9px;
   letter-spacing: 0.2px;
@@ -2753,40 +2657,8 @@ body.immersive {
     margin-top: 12px;
     padding-top: 8px;
   }
-  #image-source {
-    max-width: 65%;
-  }
 }
-@media (max-width: 600px) {
-  .footer {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-content: center;
-    gap: 0 10px;
-    min-height: 74px;
-  }
-  .footer .display-status {
-    grid-column: 1;
-    grid-row: 1;
-    white-space: nowrap;
-  }
-  .footer .night-button {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: end;
-    white-space: nowrap;
-    padding: 4px 0;
-  }
-  #image-source {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    justify-self: center;
-    max-width: 100%;
-    width: 100%;
-    padding: 3px 0;
-    gap: 2px;
-  }
-}
+
 #scene-caption,
 #scene-credit {
   max-width: 100%;
@@ -2948,4 +2820,41 @@ body.immersive {
 }
 .music-panel[data-source='netease'] #music-title {
   letter-spacing: 1.5px;
+}
+
+.clock-shell {
+  padding-bottom: clamp(20px, calc(var(--app-vh, 1vh) * 3), 36px);
+}
+#image-source {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  width: 100%;
+  min-width: 0;
+  margin: 14px 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff04;
+  color: var(--text);
+  text-align: left;
+  font: 13px/1.5 var(--font);
+}
+#image-source[hidden] {
+  display: none;
+}
+#image-source:disabled {
+  cursor: default;
+}
+#image-source #scene-credit {
+  font-size: 11px;
+  white-space: normal;
+}
+#scene-caption {
+  white-space: normal;
+}
+#music-source {
+  font-size: 12px;
+  padding: 8px 0;
 }

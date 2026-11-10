@@ -49,7 +49,7 @@ test('fresh launch shows the clock directly with system weather and automatic ni
   await page.getByRole('button', { name: '完成设置' }).click();
   await page.clock.setSystemTime(new Date('2026-11-09T22:20:01+09:00'));
   await page.clock.runFor(1100);
-  await expect(page.locator('#night-toggle')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#night-mode')).toBeChecked();
 });
 
 test('denied location never substitutes another city and manual city selection still works', async ({

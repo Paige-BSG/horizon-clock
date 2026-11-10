@@ -63,6 +63,15 @@ async function streams(page, count, body = audio) {
   });
 }
 
+async function changeMotion(page, label) {
+  await page.mouse.move(0, 0);
+  await page.mouse.move(1, 1);
+  await page.locator('#settings-open').click();
+  await page.getByRole('tab', { name: '显示', exact: true }).click();
+  await page.getByRole('button', { name: label, exact: true }).click();
+  await page.getByRole('button', { name: '完成设置', exact: true }).click();
+}
+
 test('opening and choosing radio is offline until play, with no account or native player required', async ({
   page,
 }) => {
@@ -198,6 +207,8 @@ test('source uses a fixed native destination and stored invalid values are norma
     'true'
   );
   await expect(page.locator('#music-volume')).toHaveValue('100');
+  await page.locator('#settings-open').click();
+  await page.getByRole('tab', { name: '应用', exact: true }).click();
   await page.locator('#music-source').click();
   expect(
     await page.evaluate(() =>
@@ -259,7 +270,6 @@ test('split music mode retains clock, date and weather with a 4:6 desktop compos
         '#music-toggle',
         '#music-volume',
         '#music-channels',
-        '#night-toggle',
       ])
         await expect(page.locator(selector)).toBeInViewport({ ratio: 0.999 });
     } else expect(clock.y).toBeLessThan(player.y);
@@ -299,7 +309,7 @@ test('silent audio has no invented beat and motion stops when paused or collapse
   await expect(panel).toHaveAttribute('data-animating', 'false');
   await page.getByRole('button', { name: '播放电台', exact: true }).click();
   await expect(page.locator('#music-status')).toHaveText('播放中');
-  await page.getByRole('button', { name: '开启声纹动效', exact: true }).click();
+  await changeMotion(page, '开启声纹动效');
   const before = Number(await panel.getAttribute('data-frames'));
   await expect
     .poll(async () => Number(await panel.getAttribute('data-frames')))
@@ -307,11 +317,11 @@ test('silent audio has no invented beat and motion stops when paused or collapse
   expect(Number(await panel.getAttribute('data-audio-rms'))).toBe(0);
   expect(Number(await panel.getAttribute('data-energy'))).toBe(0);
   expect(Number(await panel.getAttribute('data-wave-peak'))).toBe(0);
-  await page.getByRole('button', { name: '暂停声纹动效', exact: true }).click();
+  await changeMotion(page, '暂停声纹动效');
   const paused = await panel.getAttribute('data-frames');
   await page.waitForTimeout(120);
   expect(await panel.getAttribute('data-frames')).toBe(paused);
-  await page.getByRole('button', { name: '开启声纹动效', exact: true }).click();
+  await changeMotion(page, '开启声纹动效');
   await page.keyboard.press('Escape');
   const closed = await panel.getAttribute('data-frames');
   await page.waitForTimeout(120);
@@ -333,7 +343,7 @@ test('waveform follows decoded audio and becomes a straight line when muted or s
   await page.keyboard.press('m');
   await page.getByRole('button', { name: '播放电台', exact: true }).click();
   await expect(page.locator('#music-status')).toHaveText('播放中');
-  await page.getByRole('button', { name: '开启声纹动效', exact: true }).click();
+  await changeMotion(page, '开启声纹动效');
   await expect
     .poll(async () => Number(await page.locator('#music-panel').getAttribute('data-audio-rms')))
     .toBeGreaterThan(0.005);

@@ -51,7 +51,12 @@ export default async function neteaseSmoke() {
     'native track starts',
     await until(() => $('music-panel').dataset.state === 'playing', 20000)
   );
-  if ($('music-motion').getAttribute('aria-pressed') === 'true') $('music-motion').click();
+  if ($('music-motion').getAttribute('aria-pressed') === 'true') {
+    $('settings-open').click();
+    $('display-tab').click();
+    $('music-motion').click();
+    $('settings-close').click();
+  }
   check(
     'actual own-player waveform',
     await until(

@@ -352,12 +352,13 @@ mod tests {
                 json!(true)
             );
             let pid = session.child.lock().unwrap().id();
+            let player = Player::monitor(session).unwrap();
             println!("HORIZON_TEST_MPV_PID={pid}");
             std::io::stdout().flush().unwrap();
             // The caller closes stdin for normal shutdown, or kills this process.
             let mut line = String::new();
             std::io::stdin().read_line(&mut line).unwrap();
-            kill(&session.child);
+            drop(player);
         }
 
         fn running(pid: u32) -> bool {

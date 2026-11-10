@@ -2,6 +2,8 @@
 
 Validation layers are separate. A browser test or successful executable build does not prove Omarchy sleep behavior, physical readability or product acceptance.
 
+Dated sections record the code and test counts at that time. MPRIS and Radio Paradise entries are historical; the current music implementation is native NetEase through mpv. Read the latest applicable section for current evidence. Earlier 32-test results do not describe the current 30-test Node suite.
+
 ## Direct startup and system weather — 2026-11-09
 
 Fresh profiles open directly to the clock, with weather and the 22:00–07:00 automatic night schedule enabled. Weather defaults to the system geolocation API; manual cities remain available. Legacy onboarding flags are ignored. Existing explicit city and off-switch choices remain intact. Only rounded coordinates enter weather requests/local cache, and location is excluded from settings backups.
@@ -277,3 +279,13 @@ On the home Surface (Omarchy 4.5 / x86_64 / Wayland, 1368×912 logical pixels at
 Time continued advancing in every sample. The test window used the same device and engine as the installed application, but did not include Tauri commands, music or the user's profile. These measurements establish the frontend rendering improvement; they are not battery, temperature, long-run or updated-package acceptance results. The installed package was not replaced.
 
 The browser regression checks progress geometry, absence of a running progress animation, second 59 and minute rollover with normal motion preferences. It failed on the previous implementation and passed after the fix. All 30 Node checks, all 88 Chrome browser regressions, frontend build and formatting/whitespace checks passed.
+
+## Player lifetime on process termination — 2026-11-11
+
+The published alpha.5 player startup path reproduced a resource leak on x86_64 Omarchy with real mpv: normal close passed, but SIGTERM and SIGKILL of the parent left mpv running after a five-second deadline. The regression uses a local silent WAV, an isolated temporary root and no account/network access. It launches the actual `Session::start` path from a short-lived thread and checks live IPC controls before terminating its parent. Test-created leaked processes are reclaimed on failure.
+
+Playback now uses an anonymous Unix socket pair passed to mpv as stdin with `--input-ipc-client=fd://0`. The app retains only the other endpoint. mpv exits on disconnect, so signal termination also ends playback without a signal handler or a dependency on the lifetime of a Tokio worker thread. The command's retained stdin descriptor is released after spawn. No player socket directory is created; signed media URLs remain only in the IPC connection. Normal close, stalled-IPC shutdown, duration checks and EOF behavior retain their existing checks.
+
+On the same builder, all 24 Linux release-profile Rust tests passed, including all three real-mpv lifetime regressions. One ignored Rust entry is the subprocess helper called explicitly by those regressions. The previous source failed both abnormal-exit cases; the fixed source passed. CI installs mpv so these regressions also run there. `tempfile` is now a test-only direct dependency; no production dependency was added.
+
+Surface's pre-existing orphan mpv was started during alpha.4, before its alpha.5 upgrade. It proves a historical leftover, not which signal or crash caused it. The account-free backend regression establishes the alpha.5 defect independently. Long-run resource trends, touch, physical readability and a full login cycle remain separate acceptance checks; this repair does not restart the previously canceled 72-hour observer.

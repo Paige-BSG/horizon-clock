@@ -1,5 +1,5 @@
 pkgname=horizon-clock
-pkgver=0.2.0alpha5
+pkgver=0.2.0alpha6
 pkgrel=1
 pkgdesc='Ambient wall clock with landscapes, weather and native NetEase music'
 arch=('x86_64')

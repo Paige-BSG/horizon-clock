@@ -3,7 +3,7 @@ use serde_json::{json, Value};
 use std::{
     io::{BufRead, BufReader, Write},
     net::Shutdown,
-    os::unix::net::UnixStream,
+    os::{fd::OwnedFd, unix::net::UnixStream},
     process::{Child, Command, Stdio},
     sync::{mpsc, Arc, Mutex},
     thread::{self, JoinHandle},
@@ -189,18 +189,14 @@ impl Drop for Player {
 struct Session {
     child: Arc<Mutex<Child>>,
     ipc: Ipc,
-    _dir: tempfile::TempDir,
     view: Playback,
     started: Instant,
 }
 impl Session {
     fn start(url: &str, track: Track, volume: u8) -> Result<Self> {
-        // tempfile creates a private 0700 directory; no signed URL is written to disk/argv.
-        let dir = tempfile::Builder::new()
-            .prefix("horizon-player-")
-            .tempdir()
-            .map_err(|_| "无法创建播放器私有目录")?;
-        let socket = dir.path().join("mpv.sock");
+        // mpv exits when this anonymous IPC connection closes, including when the
+        // app is killed. No socket path or signed URL is written to disk/argv.
+        let (stream, socket) = UnixStream::pair().map_err(|_| "无法创建播放器连接")?;
         let mut command = Command::new("mpv");
         if cfg!(target_os = "linux") {
             command.arg("--ao=pulse");
@@ -211,41 +207,25 @@ impl Session {
                 "--idle=yes",
                 "--no-video",
                 "--no-terminal",
+                "--input-terminal=no",
+                "--input-ipc-client=fd://0",
                 "--force-media-title=HORIZON NetEase",
             ])
             .arg(format!("--volume={volume}"))
-            .arg(format!("--input-ipc-server={}", socket.display()))
-            .stdin(Stdio::null())
+            .stdin(Stdio::from(OwnedFd::from(socket)))
             .stdout(Stdio::null())
             .stderr(Stdio::null())
             .spawn()
             .map_err(|_| "请安装 mpv 后重试")?;
         // Own the process before any fallible IPC operation, so startup failure cannot leak it.
         let mut child = ChildGuard(Some(child));
-        let started = Instant::now();
-        let stream = loop {
-            if let Ok(s) = UnixStream::connect(&socket) {
-                break s;
-            }
-            if started.elapsed() > Duration::from_secs(4)
-                || child
-                    .0
-                    .as_mut()
-                    .unwrap()
-                    .try_wait()
-                    .map_err(|_| "播放器状态不可用")?
-                    .is_some()
-            {
-                return Err("mpv 未能启动".into());
-            }
-            std::thread::sleep(Duration::from_millis(25));
-        };
+        // Command retains its stdin handle after spawn; only mpv may keep this end.
+        drop(command);
         let mut ipc = Ipc::new(stream)?;
         ipc.request(json!(["loadfile", url, "replace"]), 1)?;
         Ok(Self {
             child: Arc::new(Mutex::new(child.0.take().unwrap())),
             ipc,
-            _dir: dir,
             view: Playback {
                 state: "connecting".into(),
                 duration: track.duration,
@@ -317,13 +297,159 @@ impl Drop for ChildGuard {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(target_os = "linux")]
+    mod lifecycle {
+        use super::*;
+
+        const HELPER: &str = "netease::engine::player::tests::lifecycle::mpv_parent";
+
+        #[test]
+        #[ignore = "subprocess entry point for the real-mpv lifecycle tests"]
+        fn mpv_parent() {
+            let root = std::env::var("HORIZON_TEST_PLAYER_ROOT").unwrap();
+            // A local silent WAV needs no account, network or audible playback.
+            let path = std::path::Path::new(&root).join("silence.wav");
+            let mut wav = Vec::new();
+            wav.extend_from_slice(b"RIFF");
+            wav.extend_from_slice(&8036_u32.to_le_bytes());
+            wav.extend_from_slice(b"WAVEfmt \x10\0\0\0\x01\0\x01\0");
+            wav.extend_from_slice(&8000_u32.to_le_bytes());
+            wav.extend_from_slice(&8000_u32.to_le_bytes());
+            wav.extend_from_slice(b"\x01\0\x08\0data");
+            wav.extend_from_slice(&8000_u32.to_le_bytes());
+            wav.extend_from_slice(&[128; 8000]);
+            std::fs::write(&path, wav).unwrap();
+            // Starting from a short-lived thread must not bind playback to that thread.
+            let mut session = thread::spawn(move || {
+                Session::start(
+                    path.to_str().unwrap(),
+                    Track {
+                        id: "11".into(),
+                        name: "Silent lifecycle fixture".into(),
+                        artist: "Test".into(),
+                        duration: 1.0,
+                    },
+                    0,
+                )
+                .unwrap()
+            })
+            .join()
+            .unwrap();
+            thread::sleep(Duration::from_millis(100));
+            session
+                .ipc
+                .request(json!(["set_property", "pause", true]), 40)
+                .unwrap();
+            session
+                .ipc
+                .request(json!(["set_property", "volume", 0]), 41)
+                .unwrap();
+            assert_eq!(
+                session
+                    .ipc
+                    .request(json!(["get_property", "pause"]), 42)
+                    .unwrap(),
+                json!(true)
+            );
+            let pid = session.child.lock().unwrap().id();
+            println!("HORIZON_TEST_MPV_PID={pid}");
+            std::io::stdout().flush().unwrap();
+            // The caller closes stdin for normal shutdown, or kills this process.
+            let mut line = String::new();
+            std::io::stdin().read_line(&mut line).unwrap();
+            kill(&session.child);
+        }
+
+        fn running(pid: u32) -> bool {
+            std::fs::read_to_string(format!("/proc/{pid}/stat"))
+                .ok()
+                .and_then(|stat| {
+                    stat.rsplit_once(") ")
+                        .map(|(_, rest)| !rest.starts_with('Z'))
+                })
+                .unwrap_or(false)
+        }
+
+        fn check(signal: Option<&str>) {
+            let root = tempfile::tempdir().unwrap();
+            let mut parent = ChildGuard(Some(
+                Command::new(std::env::current_exe().unwrap())
+                    .args(["--exact", HELPER, "--ignored", "--nocapture"])
+                    .env("HORIZON_TEST_PLAYER_ROOT", root.path())
+                    .env("TMPDIR", root.path())
+                    .stdin(Stdio::piped())
+                    .stdout(Stdio::piped())
+                    .spawn()
+                    .unwrap(),
+            ));
+            let mut output = BufReader::new(parent.0.as_mut().unwrap().stdout.take().unwrap());
+            let pid = loop {
+                let mut line = String::new();
+                assert!(
+                    output.read_line(&mut line).unwrap() > 0,
+                    "player helper failed before readiness"
+                );
+                if let Some(pid) = line.trim().strip_prefix("HORIZON_TEST_MPV_PID=") {
+                    break pid.parse::<u32>().unwrap();
+                }
+            };
+            assert!(running(pid));
+            let parent_process = parent.0.as_mut().unwrap();
+            if let Some(signal) = signal {
+                assert!(Command::new("/bin/kill")
+                    .args([signal, &parent_process.id().to_string()])
+                    .status()
+                    .unwrap()
+                    .success());
+            } else {
+                drop(parent_process.stdin.take());
+            }
+            let status = parent_process.wait().unwrap();
+            assert_eq!(status.success(), signal.is_none());
+            let deadline = Instant::now() + Duration::from_secs(5);
+            while running(pid) && Instant::now() < deadline {
+                thread::sleep(Duration::from_millis(20));
+            }
+            let leaked = running(pid);
+            if leaked {
+                // Reclaim only the exact mpv created by this test, even on failure.
+                let _ = Command::new("/bin/kill")
+                    .args(["-KILL", &pid.to_string()])
+                    .status();
+            }
+            let stale = std::fs::read_dir(root.path()).unwrap().any(|entry| {
+                entry
+                    .unwrap()
+                    .file_name()
+                    .to_string_lossy()
+                    .starts_with("horizon-player-")
+            });
+            assert!(!leaked, "mpv survived parent {signal:?}");
+            assert!(
+                !stale,
+                "private player socket directory survived parent {signal:?}"
+            );
+        }
+
+        #[test]
+        fn mpv_exits_after_normal_close() {
+            check(None);
+        }
+        #[test]
+        fn mpv_exits_after_parent_sigterm() {
+            check(Some("-TERM"));
+        }
+        #[test]
+        fn mpv_exits_after_parent_sigkill() {
+            check(Some("-KILL"));
+        }
+    }
     fn fixture(stream: UnixStream) -> Session {
         Session {
             child: Arc::new(Mutex::new(
                 Command::new("/bin/sleep").arg("30").spawn().unwrap(),
             )),
             ipc: Ipc::new(stream).unwrap(),
-            _dir: tempfile::tempdir().unwrap(),
             view: Playback {
                 state: "playing".into(),
                 track: Some(Track {
@@ -423,7 +549,6 @@ mod tests {
                 Command::new("/bin/sleep").arg("30").spawn().unwrap(),
             )),
             ipc: Ipc::new(stream).unwrap(),
-            _dir: tempfile::tempdir().unwrap(),
             view: Playback {
                 state: "playing".into(),
                 track: Some(Track {

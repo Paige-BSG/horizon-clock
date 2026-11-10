@@ -4,6 +4,8 @@ import { normalizeSettings, SETTINGS_KEY } from '../../lib/settings.js';
 import { NOW } from '../fixtures.js';
 const api = 'https://commons.wikimedia.org/w/api.php**';
 const jpeg = await readFile('assets/landscapes/lake.jpg');
+// Decoding, resizing and saving 24 images can exceed 5s on shared CI runners.
+const cacheExpect = expect.configure({ timeout: 15000 });
 function imagePage(id) {
   return {
     pageid: id,
@@ -83,7 +85,7 @@ async function openAttribution(page) {
 async function enable(page) {
   await open(page);
   await page.locator('#online-gallery-toggle').click();
-  await expect(page.locator('#online-gallery-status')).toContainText('24 张在线风景已缓存');
+  await cacheExpect(page.locator('#online-gallery-status')).toContainText('24 张在线风景已缓存');
 }
 
 test('21 bundled landscapes work offline, show matching credits and make no background requests', async ({
@@ -130,7 +132,7 @@ test('checking an unchanged catalog reuses all 24 local images', async ({ page }
   await page.clock.fastForward(60001);
   await page.locator('#online-gallery-refresh').click();
   await expect.poll(() => state.requests).toBe(4);
-  await expect(page.locator('#online-gallery-status')).toContainText('24 张在线风景已缓存');
+  await cacheExpect(page.locator('#online-gallery-status')).toContainText('24 张在线风景已缓存');
   expect(state.images).toBe(24);
 });
 
@@ -160,7 +162,7 @@ test('daily update follows category order, protects selected image and disabling
   state.base = 200000001;
   await page.clock.fastForward(24 * 3600 * 1000 + 1000);
   await open(page);
-  await expect(page.locator('#online-gallery-status')).toContainText('25 张在线风景已缓存');
+  await cacheExpect(page.locator('#online-gallery-status')).toContainText('25 张在线风景已缓存');
   await expect(page.locator('[data-quick-scene="commons:300000001"]')).toHaveCount(1);
   await expect(page.locator('#quick-builtin-scenes [data-quick-scene]').nth(21)).toHaveAttribute(
     'data-quick-scene',
@@ -250,7 +252,7 @@ test('failed cache commit cannot replace the previously saved gallery', async ({
   state.base = 200000001;
   await page.evaluate(() => (window.rejectGallery = true));
   await page.clock.fastForward(24 * 3600 * 1000 + 1000);
-  await expect(page.locator('#online-gallery-status')).toContainText('暂时不可用');
+  await cacheExpect(page.locator('#online-gallery-status')).toContainText('暂时不可用');
   await expect(page.locator('[data-quick-scene="commons:300000001"]')).toHaveCount(1);
   await expect(page.locator('[data-quick-scene="commons:200000001"]')).toHaveCount(0);
   await page.reload();

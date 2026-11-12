@@ -3,6 +3,7 @@ import { SETTINGS_KEY as storageKey, readSettings } from './lib/settings.js';
 import { isDesktop, native } from './lib/desktop.js';
 import { initializeViewport } from './lib/viewport.js';
 import { initializeMusic } from './lib/music.js';
+import { initializeAlarms } from './lib/alarms.js';
 import { effectiveNight, nextNightBoundary } from './lib/night.js';
 import {
   initializeProduct,
@@ -19,6 +20,13 @@ let nativeAwake = false;
 let toastTimer;
 let idleTimer;
 const dialog = $('settings-dialog');
+const alarms = initializeAlarms({
+  getSettings: () => preferences,
+  save,
+  toast,
+  resetIdle,
+  openSettings,
+});
 const music = initializeMusic({ toast, resetIdle, openAccount: () => openSettings('system') });
 const backgrounds = createBackgrounds({
   getSettings: () => preferences,
@@ -30,8 +38,10 @@ const backgrounds = createBackgrounds({
 function save() {
   try {
     localStorage.setItem(storageKey, JSON.stringify(preferences));
+    return true;
   } catch {
     toast('设置未能保存。请检查设备存储空间或浏览器权限。');
+    return false;
   }
 }
 function toast(message) {
@@ -55,12 +65,13 @@ function renderPreferences() {
   });
   renderBackgroundControls();
   renderProductSettings(preferences);
+  alarms.render();
 }
 function renderBackgroundControls() {
   backgrounds.renderControls();
 }
 function selectSettingsTab(tab) {
-  ['display', 'background', 'weather', 'system'].forEach((name) => {
+  ['display', 'background', 'weather', 'alarm', 'system'].forEach((name) => {
     const selected = name === tab;
     $(`${name}-tab`).setAttribute('aria-selected', String(selected));
     $(`${name}-tab`).tabIndex = selected ? 0 : -1;
@@ -193,7 +204,7 @@ document.addEventListener('fullscreenchange', () => {
   $('fullscreen').title = active ? '退出全屏 · F' : '全屏 · F';
 });
 $('settings-open').addEventListener('click', openSettings);
-const settingsTabs = ['display', 'background', 'weather', 'system'];
+const settingsTabs = ['display', 'background', 'weather', 'alarm', 'system'];
 settingsTabs.forEach((name) =>
   $(`${name}-tab`).addEventListener('click', () => selectSettingsTab(name))
 );

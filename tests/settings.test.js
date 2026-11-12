@@ -35,7 +35,7 @@ test('corrupt and unavailable storage recover to validated defaults', () => {
   );
 });
 
-test('v1 backups migrate to independent night settings and v2 roundtrips them', () => {
+test('v1 backups migrate to independent night settings and current backups roundtrip them', () => {
   const old = importSettings(
     JSON.stringify({
       app: 'horizon-clock',
@@ -62,6 +62,20 @@ test('v1 backups migrate to independent night settings and v2 roundtrips them', 
   assert.equal(restored.dayBrightness, 87);
   assert.equal(restored.nightDim, 92);
   assert.equal(restored.nightBackground, 'solid');
+});
+
+test('alarm settings survive restart; portable backup imports require enabling them again', () => {
+  const source = normalizeSettings({
+    alarms: [{ id: 'morning', time: '07:00', label: '起床', repeat: 'workday', enabled: true }],
+  });
+  assert.equal(normalizeSettings(JSON.parse(JSON.stringify(source))).alarms[0].enabled, true);
+  const result = importSettings(exportSettings(source), normalizeSettings());
+  assert.equal(result.alarms[0].enabled, false);
+  assert.equal(result.alarms[0].repeat, 'workday');
+  assert.equal(
+    importSettings('{"app":"horizon-clock","schemaVersion":2,"settings":{}}', source).alarms.length,
+    0
+  );
 });
 
 test('malformed photo references and night-time arrays never enter settings', () => {

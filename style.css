@@ -1946,6 +1946,133 @@ input[type='time'] {
   justify-content: space-between;
   gap: 16px;
 }
+.alarm-next {
+  display: block;
+  max-width: 100%;
+  padding: 0;
+  margin-top: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: var(--type-caption);
+  text-align: left;
+}
+.alarm-heading,
+.alarm-row,
+.alarm-actions,
+.alarm-alert-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+}
+.alarm-heading .field-label {
+  margin: 0;
+}
+.alarm-row {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.alarm-edit {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  flex: 1;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  color: var(--text);
+}
+.alarm-edit strong {
+  font:
+    32px PlexMono,
+    monospace;
+}
+.alarm-edit span,
+.alarm-edit small {
+  font-size: var(--type-small);
+  overflow-wrap: anywhere;
+  color: var(--muted);
+}
+.alarm-edit small {
+  font-size: var(--type-caption);
+}
+.alarm-editor {
+  margin-top: 20px;
+  padding: 18px;
+  background: #172329;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.alarm-editor h2 {
+  font-size: var(--type-body);
+  font-weight: 400;
+  margin: 0;
+}
+.alarm-editor input[type='text'],
+.alarm-editor input[type='date'] {
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  background: #10191d;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--text);
+}
+.alarm-field {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+#alarm-weekdays {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 18px 0 0;
+  padding: 8px 0;
+  border: 0;
+  font-size: var(--type-small);
+}
+#alarm-weekdays label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 44px;
+  padding: 4px;
+}
+.alarm-actions {
+  margin-top: 20px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.alarm-warning {
+  color: #ffbb80;
+}
+#alarm-alert {
+  text-align: center;
+  padding: 36px;
+}
+.alarm-alert-time {
+  font:
+    clamp(48px, 10vw, 80px) PlexMono,
+    monospace;
+  color: var(--accent);
+  margin: 20px 0;
+}
+#alarm-alert-title {
+  overflow-wrap: anywhere;
+}
+.alarm-alert-actions {
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+.alarm-alert-actions button {
+  flex: 1;
+  min-height: 52px;
+}
 @media (max-width: 540px) {
   .weather-description {
     max-width: none;

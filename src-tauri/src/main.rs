@@ -3,6 +3,7 @@
 use tauri::{Manager, WebviewWindow};
 use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_opener::OpenerExt;
+mod alarm;
 mod awake;
 mod location;
 mod music_meter;
@@ -92,6 +93,9 @@ fn main() {
                 window.state::<music_meter::MusicMeter>().cancel();
                 window.state::<netease::Controller>().close();
                 window.state::<awake::Controller>().close();
+                if let Some(alarm) = window.try_state::<alarm::Controller>() {
+                    alarm.close();
+                }
             }
         })
         .plugin(
@@ -116,9 +120,13 @@ fn main() {
             open_photo_source,
             set_music_meter,
             music_audio_levels,
+            alarm::alarm,
             netease::netease
         ])
         .setup(|app| {
+            app.manage(alarm::Controller::new(
+                app.path().app_cache_dir()?.join("alarm.wav"),
+            )?);
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.set_title("HORIZON · 环境时钟");
             }

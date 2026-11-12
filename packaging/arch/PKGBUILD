@@ -1,5 +1,5 @@
 pkgname=horizon-clock
-pkgver=0.2.0alpha7
+pkgver=0.2.0alpha8
 pkgrel=1
 pkgdesc='Ambient wall clock with landscapes, weather and native NetEase music'
 arch=('x86_64')
@@ -10,7 +10,7 @@ depends=(
   'libsoup3' 'wayland' 'webkit2gtk-4.1' 'xdg-utils'
   'libpulse'
 )
-optdepends=('geoclue: System location for local weather' 'mpv: Native NetEase playback' 'gnome-keyring: Secret Service for NetEase login (or another compatible provider)')
+optdepends=('geoclue: System location for local weather' 'mpv: Offline alarm sounds and native NetEase playback' 'gnome-keyring: Secret Service for NetEase login (or another compatible provider)')
 # Preserve the exact normal-build executable that is verified before publication.
 options=('!strip' '!debug')
 

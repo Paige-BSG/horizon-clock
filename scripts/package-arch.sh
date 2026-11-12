@@ -15,7 +15,7 @@ done
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 mkdir -p -- "${1:-$project_root/release}"
 output_root="$(cd -- "${1:-$project_root/release}" && pwd)"
-stage="$(mktemp -d /tmp/horizon-arch.XXXXXXXX)"
+stage="$(mktemp -d "${TMPDIR:-/tmp}/horizon-arch.XXXXXXXX")"
 trap 'rm -rf -- "$stage"' EXIT
 
 cd -- "$project_root"

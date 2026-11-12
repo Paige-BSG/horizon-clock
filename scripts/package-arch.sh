@@ -37,6 +37,7 @@ install -m644 packaging/arch/horizon-clock.desktop "$stage/horizon-clock.desktop
 install -m644 src-tauri/icons/128x128@2x.png "$stage/icon.png"
 install -m644 LICENSE "$stage/LICENSE"
 install -m644 docs/INSTALL.md "$stage/README.md"
+install -m644 docs/ALARMS.md "$stage/ALARMS.md"
 for name in THIRD_PARTY_NOTICES.md assets/licenses/netease-native.txt assets/OFL.txt assets/landscapes/CREDITS.md assets/landscapes/commons/CREDITS.md assets/landscapes/commons/CATALOG.json; do
   install -Dm644 "$name" "$stage/$name"
 done

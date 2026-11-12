@@ -20,7 +20,7 @@ package() {
   install -Dm644 "$startdir/icon.png" "$pkgdir/usr/share/icons/hicolor/256x256/apps/horizon-clock.png"
   install -Dm644 "$startdir/LICENSE" "$pkgdir/usr/share/licenses/horizon-clock/LICENSE"
   local name
-  for name in README.md THIRD_PARTY_NOTICES.md assets/licenses/netease-native.txt assets/OFL.txt assets/landscapes/CREDITS.md assets/landscapes/commons/CREDITS.md assets/landscapes/commons/CATALOG.json; do
+  for name in README.md ALARMS.md THIRD_PARTY_NOTICES.md assets/licenses/netease-native.txt assets/OFL.txt assets/landscapes/CREDITS.md assets/landscapes/commons/CREDITS.md assets/landscapes/commons/CATALOG.json; do
     install -Dm644 "$startdir/$name" "$pkgdir/usr/share/doc/horizon-clock/$name"
   done
 }
